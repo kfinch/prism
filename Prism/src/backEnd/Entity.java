@@ -1,7 +1,9 @@
 package backEnd;
 
 import java.awt.Graphics2D;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import util.PaintableShapes;
@@ -29,10 +31,11 @@ public abstract class Entity {
 	protected ActionType attackAction; //this entity's basic attack(s) (if it has one)
 	protected ActionType specialAction; //this entity's special actions, abilities, etc ???
 	protected ActionType passiveAction; //this entity's passive actions, like reloading, regenerating, auras, etc...
+	protected ActionType changeAction; //this entity's actions that change it, like an upgrade or sell
 	
 	protected PaintableShapes shapes;
 	
-	protected Set<Buff> buffs;
+	protected Map<String, Buff> buffs;
 	
 	public Entity(double xLoc, double yLoc, double maxHealth, double healthRegen, PaintableShapes shapes){
 		this.isActive = true;
@@ -50,13 +53,14 @@ public abstract class Entity {
 		this.attackAction = new ActionType();
 		this.specialAction = new ActionType();
 		this.passiveAction = new ActionType();
+		this.changeAction = new ActionType();
 		
 		this.shapes = shapes;
 		
-		buffs = new HashSet<Buff>();
+		buffs = new HashMap<String, Buff>();
 	}
 	
-	public void hurt(double damage){
+	public void harm(double damage){
 		receivedDamageModifier.baseValue = damage;
 		receivedDamageModifier.update();
 		double modDamage = receivedDamageModifier.modifiedValue;
@@ -91,13 +95,25 @@ public abstract class Entity {
 	}
 	
 	public void addBuff(Buff buff){
-		buffs.add(buff);
+		if(buffs.containsKey(buff.id))
+			buff.handleDuplicate(buffs.get(buff.id));
+		buffs.put(buff.id, buff);
 		buff.apply(this);
 	}
 	
 	public void removeBuff(Buff buff){
-		buff.remove(this);
-		buffs.remove(buff);
+		if(buff.isDispellable){
+			buff.remove(this);
+			buffs.remove(buff.id);
+		}
+	}
+	
+	public Buff getBuff(String id){
+		return buffs.get(id);
+	}
+	
+	public boolean hasBuff(String id){
+		return buffs.containsKey(id);
 	}
 	
 	/**
@@ -110,7 +126,7 @@ public abstract class Entity {
 				currHealth = maxHealth.modifiedValue;
 		}
 		
-		for(Buff b : buffs){
+		for(Buff b : buffs.values()){
 			b.step(this);
 		}
 	}
@@ -133,14 +149,12 @@ public abstract class Entity {
 	 * Cleanup! Timed out effects are removed, dead entities are removed, etc...
 	 */
 	public void postStep(GameState gameState){
-		if(currHealth < 0)
+		if(currHealth <= 0)
 			isActive = false;
 		
-		for(Buff b : buffs){
-			if(!b.isActive){
-				b.remove(this);
-				buffs.remove(b);
-			}
+		for(Buff b : buffs.values()){
+			if(!b.isActive)
+				removeBuff(b);
 		}
 	}
 	

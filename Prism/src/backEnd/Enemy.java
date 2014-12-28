@@ -1,9 +1,5 @@
 package backEnd;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
 import util.PaintableShapes;
 
 /**
@@ -21,13 +17,17 @@ public abstract class Enemy extends Entity implements Comparable<Enemy>{
 	protected double priority; //attack priority of this enemy
 	protected int spawnFrame; //frame this enemy spawned on
 	
+	//the (default) enemy's likelyhood of choosing a given direction when moving.
+	//See chooseNextNode() below for details
+	protected double[][] movePriorities;
+	
 	protected Stat attackDamage, attackDelay, attackRange; //enemy's attack stats
 	protected int attackTimer; //tracks when enemy can next attack
 	protected Stat moveSpeed; //enemy's move stat
 	
-	public Enemy(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, double maxHealth,
-				 double healthRegen, double attackDamage, double attackDelay, double attackRange, double moveSpeed,
-				 PaintableShapes shapes){
+	public Enemy(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, double[][] movePriorities,
+			     double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
+			     double moveSpeed, PaintableShapes shapes){
 		super(xLoc, yLoc, maxHealth, healthRegen, shapes);
 		
 		this.currNode = currNode;
@@ -36,6 +36,7 @@ public abstract class Enemy extends Entity implements Comparable<Enemy>{
 		
 		this.priority = priority;
 		this.spawnFrame = spawnFrame;
+		this.movePriorities = movePriorities;
 		
 		this.attackDamage = new BasicStat(attackDamage);
 		this.attackDelay = new ReverseMultStat(attackDelay);
@@ -43,6 +44,10 @@ public abstract class Enemy extends Entity implements Comparable<Enemy>{
 		this.attackTimer = -1;
 		
 		this.moveSpeed = new BasicStat(moveSpeed);
+	}
+	
+	protected void chooseNextNode(GameState gameState){
+		boolean[][] validMoveDirections = gameState.getValidMoveDirections(currNode.xLoc, currNode.yLoc);
 	}
 	
 	@Override

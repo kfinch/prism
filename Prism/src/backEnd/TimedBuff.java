@@ -4,8 +4,8 @@ public abstract class TimedBuff extends Buff {
 	
 	public int timer;
 	
-	public TimedBuff(String id, String name, String description, boolean isBeneficial, int timer){
-		super(id, name, description, isBeneficial);
+	public TimedBuff(String id, String name, String description, boolean isBeneficial, boolean isDispellable, int timer){
+		super(id, name, description, isBeneficial, isDispellable);
 		this.timer = timer;
 	}
 	

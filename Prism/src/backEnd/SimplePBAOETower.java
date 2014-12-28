@@ -26,7 +26,7 @@ public class SimplePBAOETower extends SimpleAOETower {
 	protected void attack(GameState gameState){
 		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, attackAOE.modifiedValue);
 		for(Enemy e : enemiesInBlast)
-			e.hurt(attackDamage.modifiedValue);
+			e.harm(attackDamage.modifiedValue);
 	}
 
 }

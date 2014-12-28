@@ -4,14 +4,16 @@ public class ActionType {
 
 	private int disableCount;
 	private int immuneCount;
+	private int suppressCount;
 	
 	public ActionType(){
 		disableCount = 0;
 		immuneCount = 0;
+		suppressCount = 0;
 	}
 	
 	public boolean canAct(){
-		return (disableCount == 0) || (immuneCount != 0);
+		return (suppressCount == 0) && ((disableCount == 0) || (immuneCount != 0));
 	}
 	
 	public void startDisable(){
@@ -28,6 +30,14 @@ public class ActionType {
 	
 	public void endImmune(){
 		immuneCount--;
+	}
+	
+	public void startSuppress(){
+		suppressCount++;
+	}
+	
+	public void endSuppress(){
+		suppressCount--;
 	}
 	
 }

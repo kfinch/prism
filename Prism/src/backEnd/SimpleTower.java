@@ -18,10 +18,10 @@ public abstract class SimpleTower extends Tower{
 	double shotOriginDistance;
 	double facing;
 	
-	public SimpleTower(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, double maxHealth,
-		     double healthRegen, double attackDamage, double attackDelay, double attackRange,
+	public SimpleTower(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, int tier,
+			 double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 		     double projectileSpeed, double shotOriginDistance, PaintableShapes shapes){
-		super(currNode, xLoc, yLoc, priority, spawnFrame, maxHealth, healthRegen,
+		super(currNode, xLoc, yLoc, priority, spawnFrame, tier, maxHealth, healthRegen,
 			  attackDamage, attackDelay, attackRange, shapes);
 		this.projectileSpeed = projectileSpeed;
 		this.shotOriginDistance = shotOriginDistance;

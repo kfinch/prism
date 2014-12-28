@@ -18,7 +18,7 @@ public class SimpleAOEProjectile extends SimpleProjectile{
 	protected void payload(GameState gameState){
 		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, aoe);
 		for(Enemy e : enemiesInBlast)
-			e.hurt(damage);
+			e.harm(damage);
 	}
 
 }

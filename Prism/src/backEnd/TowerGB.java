@@ -77,7 +77,7 @@ class ProjectileGB extends SimpleAOEProjectile {
 	public void payload(GameState gameState){
 		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, aoe);
 		for(Enemy e : enemiesInBlast){
-			e.hurt(damage);
+			e.harm(damage);
 			e.addBuff(new SlowingDebuffGB());
 		}
 	}

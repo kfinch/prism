@@ -7,11 +7,11 @@ public abstract class SimpleAOETower extends SimpleTower {
 	Stat attackAOE;
 	
 	public SimpleAOETower(Node currNode, double xLoc, double yLoc,
-			double priority, int spawnFrame, double maxHealth,
+			double priority, int spawnFrame, int tier, double maxHealth,
 			double healthRegen, double attackDamage, double attackDelay,
 			double attackRange, double projectileSpeed, double attackAOE,
 			double shotOriginDistance, PaintableShapes shapes) {
-		super(currNode, xLoc, yLoc, priority, spawnFrame, maxHealth, healthRegen,
+		super(currNode, xLoc, yLoc, priority, spawnFrame, tier, maxHealth, healthRegen,
 				attackDamage, attackDelay, attackRange, projectileSpeed,
 				shotOriginDistance, shapes);
 		this.attackAOE = new BasicStat(attackAOE);

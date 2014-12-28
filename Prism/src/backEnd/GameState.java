@@ -2,8 +2,11 @@ package backEnd;
 
 import java.awt.Color;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import util.Animation;
 
 /**
  * Fully encapsulates a prism game state, and provides methods for inspecting or modifying the state.
@@ -23,13 +26,16 @@ public class GameState {
 	protected int xNodes, yNodes; //x and y size of board, in nodes (NOT including buffer nodes)
 	protected Node[][] nodes; //array of game's nodes.
 	
-	//the prism is always located as x=-1, all y values.
+	//the prism is always located at x=-1, all y values.
 	//effectively anything that moves to the low x buffer has hit the prism
 	protected int prismCurrHealth, prismMaxHealth; //current and maximum health of the prism
 	
 	protected Set<Enemy> enemies; //a list of all active enemies
 	protected Set<Tower> towers; //a list of all active towers
 	protected Set<Projectile> projectiles; //a list of all active projectiles
+	protected Set<Entity> miscEntities; //a list of all active misc entities
+	
+	protected List<Animation> animations; //a list of all active animations
 	
 	public GameState(int xNodes, int yNodes){
 		this.xNodes = xNodes;
@@ -39,11 +45,90 @@ public class GameState {
 		enemies = new HashSet<Enemy>();
 		towers = new HashSet<Tower>();
 		projectiles = new HashSet<Projectile>();
+		miscEntities = new HashSet<Entity>();
+		
+		animations = new LinkedList<Animation>();
+	}
+	
+	public boolean[][] getValidMoveDirections(int x, int y){
+		boolean[][] result = new boolean[3][3];
+		for(int i=0; i<3; i++){
+			for(int j=0; j<3; j++){
+				result[i][j] = true;
+			}
+		}
+		
+		//check north
+		if(nodes[x][y-1].hasSolidTower()){
+			result[x-1][y-1] = false;
+			result[x][y-1] = false;
+			result[x+1][y-1] = false;
+		}
+		else if(nodes[x][y-1].isBuffer)
+			result[x][y-1] = false;
+		else if((nodes[x+1][y-1].hasSolidTower() || nodes[x+1][y].hasSolidTower()) &&
+				(nodes[x-1][y-1].hasSolidTower() || nodes[x-1][y].hasSolidTower()))
+			result[x][y-1] = false;
+		
+		//check east
+		if(nodes[x+1][y].hasSolidTower()){
+			result[x+1][y-1] = false;
+			result[x+1][y] = false;
+			result[x+1][y+1] = false;
+		}
+		else if(nodes[x+1][y].isBuffer)
+			result[x+1][y] = false;
+		else if((nodes[x][y-1].hasSolidTower() || nodes[x+1][y-1].hasSolidTower()) &&
+				(nodes[x][y+1].hasSolidTower() || nodes[x+1][y+1].hasSolidTower()))
+			result[x+1][y] = false;
+		
+		//check south
+		if(nodes[x][y+1].hasSolidTower()){
+			result[x-1][y+1] = false;
+			result[x][y+1] = false;
+			result[x+1][y+1] = false;
+		}
+		else if(nodes[x][y+1].isBuffer)
+			result[x][y+1] = false;
+		else if((nodes[x+1][y+1].hasSolidTower() || nodes[x+1][y].hasSolidTower()) &&
+				(nodes[x-1][y+1].hasSolidTower() || nodes[x-1][y].hasSolidTower()))
+			result[x][y+1] = false;
+		
+		//check east
+		if(nodes[x-1][y].hasSolidTower()){
+			result[x-1][y-1] = false;
+			result[x-1][y] = false;
+			result[x-1][y+1] = false;
+		}
+		else if(nodes[x-1][y].isBuffer)
+			result[x-1][y] = false;
+		else if((nodes[x][y-1].hasSolidTower() || nodes[x-1][y-1].hasSolidTower()) &&
+				(nodes[x][y+1].hasSolidTower() || nodes[x-1][y+1].hasSolidTower()))
+			result[x-1][y] = false;
+		
+		//check north-east
+		if(nodes[x+1][y-1].isBuffer || nodes[x+1][y-1].hasSolidTower())
+			result[x+1][y-1] = false;
+		
+		//check south-east
+		if(nodes[x+1][y+1].isBuffer || nodes[x+1][y-1].hasSolidTower())
+			result[x+1][y+1] = false;
+				
+		//check south-west
+		if(nodes[x-1][y+1].isBuffer || nodes[x+1][y-1].hasSolidTower())
+			result[x-1][y+1] = false;
+				
+		//check north-west
+		if(nodes[x-1][y-1].isBuffer || nodes[x+1][y-1].hasSolidTower())
+			result[x-1][y-1] = false;
+		
+		return result;
 	}
 	
 	public boolean isValidTowerLocation(int x, int y){
 		for(int xi = x-1; xi<x+1; x++){
 			for(int yi = y-1; yi<y+1; y++){
+				//TODO: allow to build over ghost towers? (currently does not allow)
 				if(nodes[xi][yi].isBuffer || nodes[xi][yi].tower != null || !nodes[xi][yi].enemies.isEmpty())
 					return false;
 			}
@@ -53,11 +138,10 @@ public class GameState {
 	
 	public void addTower(int x, int y, Tower tower){
 		nodes[x][y].tower = tower;
-		for(int xi = x-1; xi<x+1; x++){
-			for(int yi = y-1; yi<y+1; y++){
-				nodes[xi][yi].adjacentTower = true;
-			}
-		}
+	}
+	
+	public void removeTower(int x, int y){
+		nodes[x][y].tower = null;
 	}
 	
 	public void step(){

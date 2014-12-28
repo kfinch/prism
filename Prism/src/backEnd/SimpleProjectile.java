@@ -17,7 +17,7 @@ public class SimpleProjectile extends Projectile {
 
 	@Override
 	protected void payload(GameState gameState) {
-		target.hurt(damage);
+		target.harm(damage);
 	}
 
 }
