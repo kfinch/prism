@@ -24,14 +24,15 @@ public abstract class Tower extends Entity {
 	protected int spawnFrame;
 	protected int tier;
 	
-	protected Stat attackDamage, attackDelay, attackRange;
+	protected Stat attackDamage, attackDelay, attackRange, attackAOE;
+	protected boolean canAOE;
 	protected int attackTimer;
 	
 	protected double facing;
 	
 	public Tower(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, int tier, double maxHealth,
-			     double healthRegen, double attackDamage, double attackDelay, double attackRange,
-			     PaintableShapes shapes){
+			     double healthRegen, double attackDamage, double attackDelay, double attackRange, double attackAOE,
+			     boolean canAOE, PaintableShapes shapes){
 		super(xLoc, yLoc, maxHealth, healthRegen, shapes);
 		
 		this.currNode = currNode;
@@ -45,6 +46,8 @@ public abstract class Tower extends Entity {
 		this.attackDamage = new BasicStat(attackDamage);
 		this.attackDelay = new ReverseMultStat(attackDelay);
 		this.attackRange = new BasicStat(attackRange);
+		this.attackAOE = new BasicStat(attackAOE);
+		this.canAOE = canAOE;
 		this.attackTimer = -1;
 		
 		this.facing = 0;

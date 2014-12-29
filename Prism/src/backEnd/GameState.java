@@ -50,6 +50,10 @@ public class GameState {
 		animations = new LinkedList<Animation>();
 	}
 	
+	public void playAnimation(Animation anim){
+		animations.add(anim);
+	}
+	
 	public boolean[][] getValidMoveDirections(int x, int y){
 		boolean[][] result = new boolean[3][3];
 		for(int i=0; i<3; i++){
