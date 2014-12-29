@@ -95,7 +95,7 @@ public abstract class SimpleTower extends Tower{
 	
 	protected void instantAttack(GameState gameState){
 		if(canAOE){
-			Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, attackAOE.modifiedValue);
+			Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(target.xLoc, target.yLoc, attackAOE.modifiedValue);
 			for(Enemy e : enemiesInBlast)
 				e.harm(attackDamage.modifiedValue);
 		}

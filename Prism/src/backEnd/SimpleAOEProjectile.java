@@ -20,5 +20,6 @@ public class SimpleAOEProjectile extends SimpleProjectile{
 		for(Enemy e : enemiesInBlast)
 			e.harm(damage);
 	}
+	
 
 }
