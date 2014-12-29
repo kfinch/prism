@@ -21,12 +21,13 @@ public abstract class SimpleTower extends Tower{
 	protected double shotOriginDistance;
 	protected boolean usesProjectile;
 	protected boolean tracksTarget;
+	protected boolean appliesDebuff;
 	
 	protected double facing;
 	
 	public SimpleTower(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, int tier,
 			 double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
-			 double attackAOE, boolean canAOE, double projectileSpeed, double shotOriginDistance,
+			 double attackAOE, boolean canAOE, boolean appliesDebuff, double projectileSpeed, double shotOriginDistance,
 			 boolean usesProjectile, boolean tracksTarget, PaintableShapes shapes){
 		super(currNode, xLoc, yLoc, priority, spawnFrame, tier, maxHealth, healthRegen,
 			  attackDamage, attackDelay, attackRange, attackAOE, canAOE, shapes);
@@ -34,6 +35,7 @@ public abstract class SimpleTower extends Tower{
 		this.shotOriginDistance = shotOriginDistance;
 		this.usesProjectile = usesProjectile;
 		this.tracksTarget = tracksTarget;
+		this.appliesDebuff = appliesDebuff;
 		this.facing = 0;
 	}
 	
@@ -87,22 +89,33 @@ public abstract class SimpleTower extends Tower{
 		offset.setAngleAndMagnitude(facing, shotOriginDistance);
 		double shotOriginX = xLoc + offset.x;
 		double shotOriginY = yLoc + offset.y;
-		if(canAOE)
-			gameState.projectiles.add(generateAOEProjectile(gameState, shotOriginX, shotOriginY));
-		else
-			gameState.projectiles.add(generateProjectile(gameState, shotOriginX, shotOriginY));
+		gameState.projectiles.add(generateProjectile(gameState, shotOriginX, shotOriginY));
 	}
 	
 	protected void instantAttack(GameState gameState){
 		if(canAOE){
 			Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(target.xLoc, target.yLoc, attackAOE.modifiedValue);
-			for(Enemy e : enemiesInBlast)
-				e.harm(attackDamage.modifiedValue);
+			if(appliesDebuff){
+				for(Enemy e : enemiesInBlast){
+					e.harm(attackDamage.modifiedValue);
+					e.addBuff(generateAttackDebuff());
+				}
+			}
+			else{
+				for(Enemy e : enemiesInBlast)
+					e.harm(attackDamage.modifiedValue);
+			}
 		}
 		else{
 			target.harm(attackDamage.modifiedValue);
+			if(appliesDebuff)
+				target.addBuff(generateAttackDebuff());
 		}
 		gameState.playAnimation(generateInstantAttackAnimation(gameState));
+	}
+	
+	protected Buff generateAttackDebuff(){
+		return null;
 	}
 	
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc){
@@ -114,14 +127,9 @@ public abstract class SimpleTower extends Tower{
 	}
 	
 	protected Projectile generateProjectile(GameState gameState, double xLoc, double yLoc){
-		return new SimpleProjectile(xLoc, yLoc, target, projectileSpeed,
-                                    attackDamage.modifiedValue, generateProjectileShapes(xLoc, yLoc));
-	}
-	
-	protected Projectile generateAOEProjectile(GameState gameState, double xLoc, double yLoc){
-		return new SimpleAOEProjectile(xLoc, yLoc, target, projectileSpeed, attackDamage.modifiedValue,
-				                       attackAOE.modifiedValue, generateProjectileShapes(xLoc, yLoc));
-	}
-			           
+		return new SimpleProjectile(xLoc, yLoc, target, projectileSpeed, attackDamage.modifiedValue,
+				                    attackAOE.modifiedValue, canAOE, generateAttackDebuff(),
+				                    generateProjectileShapes(xLoc, yLoc));
+	}           
 }
 

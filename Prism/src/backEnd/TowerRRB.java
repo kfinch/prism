@@ -2,23 +2,24 @@ package backEnd;
 
 import util.PaintableShapes;
 
-public class TowerR extends SimpleTower{
+public class TowerRRB extends SimpleTower{
 
 	public static final double PRIORITY = 0;
-	public static final int TIER = 1;
-	public static final double MAX_HEALTH = 100;
+	public static final int TIER = 3;
+	public static final double MAX_HEALTH = 400;
 	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
-	public static final double ATTACK_DAMAGE = 10;
-	public static final double ATTACK_DELAY = 25;
-	public static final double ATTACK_RANGE = 5;
-	public static final double PROJECTILE_SPEED = 0.2;
-	public static final double SHOT_ORIGIN_DISTANCE = 0.6;
+	public static final double ATTACK_DAMAGE = 200;
+	public static final double ATTACK_DELAY = 65;
+	public static final double ATTACK_RANGE = 10;
+	public static final double PROJECTILE_SPEED = 0.4;
+	public static final double SHOT_ORIGIN_DISTANCE = 0.6; //TODO: Update
 	
-	public TowerR(Node currNode, double xLoc, double yLoc, int spawnFrame) {
+	public TowerRRB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, true, true, generateShapes(xLoc, yLoc));
 	}
 	
+	//TODO: Update
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){
 		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
 		
@@ -35,6 +36,7 @@ public class TowerR extends SimpleTower{
 		return result;
 	}
 
+	//TODO: Update
 	@Override
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);

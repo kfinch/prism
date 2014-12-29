@@ -16,7 +16,7 @@ public class TowerRR extends SimpleTower{
 	
 	public TowerRR(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-		      ATTACK_RANGE, 0, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, true, true, generateShapes(xLoc, yLoc));
+		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, true, true, generateShapes(xLoc, yLoc));
 	}
 	
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){

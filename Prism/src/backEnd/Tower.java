@@ -109,7 +109,7 @@ class GhostDebuff extends TimedBuff {
 	public void apply(Entity e) {
 		//remove all removable buffs
 		for(Buff b : e.buffs.values())
-			e.removeBuff(b);
+			e.dispelBuff(b);
 		
 		//full heal
 		e.currHealth = e.maxHealth.modifiedValue;

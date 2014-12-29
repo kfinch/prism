@@ -101,11 +101,18 @@ public abstract class Entity {
 		buff.apply(this);
 	}
 	
-	public void removeBuff(Buff buff){
+	public boolean dispelBuff(Buff buff){
 		if(buff.isDispellable){
-			buff.remove(this);
-			buffs.remove(buff.id);
+			removeBuff(buff);
+			return true;
 		}
+		else
+			return false;
+	}
+	
+	public void removeBuff(Buff buff){
+		buff.remove(this);
+		buffs.remove(buff.id);
 	}
 	
 	public Buff getBuff(String id){

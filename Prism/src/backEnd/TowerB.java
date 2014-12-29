@@ -17,7 +17,7 @@ public class TowerB extends SimpleTower {
 	
 	public TowerB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-		      ATTACK_RANGE, ATTACK_AOE, true, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
+		      ATTACK_RANGE, ATTACK_AOE, true, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
 		      true, true, generateShapes(xLoc, yLoc));
 	}
 	

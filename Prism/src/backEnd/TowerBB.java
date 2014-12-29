@@ -5,7 +5,7 @@ import util.PaintableShapes;
 public class TowerBB extends SimpleTower {
 	
 	public static final double PRIORITY = 0;
-	public static final int TIER = 1;
+	public static final int TIER = 2;
 	public static final double MAX_HEALTH = 200;
 	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
 	public static final double ATTACK_DAMAGE = 60;
@@ -17,7 +17,7 @@ public class TowerBB extends SimpleTower {
 	
 	public TowerBB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-		      ATTACK_RANGE, ATTACK_AOE, true, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
+		      ATTACK_RANGE, ATTACK_AOE, true, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
 		      true, true, generateShapes(xLoc, yLoc));
 	}
 	

@@ -4,23 +4,23 @@ import java.util.Set;
 
 import util.PaintableShapes;
 
-public class TowerGB extends SimpleTower {
+public class TowerGGB extends SimpleTower {
 	
 	public static final double PRIORITY = 0;
-	public static final int TIER = 2;
-	public static final double MAX_HEALTH = 400;
+	public static final int TIER = 3;
+	public static final double MAX_HEALTH = 1400;
 	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
-	public static final double ATTACK_DAMAGE = 20;
+	public static final double ATTACK_DAMAGE = 40;
 	public static final double ATTACK_DELAY = 40;
 	public static final double ATTACK_RANGE = 4;
 	public static final double PROJECTILE_SPEED = 0.15;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.6; //TODO: update
-	public static final double ATTACK_AOE = 0.2;
+	public static final double ATTACK_AOE = 0.3;
 	
 	public static final int SLOW_DURATION = 60;
-	public static final double SLOW_STRENGTH = 1.3;
+	public static final double SLOW_STRENGTH = 1.5;
 	
-	public TowerGB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
+	public TowerGGB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, true, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
 		      true, true, generateShapes(xLoc, yLoc));

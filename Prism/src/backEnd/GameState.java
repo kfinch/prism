@@ -23,6 +23,8 @@ public class GameState {
 	public static final Color PROJECTILE_GREEN = Color.decode("#00cc00");
 	public static final Color PROJECTILE_BLUE = Color.decode("#0000cc");
 	
+	protected int frameNumber;
+	
 	protected int xNodes, yNodes; //x and y size of board, in nodes (NOT including buffer nodes)
 	protected Node[][] nodes; //array of game's nodes.
 	
@@ -38,6 +40,8 @@ public class GameState {
 	protected List<Animation> animations; //a list of all active animations
 	
 	public GameState(int xNodes, int yNodes){
+		this.frameNumber = 0;
+		
 		this.xNodes = xNodes;
 		this.yNodes = yNodes;
 		nodes = new Node[xNodes+2][yNodes+2];//+2 is buffer nodes
@@ -149,7 +153,8 @@ public class GameState {
 	}
 	
 	public void step(){
-		
+		frameNumber++;
+		//TODO: finish implement
 	}
 	
 	public static double dist(double x1, double y1, double x2, double y2){
