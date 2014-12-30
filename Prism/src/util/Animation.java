@@ -1,5 +1,7 @@
 package util;
 
-public class Animation {
+public abstract class Animation {
 
+	public abstract void step();
+	
 }

@@ -21,23 +21,27 @@ public class TowerBB extends SimpleTower {
 		      true, true, generateShapes(xLoc, yLoc));
 	}
 	
-	//TODO: update
 	private static PaintableShapes generateShapes(double xLoc, double yLoc){
 		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
 		
-		int nPoints1 = 12;
-		double[] xPoints1 = {-0.4, -0.2, -0.2, 0.2, 0.2, 0.6, 0.6, 0.2, 0.2, -0.2, -0.2, -0.4};
-		double[] yPoints1 = {-0.2, -0.2, -0.4, -0.4, -0.2, -0.2, 0.2, 0.2, 0.4, 0.4, 0.2, 0.2};
+		int nPoints1 = 11;
+		double[] xPoints1 = {-0.5, -0.2, -0.2, 0.2, 0.2, -0.2, 0.2, 0.2, -0.2, -0.2, -0.5};
+		double[] yPoints1 = {0.2, 0.2, 0.4, 0.4, 0.2, 0.0, -0.2, -0.4, -0.4, -0.2, -0.2};
 		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BLUE);
+		
+		int nPoints2 = 5;
+		double[] xPoints2 = {0.3, 0.7, 0.7, 0.3, -0.1};
+		double[] yPoints2 = {-0.2, -0.2, 0.2, 0.2, 0.0};
+		result.addRotatablePolygon(nPoints2, xPoints2, yPoints2, GameState.TOWER_BLUE);
 		
 		return result;
 	}
 
-	@Override //TODO: update
+	@Override
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(xLoc, yLoc, 0.2, GameState.PROJECTILE_BLUE);
+		result.addFixedCircle(xLoc, yLoc, 0.22, GameState.PROJECTILE_BLUE);
 		
 		return result;
 	}

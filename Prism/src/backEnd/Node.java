@@ -44,6 +44,10 @@ public class Node {
 		tower = null;
 	}
 	
+	public double lightLevel(){
+		return actualLightLevel;
+	}
+	
 	public boolean hasSolidTower(){
 		return tower != null && !tower.hasBuff(Tower.GHOST_DEBUFF_ID);
 	}

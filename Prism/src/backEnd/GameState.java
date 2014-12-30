@@ -23,21 +23,21 @@ public class GameState {
 	public static final Color PROJECTILE_GREEN = Color.decode("#00cc00");
 	public static final Color PROJECTILE_BLUE = Color.decode("#0000cc");
 	
-	protected int frameNumber;
+	public int frameNumber;
 	
-	protected int xNodes, yNodes; //x and y size of board, in nodes (NOT including buffer nodes)
-	protected Node[][] nodes; //array of game's nodes.
+	public int xNodes, yNodes; //x and y size of board, in nodes (NOT including buffer nodes)
+	public Node[][] nodes; //array of game's nodes.
 	
 	//the prism is always located at x=-1, all y values.
 	//effectively anything that moves to the low x buffer has hit the prism
 	protected int prismCurrHealth, prismMaxHealth; //current and maximum health of the prism
 	
-	protected Set<Enemy> enemies; //a list of all active enemies
-	protected Set<Tower> towers; //a list of all active towers
-	protected Set<Projectile> projectiles; //a list of all active projectiles
-	protected Set<Entity> miscEntities; //a list of all active misc entities
+	public Set<Enemy> enemies; //a list of all active enemies
+	public Set<Tower> towers; //a list of all active towers
+	public Set<Projectile> projectiles; //a list of all active projectiles
+	public Set<Entity> miscEntities; //a list of all active misc entities
 	
-	protected List<Animation> animations; //a list of all active animations
+	public List<Animation> animations; //a list of all active animations
 	
 	public GameState(int xNodes, int yNodes){
 		this.frameNumber = 0;
@@ -45,6 +45,11 @@ public class GameState {
 		this.xNodes = xNodes;
 		this.yNodes = yNodes;
 		nodes = new Node[xNodes+2][yNodes+2];//+2 is buffer nodes
+		for(int i=0; i<xNodes+2; i++){
+			for(int j=0; j<yNodes+2; j++){
+				nodes[i][j] = new Node(i-1, j-1, i+j); //TODO: make prism give off light
+			}
+		}
 		
 		enemies = new HashSet<Enemy>();
 		towers = new HashSet<Tower>();
@@ -154,7 +159,51 @@ public class GameState {
 	
 	public void step(){
 		frameNumber++;
-		//TODO: finish implement
+		
+		for(Node[] na : nodes){
+			for(Node n : na){
+				n.step();
+			}
+		}
+		
+		for(Entity e : enemies)
+			e.preStep(this);
+		for(Entity e : towers)
+			e.preStep(this);
+		for(Entity e : projectiles)
+			e.preStep(this);
+		for(Entity e : miscEntities)
+			e.preStep(this);
+		
+		for(Entity e : enemies)
+			e.moveStep(this);
+		for(Entity e : towers)
+			e.moveStep(this);
+		for(Entity e : projectiles)
+			e.moveStep(this);
+		for(Entity e : miscEntities)
+			e.moveStep(this);
+		
+		for(Entity e : enemies)
+			e.actionStep(this);
+		for(Entity e : towers)
+			e.actionStep(this);
+		for(Entity e : projectiles)
+			e.actionStep(this);
+		for(Entity e : miscEntities)
+			e.actionStep(this);
+		
+		for(Entity e : enemies)
+			e.postStep(this);
+		for(Entity e : towers)
+			e.postStep(this);
+		for(Entity e : projectiles)
+			e.postStep(this);
+		for(Entity e : miscEntities)
+			e.postStep(this);
+		
+		for(Animation a : animations)
+			a.step();
 	}
 	
 	public static double dist(double x1, double y1, double x2, double y2){
