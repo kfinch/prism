@@ -32,6 +32,16 @@ public class PaintableShapes {
 		shapes.add(new Polygon(nPoints, xPoints, yPoints, color, true));
 	}
 	
+	public void addFixedRectangle(double x1, double y1, double x2, double y2, Color color){
+		shapes.add(new Rectangle(x1, y2, x2, y2, color));
+	}
+	
+	public void addRotatableRectangle(double x1, double y1, double x2, double y2, Color color){
+		double[] xPoints = {x1, x1, x2, x2};
+		double[] yPoints = {y1, y2, y2, y1};
+		addRotatablePolygon(4, xPoints, yPoints, color);
+	}
+	
 	public void rotate(double radians){
 		for(Object o : shapes){
 			if(o instanceof Circle && ((Circle) o).rotatable){
@@ -76,26 +86,30 @@ public class PaintableShapes {
 		}
 	}
 	
-	public void paintShape(Graphics2D g2d, int cornerX, int cornerY, int tileSize){
-		double centerX = cornerX + (xLoc*tileSize);
-		double centerY = cornerY + (yLoc*tileSize);
+	public void paintShapes(Graphics2D g2d, int centerX, int centerY, int tileSize){
 		for(Object o : shapes){
 			if(o instanceof Circle){
 				Circle c = (Circle) o;
 				g2d.setColor(c.color);
-				g2d.fillOval((int)(centerX + c.xLoc - c.radius), (int)(centerY + c.yLoc - c.radius),
-						     (int)(c.radius * 2), (int)(c.radius * 2));
+				g2d.fillOval((int)(centerX + (c.xLoc - c.radius)*tileSize), (int)(centerY + (c.yLoc - c.radius)*tileSize),
+						     (int)(c.radius*2*tileSize), (int)(c.radius*2*tileSize));
 			}
 			else if(o instanceof Polygon){
 				Polygon p = (Polygon) o;
 				int[] absXPoints = new int[p.nPoints];
 				int[] absYPoints = new int[p.nPoints];
 				for(int i=0; i<p.nPoints; i++){
-					absXPoints[i] = (int) (centerX + p.xPoints[i]);
-					absYPoints[i] = (int) (centerY + p.yPoints[i]);
+					absXPoints[i] = (int) (centerX + p.xPoints[i]*tileSize);
+					absYPoints[i] = (int) (centerY + p.yPoints[i]*tileSize);
 				}
 				g2d.setColor(p.color);
 				g2d.fillPolygon(absXPoints, absYPoints, p.nPoints);
+			}
+			else if(o instanceof Rectangle){
+				Rectangle r = (Rectangle) o;
+				g2d.setColor(r.color);
+				g2d.fillRect((int)(centerX + r.x1*tileSize), (int)(centerY + r.y1*tileSize),
+						     (int)(centerX + (r.x2-r.x1)*tileSize), (int)(centerY + (r.y2-r.y1)*tileSize));
 			}
 		}
 	}
@@ -141,5 +155,19 @@ class Polygon {
 			origYPoints[i] = yPoints[i];
 		this.color = color;
 		this.rotatable = rotatable;
+	}
+}
+
+class Rectangle {
+	
+	double x1, y1, x2, y2;
+	Color color;
+	
+	public Rectangle(double x1, double y1, double x2, double y2, Color color){
+		this.x1 = x1;
+		this.y1 = y1;
+		this.x2 = x2;
+		this.y2 = y2;
+		this.color = color;
 	}
 }

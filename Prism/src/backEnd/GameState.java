@@ -32,10 +32,11 @@ public class GameState {
 	//effectively anything that moves to the low x buffer has hit the prism
 	protected int prismCurrHealth, prismMaxHealth; //current and maximum health of the prism
 	
-	public Set<Enemy> enemies; //a list of all active enemies
-	public Set<Tower> towers; //a list of all active towers
-	public Set<Projectile> projectiles; //a list of all active projectiles
-	public Set<Entity> miscEntities; //a list of all active misc entities
+	public Set<Enemy> enemies; //a set of all active enemies
+	public Set<Tower> towers; //a set of all active towers
+	public Set<Projectile> projectiles; //a set of all active projectiles
+	public Set<Entity> miscEntities; //a set of all active misc entities
+	public Set<LightSource> lightSources; //a set of all light sources
 	
 	public List<Animation> animations; //a list of all active animations
 	
@@ -47,7 +48,9 @@ public class GameState {
 		nodes = new Node[xNodes+2][yNodes+2];//+2 is buffer nodes
 		for(int i=0; i<xNodes+2; i++){
 			for(int j=0; j<yNodes+2; j++){
-				nodes[i][j] = new Node(i-1, j-1, i+j); //TODO: make prism give off light
+				nodes[i][j] = new Node(i-1, j-1);
+				if(i == 0 || i == xNodes+1 || j == 0 || j == yNodes+1)
+					nodes[i][j].isBuffer = true;
 			}
 		}
 		
@@ -55,8 +58,18 @@ public class GameState {
 		towers = new HashSet<Tower>();
 		projectiles = new HashSet<Projectile>();
 		miscEntities = new HashSet<Entity>();
+		lightSources = new HashSet<LightSource>();
+		
+		//TODO: this should probably be it's own special entity
+		Prism prism = new Prism(-15, yNodes/2, 22);
+		miscEntities.add(prism);
+		lightSources.add(prism);
 		
 		animations = new LinkedList<Animation>();
+	}
+	
+	public Node nodeAt(int x, int y){
+		return nodes[x+1][y+1];
 	}
 	
 	public void playAnimation(Animation anim){
@@ -139,32 +152,44 @@ public class GameState {
 	}
 	
 	public boolean isValidTowerLocation(int x, int y){
-		for(int xi = x-1; xi<x+1; x++){
-			for(int yi = y-1; yi<y+1; y++){
+		Node n;
+		for(int xi = x-1; xi<=x+1; xi++){
+			for(int yi = y-1; yi<=y+1; yi++){
 				//TODO: allow to build over ghost towers? (currently does not allow)
-				if(nodes[xi][yi].isBuffer || nodes[xi][yi].tower != null || !nodes[xi][yi].enemies.isEmpty())
+				n = nodeAt(xi,yi);
+				if(n.isBuffer || n.tower != null || !n.enemies.isEmpty())
 					return false;
 			}
 		}
-		return true;
+		for(LightSource ls : lightSources){
+			if(dist(ls.getLocation().x, ls.getLocation().y, x, y) <= ls.lightRadius() - Math.sqrt(2))
+				return true;
+		}
+		return false;
 	}
 	
 	public void addTower(int x, int y, Tower tower){
-		nodes[x][y].tower = tower;
+		nodeAt(x,y).tower = tower;
+		towers.add(tower);
+		tower.onSpawn(this);
 	}
 	
-	public void removeTower(int x, int y){
-		nodes[x][y].tower = null;
+	public void removeTower(int x, int y, Tower tower){
+		tower.onDespawn(this);
+		nodeAt(x,y).tower = null;
+		towers.remove(tower);
+	}
+	
+	public boolean isLit(double x, double y){
+		for(LightSource ls : lightSources){
+			if(dist(ls.getLocation().x, ls.getLocation().y, x, y) <= ls.lightRadius())
+				return true;
+		}
+		return false;
 	}
 	
 	public void step(){
 		frameNumber++;
-		
-		for(Node[] na : nodes){
-			for(Node n : na){
-				n.step();
-			}
-		}
 		
 		for(Entity e : enemies)
 			e.preStep(this);
@@ -208,6 +233,36 @@ public class GameState {
 	
 	public static double dist(double x1, double y1, double x2, double y2){
 		return Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
+	}
+	
+	public Set<Node> getNodesInRange(double xLoc, double yLoc, double range){
+		Set<Node> result = new HashSet<Node>();
+		
+		int xMin = (int) (xLoc - range);
+		if(xMin <= 0)
+			xMin = 1;
+		
+		int xMax = (int) (xLoc + range);
+		if(xMax > xNodes)
+			xMax = xNodes;
+		
+		int yMin = (int) (yLoc - range);
+		if(yMin <= 0)
+			yMin = 1;
+		
+		int yMax = (int) (yLoc + range);
+		if(yMax > yNodes)
+			yMax = yNodes;
+		
+		for(int x=xMin; x<=xMax; x++){
+			for(int y=yMin; y<=yMax; y++){
+				if(dist(x,y,xLoc,yLoc) <= range){
+					result.add(nodes[x][y]);
+				}
+			}
+		}
+		
+		return result;
 	}
 	
 	/**

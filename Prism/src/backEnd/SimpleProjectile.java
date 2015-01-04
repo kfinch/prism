@@ -19,7 +19,7 @@ public class SimpleProjectile extends Projectile {
 		super(xLoc, yLoc, MAX_HEALTH, HEALTH_REGEN, target, moveSpeed, shapes);
 		this.damage = damage;
 	}
-
+	
 	@Override
 	protected void payload(GameState gameState) {
 		boolean debuffs = appliedDebuff != null;

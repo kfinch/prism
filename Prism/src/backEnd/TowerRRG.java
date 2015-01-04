@@ -25,6 +25,21 @@ public class TowerRRG extends SimpleTower{
 	}
 	
 	@Override
+	public String addRed(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addGreen(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addBlue(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
 	protected Enemy acquireTarget(GameState gameState){
 		attackRange.modifiedValue = attackAOE.modifiedValue;
 		return super.acquireTarget(gameState);

@@ -31,5 +31,17 @@ public abstract class Stat {
 		bonusImmunityCount = 0;
 	}
 	
+	public static void copyStatMods(Stat src, Stat dst){
+		for(Double d : src.addBonuses)
+			dst.addBonuses.add(d);
+		for(Double d : src.multBonuses)
+			dst.multBonuses.add(d);
+		for(Double d : src.addPenalties)
+			dst.addPenalties.add(d);
+		for(Double d : src.multPenalties)
+			dst.multPenalties.add(d);
+		dst.update();
+	}
+	
 	public abstract void update();
 }

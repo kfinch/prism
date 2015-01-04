@@ -25,6 +25,21 @@ public class TowerGBB extends SimpleTower{
 	}
 	
 	@Override
+	public String addRed(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addGreen(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addBlue(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
 	protected void instantAttack(GameState gameState){
 		//TODO: Constrain to laser centered on target. Easy implement as cone?
 		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, attackAOE.modifiedValue);

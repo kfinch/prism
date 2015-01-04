@@ -124,6 +124,16 @@ public abstract class Entity {
 	}
 	
 	/**
+	 * Called right after this entity is added to the game state.
+	 */
+	public abstract void onSpawn(GameState gameState);
+	
+	/**
+	 * Called right before this entity is removed from the game state due to isActive == false
+	 */
+	public abstract void onDespawn(GameState gameState);
+	
+	/**
 	 * Auras are applied, HoTs and DoTs tick, etc...
 	 */
 	public void preStep(GameState gameState){
@@ -169,7 +179,9 @@ public abstract class Entity {
 	 * Paints this entity.
 	 */
 	public void paintEntity(Graphics2D g2d, int cornerX, int cornerY, int tileSize){
-		shapes.paintShape(g2d, cornerX, cornerY, tileSize);
+		int centerX = (int) (cornerX + xLoc*tileSize);
+		int centerY = (int) (cornerY + yLoc*tileSize);
+		shapes.paintShapes(g2d, centerX, centerY, tileSize);
 	}
 	
 }

@@ -19,6 +19,21 @@ public class TowerRRR extends SimpleTower{
 		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, true, true, generateShapes(xLoc, yLoc));
 	}
 	
+	@Override
+	public String addRed(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addGreen(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addBlue(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){
 		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
 		

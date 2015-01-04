@@ -20,6 +20,21 @@ public class TowerGGG extends SimpleTower{
 		attackAction.startSuppress(); //TowerGGG can't attack
 	}
 	
+	@Override
+	public String addRed(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addGreen(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addBlue(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
 	//TODO: update shapes
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){
 		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);

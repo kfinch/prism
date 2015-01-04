@@ -11,7 +11,7 @@ import javax.swing.Timer;
 
 import frontEnd.GamePanel;
 
-public class GameRunner implements ActionListener, MouseListener, KeyListener {
+public class GameRunner implements ActionListener {
 
 	public static final double STARTING_COLOR = 200;
 	public static final double STARTING_FLUX = 100;
@@ -19,10 +19,18 @@ public class GameRunner implements ActionListener, MouseListener, KeyListener {
 	public static final double COLOR_GAIN_RATE = 0.1;
 	public static final double FLUX_GAIN_RATE = 0.1;
 	
-	public static final int DEFAULT_BOARD_WIDTH = 70;
-	public static final int DEFAULT_BOARD_HEIGHT = 30;
+	public static final int DEFAULT_BOARD_WIDTH = 65;
+	public static final int DEFAULT_BOARD_HEIGHT = 27;
+	
+	public static final int NO_ACTION = 0;
+	public static final int ADD_RED_ACTION = 1;
+	public static final int ADD_GREEN_ACTION = 2;
+	public static final int ADD_BLUE_ACTION = 3;
+	public static final int ADD_CONDUIT_ACTION = 4;
 	
 	public static final int STEP_DURATION = 25;
+	
+	public int actionSelected;
 	
 	public int boardWidth;
 	public int boardHeight;
@@ -42,6 +50,8 @@ public class GameRunner implements ActionListener, MouseListener, KeyListener {
 		boardHeight = DEFAULT_BOARD_HEIGHT;
 		gameState = new GameState(boardWidth, boardHeight);
 		display = new GamePanel(this);
+		
+		actionSelected = NO_ACTION;
 		
 		gameClock = new Timer(STEP_DURATION, this);
 	}
@@ -68,33 +78,59 @@ public class GameRunner implements ActionListener, MouseListener, KeyListener {
 		display.repaint();
 	}
 	
+	public void nodeClicked(Node n){
+		switch(actionSelected){
+		case NO_ACTION: break;
+		case ADD_RED_ACTION:
+			System.out.println("Attempting to add red at (" + n.xLoc + "," + n.yLoc + ") clicked.");
+			if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
+				Tower tower = new TowerR(n, n.xLoc, n.yLoc, gameState.frameNumber);
+				gameState.addTower(n.xLoc, n.yLoc, tower);
+			}
+			break;
+		case ADD_GREEN_ACTION:
+			System.out.println("Attempting to add green at (" + n.xLoc + "," + n.yLoc + ") clicked.");
+			if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
+				Tower tower = new TowerG(n, n.xLoc, n.yLoc, gameState.frameNumber);
+				gameState.addTower(n.xLoc, n.yLoc, tower);
+			}
+			break;
+		case ADD_BLUE_ACTION:
+			System.out.println("Attempting to add blue at (" + n.xLoc + "," + n.yLoc + ") clicked.");
+			if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
+				Tower tower = new TowerB(n, n.xLoc, n.yLoc, gameState.frameNumber);
+				gameState.addTower(n.xLoc, n.yLoc, tower);
+			}
+			break;
+		case ADD_CONDUIT_ACTION:
+			System.out.println("Attempting to add conduit at (" + n.xLoc + "," + n.yLoc + ") clicked.");
+			if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
+				Tower tower = new TowerConduit(n, n.xLoc, n.yLoc, gameState.frameNumber);
+				gameState.addTower(n.xLoc, n.yLoc, tower);
+			}
+			break;
+		default: throw new IllegalArgumentException("Invalid action type: " + actionSelected);
+		}
+	}
+	
+	public void redSelected(){
+		actionSelected = ADD_RED_ACTION;
+	}
+	
+	public void greenSelected(){
+		actionSelected = ADD_GREEN_ACTION;
+	}
+	
+	public void blueSelected(){
+		actionSelected = ADD_BLUE_ACTION;
+	}
+	
+	public void conduitSelected(){
+		actionSelected = ADD_CONDUIT_ACTION;
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		step();
 	}
-	
-	@Override
-	public void keyPressed(KeyEvent e) {}
-
-	@Override
-	public void keyReleased(KeyEvent e) {}
-
-	@Override
-	public void keyTyped(KeyEvent e) {}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {}
-
-	@Override
-	public void mouseExited(MouseEvent e) {}
-
-	@Override
-	public void mousePressed(MouseEvent e) {}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {}
-	
 }

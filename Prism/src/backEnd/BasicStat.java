@@ -20,14 +20,18 @@ public class BasicStat extends Stat{
 		if(bonusImmunityCount == 0){
 			for(double d : addBonuses)
 				modifiedValue += d;
+			double totalMultBonus = 1;
 			for(double d : multBonuses)
-				modifiedValue *= d;
+				totalMultBonus += d-1;
+			modifiedValue *= totalMultBonus;
 		}
 		if(penaltyImmunityCount == 0){
 			for(double d : addPenalties)
 				modifiedValue -= d;
+			double totalMultPenalty = 1;
 			for(double d : multPenalties)
-				modifiedValue /= d;
+				totalMultPenalty += d-1;
+			modifiedValue *= totalMultPenalty;
 		}
 	}
 

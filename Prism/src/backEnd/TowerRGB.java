@@ -25,6 +25,21 @@ public class TowerRGB extends SimpleTower{
 	}
 	
 	@Override
+	public String addRed(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addGreen(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
+	public String addBlue(GameState gameState){
+		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	}
+	
+	@Override
 	public void preStep(GameState gameState){
 		super.preStep(gameState);
 		if(specialAction.canAct() && passiveAction.canAct()){ //should aura be in both these categories?

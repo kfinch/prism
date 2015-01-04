@@ -36,6 +36,27 @@ public class TowerR extends SimpleTower{
 	}
 
 	@Override
+	public String addRed(GameState gameState){
+		TowerRR upgrade = new TowerRR(currNode, xLoc, yLoc, spawnFrame);
+		upgradeToTower(gameState, upgrade);
+		return null;
+	}
+	
+	@Override
+	public String addGreen(GameState gameState){
+		TowerRG upgrade = new TowerRG(currNode, xLoc, yLoc, spawnFrame);
+		upgradeToTower(gameState, upgrade);
+		return null;
+	}
+	
+	@Override
+	public String addBlue(GameState gameState){
+		TowerRB upgrade = new TowerRB(currNode, xLoc, yLoc, spawnFrame);
+		upgradeToTower(gameState, upgrade);
+		return null;
+	}
+	
+	@Override
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		

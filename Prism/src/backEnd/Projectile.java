@@ -26,7 +26,13 @@ public abstract class Projectile extends Entity {
 		this.triggerPayload = false;
 		this.moveSpeed = new BasicStat(moveSpeed);
 	}
-
+	
+	@Override
+	public void onSpawn(GameState gameState){}
+	
+	@Override
+	public void onDespawn(GameState gameState){}
+	
 	protected abstract void payload(GameState gameState);
 	
 	@Override
