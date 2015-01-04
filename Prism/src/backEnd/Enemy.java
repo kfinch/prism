@@ -42,6 +42,22 @@ public abstract class Enemy extends Entity implements Comparable<Enemy>{
 	}
 	
 	@Override
+	public void onSpawn(GameState gameState){}
+	
+	@Override
+	public void onDespawn(GameState gameState){}
+	
+	@Override
+	public void preStep(GameState gameState){
+		if(passiveAction.canAct()){
+			if(attackTimer >= 0)
+				attackTimer++;
+			if(attackTimer >= attackDelay.modifiedValue)
+				attackTimer = -1;
+		}
+	}
+	
+	@Override
 	public int compareTo(Enemy e){
 		if(priority > e.priority)
 			return 1;

@@ -19,6 +19,11 @@ public class GameState {
 	public static final Color TOWER_RED = Color.decode("#aa0000");
 	public static final Color TOWER_GREEN = Color.decode("#00aa00");
 	public static final Color TOWER_BLUE = Color.decode("#0000aa");
+	
+	public static final Color ENEMY_DRAB_GREEN = Color.decode("#556b2f");
+	public static final Color ENEMY_ORANGE = Color.decode("#ff8c00");
+	public static final Color ENEMY_PURPLE = Color.decode("#ff00bb");
+	
 	public static final Color PROJECTILE_RED = Color.decode("#cc0000");
 	public static final Color PROJECTILE_GREEN = Color.decode("#00cc00");
 	public static final Color PROJECTILE_BLUE = Color.decode("#0000cc");
@@ -77,6 +82,7 @@ public class GameState {
 	}
 	
 	public boolean[][] getValidMoveDirections(int x, int y){
+		x++; y++; //should have used nodeAt for everything here, but too lazy to change it t_t. This fix suffices.
 		boolean[][] result = new boolean[3][3];
 		for(int i=0; i<3; i++){
 			for(int j=0; j<3; j++){
@@ -86,67 +92,79 @@ public class GameState {
 		
 		//check north
 		if(nodes[x][y-1].hasSolidTower()){
-			result[x-1][y-1] = false;
-			result[x][y-1] = false;
-			result[x+1][y-1] = false;
+			result[0][0] = false;
+			result[1][0] = false;
+			result[2][0] = false;
 		}
 		else if(nodes[x][y-1].isBuffer)
-			result[x][y-1] = false;
+			result[1][0] = false;
 		else if((nodes[x+1][y-1].hasSolidTower() || nodes[x+1][y].hasSolidTower()) &&
 				(nodes[x-1][y-1].hasSolidTower() || nodes[x-1][y].hasSolidTower()))
-			result[x][y-1] = false;
+			result[1][0] = false;
 		
 		//check east
 		if(nodes[x+1][y].hasSolidTower()){
-			result[x+1][y-1] = false;
-			result[x+1][y] = false;
-			result[x+1][y+1] = false;
+			result[2][0] = false;
+			result[2][1] = false;
+			result[2][2] = false;
 		}
 		else if(nodes[x+1][y].isBuffer)
-			result[x+1][y] = false;
+			result[2][1] = false;
 		else if((nodes[x][y-1].hasSolidTower() || nodes[x+1][y-1].hasSolidTower()) &&
 				(nodes[x][y+1].hasSolidTower() || nodes[x+1][y+1].hasSolidTower()))
-			result[x+1][y] = false;
+			result[2][1] = false;
 		
 		//check south
 		if(nodes[x][y+1].hasSolidTower()){
-			result[x-1][y+1] = false;
-			result[x][y+1] = false;
-			result[x+1][y+1] = false;
+			result[0][2] = false;
+			result[1][2] = false;
+			result[2][2] = false;
 		}
 		else if(nodes[x][y+1].isBuffer)
-			result[x][y+1] = false;
+			result[1][2] = false;
 		else if((nodes[x+1][y+1].hasSolidTower() || nodes[x+1][y].hasSolidTower()) &&
 				(nodes[x-1][y+1].hasSolidTower() || nodes[x-1][y].hasSolidTower()))
-			result[x][y+1] = false;
+			result[1][2] = false;
 		
-		//check east
+		//check west
 		if(nodes[x-1][y].hasSolidTower()){
-			result[x-1][y-1] = false;
-			result[x-1][y] = false;
-			result[x-1][y+1] = false;
+			result[0][0] = false;
+			result[0][1] = false;
+			result[0][2] = false;
 		}
 		else if(nodes[x-1][y].isBuffer)
-			result[x-1][y] = false;
+			result[0][1] = false;
 		else if((nodes[x][y-1].hasSolidTower() || nodes[x-1][y-1].hasSolidTower()) &&
 				(nodes[x][y+1].hasSolidTower() || nodes[x-1][y+1].hasSolidTower()))
-			result[x-1][y] = false;
+			result[0][1] = false;
 		
 		//check north-east
 		if(nodes[x+1][y-1].isBuffer || nodes[x+1][y-1].hasSolidTower())
-			result[x+1][y-1] = false;
+			result[2][0] = false;
 		
 		//check south-east
-		if(nodes[x+1][y+1].isBuffer || nodes[x+1][y-1].hasSolidTower())
-			result[x+1][y+1] = false;
+		if(nodes[x+1][y+1].isBuffer || nodes[x+1][y+1].hasSolidTower())
+			result[2][2] = false;
 				
 		//check south-west
-		if(nodes[x-1][y+1].isBuffer || nodes[x+1][y-1].hasSolidTower())
-			result[x-1][y+1] = false;
+		if(nodes[x-1][y+1].isBuffer || nodes[x-1][y+1].hasSolidTower())
+			result[0][2] = false;
 				
 		//check north-west
-		if(nodes[x-1][y-1].isBuffer || nodes[x+1][y-1].hasSolidTower())
-			result[x-1][y-1] = false;
+		if(nodes[x-1][y-1].isBuffer || nodes[x-1][y-1].hasSolidTower())
+			result[0][0] = false;
+		
+		//TODO: remove these debugging prints
+		/*
+		System.out.println(x + " " + y);
+		for(int j=0; j<3; j++){
+			for(int i=0; i<3; i++){
+				System.out.print(result[i][j] + " ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+		*/
 		
 		return result;
 	}
@@ -178,6 +196,18 @@ public class GameState {
 		tower.onDespawn(this);
 		nodeAt(x,y).tower = null;
 		towers.remove(tower);
+	}
+	
+	public void addEnemy(int x, int y, Enemy enemy){
+		nodeAt(x,y).enemies.add(enemy);
+		enemies.add(enemy);
+		enemy.onSpawn(this);
+	}
+	
+	public void removeEnemy(Enemy enemy){
+		enemy.onDespawn(this);
+		enemy.currNode.enemies.remove(enemy);
+		enemies.remove(enemy);
 	}
 	
 	public boolean isLit(double x, double y){
@@ -229,6 +259,13 @@ public class GameState {
 		
 		for(Animation a : animations)
 			a.step();
+		
+		//TODO: put enemy spawning somewhere that makes sense?
+		if(frameNumber % 40 == 0){
+			int spawnX = xNodes-1;
+			int spawnY = (int) (Math.random()*yNodes);
+			addEnemy(spawnX, spawnY, new EnemyTrash(nodeAt(spawnX, spawnY), spawnX, spawnY, frameNumber));
+		}
 	}
 	
 	public static double dist(double x1, double y1, double x2, double y2){

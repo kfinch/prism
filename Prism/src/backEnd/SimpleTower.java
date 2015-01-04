@@ -44,15 +44,16 @@ public abstract class SimpleTower extends Tower{
 		super.actionStep(gameState);
 		if(attackAction.canAct()){
 			//acquire a new target
-			if(target == null){
+			if(target == null || !target.isActive){
 				target = acquireTarget(gameState);
 			}
 			//lose an acquired target
-			if(target != null && GameState.dist(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue){
+			if((target != null) &&
+			   (GameState.dist(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue || !target.isActive)){
 				target = null;
 			}
 			//track an acquired target
-			if(target != null){
+			if(target != null && target.isActive){
 				if(tracksTarget)
 					trackTarget();
 				//attack an acquired target

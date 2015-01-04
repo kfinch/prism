@@ -1,6 +1,11 @@
 package backEnd;
 
+import java.util.Iterator;
+import java.util.Set;
+
+import util.Animation;
 import util.PaintableShapes;
+import util.Vector2d;
 
 /**
  * A simple enemy implementation. Allows user to specify a wide variety of behavioral stats on top of the basic stats.
@@ -46,32 +51,60 @@ public abstract class SimpleEnemy extends Enemy{
 	 * if neither of those are available it will not move.
 	 */
 	protected double towerAffinity; //TODO: NYI
-	protected double bravery;
+	protected double bravery; //TODO: NYI
 	protected boolean fireOnTheMove;
 	protected double[][] movePriorities;
+	protected boolean usesProjectile;
+	protected double projectileSpeed;
+	protected double shotOriginDistance;
+	protected boolean appliesDebuff;
 	
-	//the (default) enemy's likelyhood of choosing a given direction when moving.
-	//See chooseNextNode() below for details
+	protected boolean movedThisStep;
+	protected Entity target;
+	protected double facing;
 	
 	public SimpleEnemy(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame,
 			           double maxHealth, double healthRegen, double attackDamage, double attackDelay,
 			           double attackRange, double moveSpeed, double towerAffinity, double bravery,
-			           boolean fireOnTheMove, double[][] movePriorities, PaintableShapes shapes) {
+			           boolean fireOnTheMove, double[][] movePriorities, boolean usesProjectile,
+			           double projectileSpeed, double shotOriginDistance, boolean appliesDebuff, PaintableShapes shapes) {
 		super(currNode, xLoc, yLoc, priority, spawnFrame, maxHealth, healthRegen,
 				attackDamage, attackDelay, attackRange, moveSpeed, shapes);
 		this.towerAffinity = towerAffinity;
 		this.bravery = bravery;
 		this.fireOnTheMove = fireOnTheMove;
 		this.movePriorities = movePriorities;
+		this.usesProjectile = usesProjectile;
+		this.projectileSpeed = projectileSpeed;
+		this.shotOriginDistance = shotOriginDistance;
+		this.appliesDebuff = appliesDebuff;
+		
+		this.movedThisStep = false;
+		this.target = null;
+		this.facing = 0;
 	}
 	
 	//TODO: this is a dumb way of doing it )= Think of something better.
 	protected void chooseNextNode(GameState gameState){
+		//System.out.println("Choosing next node from " + xLoc + " " + yLoc);
+		
 		boolean[][] validMoveDirections = gameState.getValidMoveDirections(currNode.xLoc, currNode.yLoc);
 		double[][] modPriorities = new double[3][3];
 		double highestPriority = Double.NEGATIVE_INFINITY;
 		double totalPriority = 0;
-			
+		
+		//TODO: remove debugging code
+		/*
+		System.out.println("Move priorities: ");
+		for(int j=0; j<3; j++){
+			for(int i=0; i<3; i++){
+				System.out.print(movePriorities[i][j] + " ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+		*/
+		
 		for(int i=0; i<3; i++){
 			for(int j=0; j<3; j++){
 				if(validMoveDirections[i][j]){
@@ -83,10 +116,25 @@ public abstract class SimpleEnemy extends Enemy{
 					modPriorities[i][j] = Double.NaN;
 			}
 		}
+		
+		//TODO: remove debugging code
+		/*
+		System.out.println("Mod priorities before rebalance: ");
+		for(int j=0; j<3; j++){
+			for(int i=0; i<3; i++){
+				System.out.print(modPriorities[i][j] + " ");
+			}
+			System.out.println();
+			
+		}
+		System.out.println();
+		*/
 			
 		for(int i=0; i<3; i++){
 			for(int j=0; j<3; j++){
-				if(highestPriority - modPriorities[i][j] <= -1)
+				if(Double.isNaN(modPriorities[i][j]))
+					continue;
+				else if(modPriorities[i][j] - highestPriority + 1 <= 0)
 					modPriorities[i][j] = Double.NaN;
 				else{
 					modPriorities[i][j] -= (highestPriority-1);
@@ -95,20 +143,123 @@ public abstract class SimpleEnemy extends Enemy{
 				}
 			}
 		}
+		
+		//TODO: remove debugging code
+		/*
+		System.out.println("Mod priorities after rebalance: ");
+		for(int j=0; j<3; j++){
+			for(int i=0; i<3; i++){
+				System.out.print(modPriorities[i][j] + " ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+		*/
 			
 		double rand = Math.random() * totalPriority;
+		
+		//TODO: remove debugging code
+		//System.out.println("Total priority = " + totalPriority + "   Rand = " + rand);
 			
 		for(int i=0; i<3; i++){
 			for(int j=0; j<3; j++){
 				if(!Double.isNaN(modPriorities[i][j])){
 					rand -= modPriorities[i][j];
 					if(rand <= 0){
-						nextNode = gameState.nodes[currNode.xLoc + i - 1][currNode.yLoc + j - 1];
+						nextNode = gameState.nodeAt((int)xLoc + i - 1, (int)yLoc + j - 1);
 						return;
 					}
 				}
 			}
 		}
 	}
+	
+	@Override
+	public void moveStep(GameState gameState){
+		super.moveStep(gameState);
+		movedThisStep = false;
+		if(moveAction.canAct()){
+			if(nextNode == null){
+				chooseNextNode(gameState); //nextNode can stay null after this call, hence the following if statement
+			}
+			if(nextNode != null){
+				//TODO: make facing change with movement
+				movedThisStep = true;
+				if(GameState.dist(xLoc, yLoc, nextNode.xLoc, nextNode.yLoc) <= moveSpeed.modifiedValue){
+					xLoc = nextNode.xLoc;
+					yLoc = nextNode.yLoc;
+					currNode = nextNode;
+					nextNode = null;
+				}
+				else{
+					Vector2d moveVec = new Vector2d(nextNode.xLoc - xLoc, nextNode.yLoc - yLoc);
+					moveVec.setMagnitude(moveSpeed.modifiedValue);
+					xLoc += moveVec.x;
+					yLoc += moveVec.y;
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void actionStep(GameState gameState){
+		super.actionStep(gameState);
+		if(attackAction.canAct() && (fireOnTheMove || !movedThisStep)){
+			Entity target = acquireTarget(gameState);
+			if(target != null && target.isActive){
+				//TODO: make facing change with attacks
+				if(attackTimer == -1){
+					if(usesProjectile)
+						projectileAttack(gameState, target);
+					else
+						instantAttack(gameState, target);
+					attackTimer = 0;
+				}
+			}
+		}
+	}
+	
+	protected Entity acquireTarget(GameState gameState){
+		//TODO: let target prism
+		Entity target = null;
+		Set<Tower> towersInRange = gameState.getTowersInRange(xLoc, yLoc, attackRange.modifiedValue);
+		int targetIndex = (int) (Math.random()*towersInRange.size());
+		Iterator<Tower> iter = towersInRange.iterator();
+		for(int i=0; i<targetIndex; i++)
+			target = iter.next();
+		return target;
+	}
+	
+	protected void projectileAttack(GameState gameState, Entity target){
+		Vector2d offset = new Vector2d();
+		offset.setAngleAndMagnitude(facing, shotOriginDistance);
+		double shotOriginX = xLoc + offset.x;
+		double shotOriginY = yLoc + offset.y;
+		gameState.projectiles.add(generateProjectile(gameState, shotOriginX, shotOriginY));
+	}
+	
+	protected void instantAttack(GameState gameState, Entity target){
+		target.harm(attackDamage.modifiedValue);
+		if(appliesDebuff)
+			target.addBuff(generateAttackDebuff());
+		gameState.playAnimation(generateInstantAttackAnimation(gameState));
+	}
 
+	protected Buff generateAttackDebuff(){
+		return null;
+	}
+	
+	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc){
+		return null;
+	}
+	
+	protected Animation generateInstantAttackAnimation(GameState gameState){
+		return null;
+	}
+	
+	protected Projectile generateProjectile(GameState gameState, double xLoc, double yLoc){
+		return new SimpleProjectile(xLoc, yLoc, target, projectileSpeed, attackDamage.modifiedValue,
+				                    0, false, generateAttackDebuff(), generateProjectileShapes(xLoc, yLoc));
+	}
+	
 }
