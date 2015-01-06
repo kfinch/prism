@@ -1,6 +1,8 @@
 package backEnd;
 
+import util.Animation;
 import util.PaintableShapes;
+import util.SimpleCircleAnimation;
 
 public class TowerB extends SimpleTower {
 	
@@ -11,7 +13,7 @@ public class TowerB extends SimpleTower {
 	public static final double ATTACK_DAMAGE = 20;
 	public static final double ATTACK_DELAY = 100;
 	public static final double ATTACK_RANGE = 5;
-	public static final double PROJECTILE_SPEED = 0.15;
+	public static final double PROJECTILE_SPEED = 0.3;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.6;
 	public static final double ATTACK_AOE = 0.4;
 	
@@ -57,8 +59,13 @@ public class TowerB extends SimpleTower {
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(xLoc, yLoc, 0.2, GameState.PROJECTILE_BLUE);
+		result.addFixedCircle(0, 0, 0.2, GameState.PROJECTILE_BLUE);
 		
 		return result;
+	}
+	
+	@Override
+	protected Animation generateAttackAnimation(GameState gameState){
+		return new SimpleCircleAnimation(10, 0.2, attackAOE.modifiedValue*2, 0.6f, 0.3f, GameState.PROJECTILE_BLUE);
 	}
 }

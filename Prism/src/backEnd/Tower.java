@@ -1,5 +1,6 @@
 package backEnd;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +14,7 @@ import util.PaintableShapes;
  */
 public abstract class Tower extends Entity {
 	
-	protected static final int DEFAULT_GHOST_DURATION = 1000;
-	protected static final String GHOST_DEBUFF_ID = "ghosttowerdebuff";
+	protected static final int GHOST_DURATION = 1000;
 	
 	protected static final int DEFAULT_UPGRADE_MULTIPLIER = 100;
 	protected static final String UPGRADE_DEBUFF_ID = "upgradingtowerdebuff";
@@ -27,7 +27,8 @@ public abstract class Tower extends Entity {
 	
 	protected Node currNode;
 	
-	protected Stat ghostDuration;
+	protected boolean isGhost;
+	protected int ghostTimer;
 	
 	protected double priority;
 	protected int spawnFrame;
@@ -50,7 +51,7 @@ public abstract class Tower extends Entity {
 		
 		this.currNode = currNode;
 		
-		this.ghostDuration = new BasicStat(DEFAULT_GHOST_DURATION);
+		this.isGhost = false;
 		
 		this.priority = priority;
 		this.spawnFrame = spawnFrame;
@@ -68,6 +69,34 @@ public abstract class Tower extends Entity {
 		this.isLit = true;
 		
 		this.shapes = shapes;
+		
+		this.showHealthBar = true;
+		this.healthBarOffset = 0.6;
+		this.healthBarWidth = 1.6;
+		this.healthBarHeight = 0.3;
+	}
+	
+	public void setGhost(boolean newIsGhost){
+		if(newIsGhost && !isGhost){
+			isGhost = true;
+			ghostTimer = GHOST_DURATION;
+			showHealthBar = false;
+			attackAction.startSuppress();
+			moveAction.startSuppress();
+			specialAction.startSuppress();
+			passiveAction.startSuppress();
+			changeAction.startSuppress();
+		}
+		else if(!newIsGhost && isGhost){
+			isGhost = false;
+			showHealthBar = true;
+			currHealth = maxHealth.modifiedValue;
+			attackAction.endSuppress();
+			moveAction.endSuppress();
+			specialAction.endSuppress();
+			passiveAction.endSuppress();
+			changeAction.endSuppress();
+		}
 	}
 	
 	protected void prepareUpgradedTower(Tower upgrade){
@@ -90,7 +119,7 @@ public abstract class Tower extends Entity {
 		gameState.addTower(currNode.xLoc, currNode.yLoc, upgrade);
 		currNode.tower = upgrade;
 		gameState.towers.add(upgrade);
-		upgrade.addBuff(new UpgradingDebuff(tier));
+		upgrade.addBuff(new UpgradingDebuff(tier), gameState);
 		gameState.towers.remove(this);
 	}
 	
@@ -99,12 +128,6 @@ public abstract class Tower extends Entity {
 	public abstract String addGreen(GameState gameState);
 	
 	public abstract String addBlue(GameState gameState);
-	
-	@Override
-	public void onSpawn(GameState gameState){}
-	
-	@Override
-	public void onDespawn(GameState gameState){}
 	
 	protected static PaintableShapes generateBaseShapes(double xLoc, double yLoc){
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
@@ -151,8 +174,17 @@ public abstract class Tower extends Entity {
 		//tower aren't removed when they die, they instead become "ghosts" before respawning
 		if(currHealth <= 0){
 			isActive = true;
-			addBuff(new GhostDebuff());
+			setGhost(true);
 		}
+	}
+	
+	@Override
+	public void paintEntity(Graphics2D g2d, int cornerX, int cornerY, int tileSize){
+		if(isGhost)
+			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
+		super.paintEntity(g2d, cornerX, cornerY, tileSize);
+		if(isGhost)
+			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 	}
 }
 
@@ -163,10 +195,10 @@ class DisableTowerDebuff extends TimedBuff {
 	}
 	
 	@Override
-	public void handleDuplicate(Buff b){}
+	public void handleDuplicate(Buff b, GameState gameState){}
 	
 	@Override
-	public void apply(Entity e) {
+	public void apply(Entity e, GameState gameState) {
 		//suppress everything
 		e.attackAction.startSuppress();
 		e.moveAction.startSuppress();
@@ -176,33 +208,13 @@ class DisableTowerDebuff extends TimedBuff {
 	}
 
 	@Override
-	public void remove(Entity e) {
+	public void remove(Entity e, GameState gameState) {
 		e.attackAction.endSuppress();
 		e.moveAction.endSuppress();
 		e.specialAction.endSuppress();
 		e.passiveAction.endSuppress();
 		e.changeAction.endSuppress();
 	}
-}
-
-class GhostDebuff extends DisableTowerDebuff {
-
-	public GhostDebuff() {
-		super(Tower.GHOST_DEBUFF_ID, "Ghost Tower", "This tower is a ghost, it will rematerialize after some time.",
-			  Tower.DEFAULT_GHOST_DURATION);
-	}
-
-	@Override
-	public void apply(Entity e){
-		super.apply(e);
-		//remove all removable buffs
-		for(Buff b : e.buffs.values())
-			e.dispelBuff(b);
-				
-		//full heal
-		e.currHealth = e.maxHealth.modifiedValue;
-	}
-
 }
 
 class UpgradingDebuff extends DisableTowerDebuff {

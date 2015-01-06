@@ -46,7 +46,7 @@ public class TowerRGB extends SimpleTower{
 			if(gameState.frameNumber - spawnFrame % 10 == 0){ //only updates aura every 10 frames
 				Set<Tower> towers = gameState.getTowersInRange(xLoc, yLoc, AURA_RANGE);
 				for(Tower tower : towers)
-					tower.addBuff(null); //TODO: implement buff
+					tower.addBuff(null, gameState); //TODO: implement buff
 			}
 		}
 	}

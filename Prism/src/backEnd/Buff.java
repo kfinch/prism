@@ -15,12 +15,12 @@ public abstract class Buff {
 		this.isActive = true;
 	}
 	
-	public abstract void handleDuplicate(Buff b);
+	public abstract void handleDuplicate(Buff b, GameState gameState);
 	
-	public abstract void apply(Entity e);
+	public abstract void apply(Entity e, GameState gameState);
 	
-	public abstract void step(Entity e);
+	public abstract void step(Entity e, GameState gameState);
 	
-	public abstract void remove(Entity e);
+	public abstract void remove(Entity e, GameState gameState);
 	
 }

@@ -11,7 +11,7 @@ public class TowerR extends SimpleTower{
 	public static final double ATTACK_DAMAGE = 10;
 	public static final double ATTACK_DELAY = 25;
 	public static final double ATTACK_RANGE = 5;
-	public static final double PROJECTILE_SPEED = 0.2;
+	public static final double PROJECTILE_SPEED = 0.4;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.6;
 	
 	public TowerR(Node currNode, double xLoc, double yLoc, int spawnFrame) {
@@ -60,7 +60,7 @@ public class TowerR extends SimpleTower{
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(xLoc, yLoc, 0.13, GameState.PROJECTILE_RED);
+		result.addFixedCircle(0, 0, 0.17, GameState.PROJECTILE_RED);
 		
 		return result;
 	}

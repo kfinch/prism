@@ -1,5 +1,6 @@
 package backEnd;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import util.Animation;
@@ -45,19 +46,23 @@ public abstract class SimpleTower extends Tower{
 		if(attackAction.canAct()){
 			//acquire a new target
 			if(target == null || !target.isActive){
+				//System.out.println("Turret spawned on frame " + spawnFrame + " attempting to acquire target..."); //TODO:
 				target = acquireTarget(gameState);
 			}
 			//lose an acquired target
 			if((target != null) &&
 			   (GameState.dist(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue || !target.isActive)){
+				//System.out.println("Turret spawned on frame " + spawnFrame + " lost acquired target..."); //TODO:
 				target = null;
 			}
 			//track an acquired target
 			if(target != null && target.isActive){
+				//System.out.println("Turret spawned on frame " + spawnFrame + " tracking target..."); //TODO:
 				if(tracksTarget)
 					trackTarget();
 				//attack an acquired target
 				if(attackTimer == -1){
+					//System.out.println("Turret spawned on frame " + spawnFrame + " attacking target..."); //TODO:
 					if(usesProjectile)
 						projectileAttack(gameState);
 					else
@@ -70,12 +75,32 @@ public abstract class SimpleTower extends Tower{
 	
 	protected Enemy acquireTarget(GameState gameState){
 		Set<Enemy> enemiesInRange = gameState.getEnemiesInRange(xLoc, yLoc, attackRange.modifiedValue);
-		Enemy bestTarget = null;
-		for(Enemy e : enemiesInRange){
-			if(bestTarget == null || e.compareTo(bestTarget) > 0)
-				bestTarget = e;
+		//TODO: remove debugging code
+		//System.out.println(enemiesInRange.size() + " enemies detected in firing range (" + attackRange.modifiedValue + ")");
+		
+		double highestPriority = Double.NEGATIVE_INFINITY;
+		for(Enemy e : enemiesInRange)
+			highestPriority = (e.priority > highestPriority) ? e.priority : highestPriority;
+		
+		Iterator<Enemy> eIter = enemiesInRange.iterator();
+		Enemy e;
+		while(eIter.hasNext()){
+			e = eIter.next(); 
+			if(e.priority < highestPriority)
+				eIter.remove();
 		}
-		return bestTarget;
+		
+		int numTargets = enemiesInRange.size();
+		if(numTargets == 0)
+			return null;
+		
+		int rand = (int) (Math.random()*numTargets);
+		eIter = enemiesInRange.iterator();
+		Enemy result = null;
+		for(int i=-1; i<rand; i++)
+			result = eIter.next();
+		
+		return result;
 	}
 	
 	protected void trackTarget(){
@@ -90,7 +115,11 @@ public abstract class SimpleTower extends Tower{
 		offset.setAngleAndMagnitude(facing, shotOriginDistance);
 		double shotOriginX = xLoc + offset.x;
 		double shotOriginY = yLoc + offset.y;
-		gameState.projectiles.add(generateProjectile(gameState, shotOriginX, shotOriginY));
+		
+		Projectile proj = generateProjectile(gameState, shotOriginX, shotOriginY);
+		if(proj instanceof SimpleProjectile)
+			((SimpleProjectile) proj).playedAnimation = generateAttackAnimation(gameState);
+		gameState.projectiles.add(proj);
 	}
 	
 	protected void instantAttack(GameState gameState){
@@ -99,7 +128,7 @@ public abstract class SimpleTower extends Tower{
 			if(appliesDebuff){
 				for(Enemy e : enemiesInBlast){
 					e.harm(attackDamage.modifiedValue);
-					e.addBuff(generateAttackDebuff());
+					e.addBuff(generateAttackDebuff(), gameState);
 				}
 			}
 			else{
@@ -110,9 +139,13 @@ public abstract class SimpleTower extends Tower{
 		else{
 			target.harm(attackDamage.modifiedValue);
 			if(appliesDebuff)
-				target.addBuff(generateAttackDebuff());
+				target.addBuff(generateAttackDebuff(), gameState);
 		}
-		gameState.playAnimation(generateInstantAttackAnimation(gameState));
+		Animation a = generateAttackAnimation(gameState);
+		if(a != null){
+			a.setLocation(xLoc, yLoc);
+			gameState.playAnimation(a);
+		}
 	}
 	
 	protected Buff generateAttackDebuff(){
@@ -123,7 +156,7 @@ public abstract class SimpleTower extends Tower{
 		return null;
 	}
 	
-	protected Animation generateInstantAttackAnimation(GameState gameState){
+	protected Animation generateAttackAnimation(GameState gameState){
 		return null;
 	}
 	

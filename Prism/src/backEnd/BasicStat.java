@@ -31,7 +31,7 @@ public class BasicStat extends Stat{
 			double totalMultPenalty = 1;
 			for(double d : multPenalties)
 				totalMultPenalty += d-1;
-			modifiedValue *= totalMultPenalty;
+			modifiedValue /= totalMultPenalty;
 		}
 	}
 

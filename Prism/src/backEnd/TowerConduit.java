@@ -59,16 +59,19 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	
 	@Override
 	public void onSpawn(GameState gameState){
+		super.onSpawn(gameState);
 		gameState.lightSources.add(this);
 	}
 	
 	@Override
 	public void onDespawn(GameState gameState){
+		super.onDespawn(gameState);
 		gameState.lightSources.remove(this);
 	}
 	
 	@Override
 	public void preStep(GameState gameState){
+		super.preStep(gameState);
 		if(passiveAction.canAct() && currentLightRadius != RADIANCE){
 			double lightIncrease = (RADIANCE - currentLightRadius) * LIGHT_INCREASE_RATE;
 			if(lightIncrease < MIN_LIGHT_INCREASE)

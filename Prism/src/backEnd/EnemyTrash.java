@@ -5,12 +5,12 @@ import util.PaintableShapes;
 public class EnemyTrash extends SimpleEnemy {
 
 	public static final double PRIORITY = 0;
-	public static final double MAX_HEALTH = 200;
+	public static final double MAX_HEALTH = 150;
 	public static final double HEALTH_REGEN = 0;
 	public static final double ATTACK_DAMAGE = 50;
 	public static final double ATTACK_DELAY = 1000;
 	public static final double ATTACK_RANGE = 0.1;
-	public static final double MOVE_SPEED = 0.04;
+	public static final double MOVE_SPEED = 0.1;
 	
 	public static final double TOWER_AFFINITY = 0;
 	public static final double BRAVERY = 0;

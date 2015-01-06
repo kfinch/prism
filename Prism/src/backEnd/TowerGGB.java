@@ -64,6 +64,6 @@ public class TowerGGB extends SimpleTower {
 	
 	@Override
 	protected Buff generateAttackDebuff(){
-		return new MoveSlowTowerDebuff(SLOW_DURATION, SLOW_STRENGTH);
+		return new SlowingTowerDebuff(SLOW_DURATION, SLOW_STRENGTH);
 	}
 }

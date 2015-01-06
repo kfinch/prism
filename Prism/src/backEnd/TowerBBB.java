@@ -52,7 +52,7 @@ public class TowerBBB extends SimpleTower {
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(xLoc, yLoc, 0.2, GameState.PROJECTILE_BLUE);
+		result.addFixedCircle(0, 0, 0.2, GameState.PROJECTILE_BLUE);
 		
 		return result;
 	}

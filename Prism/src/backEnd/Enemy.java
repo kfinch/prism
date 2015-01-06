@@ -9,7 +9,7 @@ import util.PaintableShapes;
  * 
  * @author Kelton Finch
  */
-public abstract class Enemy extends Entity implements Comparable<Enemy>{
+public abstract class Enemy extends Entity {
 	
 	protected Node currNode, nextNode; //node this enemy is on, and node it's headed to.
 	protected boolean toNextNode; //true if this enemy has reached it's next node.
@@ -39,31 +39,21 @@ public abstract class Enemy extends Entity implements Comparable<Enemy>{
 		this.attackTimer = -1;
 		
 		this.moveSpeed = new BasicStat(moveSpeed);
+		
+		this.showHealthBar = true;
+		this.healthBarOffset = 0.3;
+		this.healthBarWidth = 0.6;
+		this.healthBarHeight = 0.2;
 	}
 	
 	@Override
-	public void onSpawn(GameState gameState){}
-	
-	@Override
-	public void onDespawn(GameState gameState){}
-	
-	@Override
 	public void preStep(GameState gameState){
+		super.preStep(gameState);
 		if(passiveAction.canAct()){
 			if(attackTimer >= 0)
 				attackTimer++;
 			if(attackTimer >= attackDelay.modifiedValue)
 				attackTimer = -1;
 		}
-	}
-	
-	@Override
-	public int compareTo(Enemy e){
-		if(priority > e.priority)
-			return 1;
-		else if(priority < e.priority)
-			return -1;
-		else
-			return e.spawnFrame - spawnFrame;
 	}
 }

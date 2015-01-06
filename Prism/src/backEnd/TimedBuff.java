@@ -10,9 +10,9 @@ public abstract class TimedBuff extends Buff {
 	}
 	
 	@Override
-	public void step(Entity e){
+	public void step(Entity e, GameState gameState){
 		timer--;
-		if(timer == 0)
+		if(timer <= 0)
 			isActive = false;
 	}
 

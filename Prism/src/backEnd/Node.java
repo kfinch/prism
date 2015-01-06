@@ -35,7 +35,7 @@ public class Node {
 		tower = null;
 	}
 	
-	public boolean hasSolidTower(){
-		return tower != null && !tower.hasBuff(Tower.GHOST_DEBUFF_ID);
+	public boolean hasLiveTower(){
+		return tower != null && !tower.isGhost;
 	}
 }

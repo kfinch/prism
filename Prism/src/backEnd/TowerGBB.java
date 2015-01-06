@@ -45,7 +45,7 @@ public class TowerGBB extends SimpleTower{
 		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, attackAOE.modifiedValue);
 		for(Enemy e : enemiesInBlast)
 			e.harm(attackDamage.modifiedValue);
-		gameState.playAnimation(generateInstantAttackAnimation(gameState));
+		gameState.playAnimation(generateAttackAnimation(gameState));
 	}
 	
 	//TODO: update
@@ -66,7 +66,7 @@ public class TowerGBB extends SimpleTower{
 	}
 	
 	@Override
-	protected Animation generateInstantAttackAnimation(GameState gameState){
+	protected Animation generateAttackAnimation(GameState gameState){
 		return null; //TODO: update
 	}
 }

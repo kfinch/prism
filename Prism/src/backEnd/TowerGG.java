@@ -35,11 +35,12 @@ public class TowerGG extends SimpleTower{
 		return Tower.CANT_UPGRADE_MAX_LEVEL;
 	}
 	
-	//TODO: update shapes
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){
 		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(0, 0, 0.5, GameState.TOWER_GREEN);
+		result.addFixedCircle(0, 0, 0.65, GameState.TOWER_GREEN);
+		result.addFixedCircle(0, 0, 0.4, GameState.TOWER_BASE);
+		result.addFixedCircle(0, 0, 0.2, GameState.TOWER_GREEN);
 		
 		return result;
 	}

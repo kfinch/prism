@@ -84,6 +84,13 @@ public abstract class SimpleEnemy extends Enemy{
 		this.facing = 0;
 	}
 	
+	protected void swapToNextNode(){
+		currNode.enemies.remove(this);
+		nextNode.enemies.add(this);
+		currNode = nextNode;
+		nextNode = null;
+	}
+	
 	//TODO: this is a dumb way of doing it )= Think of something better.
 	protected void chooseNextNode(GameState gameState){
 		//System.out.println("Choosing next node from " + xLoc + " " + yLoc);
@@ -188,8 +195,7 @@ public abstract class SimpleEnemy extends Enemy{
 				if(GameState.dist(xLoc, yLoc, nextNode.xLoc, nextNode.yLoc) <= moveSpeed.modifiedValue){
 					xLoc = nextNode.xLoc;
 					yLoc = nextNode.yLoc;
-					currNode = nextNode;
-					nextNode = null;
+					swapToNextNode();
 				}
 				else{
 					Vector2d moveVec = new Vector2d(nextNode.xLoc - xLoc, nextNode.yLoc - yLoc);
@@ -241,8 +247,10 @@ public abstract class SimpleEnemy extends Enemy{
 	protected void instantAttack(GameState gameState, Entity target){
 		target.harm(attackDamage.modifiedValue);
 		if(appliesDebuff)
-			target.addBuff(generateAttackDebuff());
-		gameState.playAnimation(generateInstantAttackAnimation(gameState));
+			target.addBuff(generateAttackDebuff(), gameState);
+		Animation a = generateInstantAttackAnimation(gameState);
+		if(a != null)
+			gameState.playAnimation(a);
 	}
 
 	protected Buff generateAttackDebuff(){

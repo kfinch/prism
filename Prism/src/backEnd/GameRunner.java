@@ -19,8 +19,8 @@ public class GameRunner implements ActionListener {
 	public static final double COLOR_GAIN_RATE = 0.1;
 	public static final double FLUX_GAIN_RATE = 0.1;
 	
-	public static final int DEFAULT_BOARD_WIDTH = 65;
-	public static final int DEFAULT_BOARD_HEIGHT = 27;
+	public static final int DEFAULT_BOARD_WIDTH = 45;
+	public static final int DEFAULT_BOARD_HEIGHT = 15;
 	
 	public static final int NO_ACTION = 0;
 	public static final int ADD_RED_ACTION = 1;
@@ -83,21 +83,30 @@ public class GameRunner implements ActionListener {
 		case NO_ACTION: break;
 		case ADD_RED_ACTION:
 			System.out.println("Attempting to add red at (" + n.xLoc + "," + n.yLoc + ") clicked.");
-			if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
+			if(n.tower != null){
+				n.tower.addRed(gameState);
+			}
+			else if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
 				Tower tower = new TowerR(n, n.xLoc, n.yLoc, gameState.frameNumber);
 				gameState.addTower(n.xLoc, n.yLoc, tower);
 			}
 			break;
 		case ADD_GREEN_ACTION:
 			System.out.println("Attempting to add green at (" + n.xLoc + "," + n.yLoc + ") clicked.");
-			if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
+			if(n.tower != null){
+				n.tower.addGreen(gameState);
+			}
+			else if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
 				Tower tower = new TowerG(n, n.xLoc, n.yLoc, gameState.frameNumber);
 				gameState.addTower(n.xLoc, n.yLoc, tower);
 			}
 			break;
 		case ADD_BLUE_ACTION:
 			System.out.println("Attempting to add blue at (" + n.xLoc + "," + n.yLoc + ") clicked.");
-			if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
+			if(n.tower != null){
+				n.tower.addBlue(gameState);
+			}
+			else if(gameState.isValidTowerLocation(n.xLoc, n.yLoc)){
 				Tower tower = new TowerB(n, n.xLoc, n.yLoc, gameState.frameNumber);
 				gameState.addTower(n.xLoc, n.yLoc, tower);
 			}

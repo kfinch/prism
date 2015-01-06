@@ -12,11 +12,11 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
 
+import util.Animation;
 import util.Point2d;
 import backEnd.Entity;
 import backEnd.GameRunner;
 import backEnd.LightSource;
-import backEnd.TowerConduit;
 
 public class GamePanel extends JPanel implements MouseListener, KeyListener {
 
@@ -108,6 +108,10 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 		
 		for(Entity e : game.gameState.miscEntities)
 			e.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
+		
+		//draw animations
+		for(Animation a : game.gameState.animations)
+			a.paintAnimation(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
 		
 		//draw resource counts / frame number
 		g2d.setFont(new Font(Font.SANS_SERIF,Font.BOLD,16));

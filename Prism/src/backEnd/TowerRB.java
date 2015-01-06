@@ -11,8 +11,8 @@ public class TowerRB extends SimpleTower{
 	public static final double ATTACK_DAMAGE = 80;
 	public static final double ATTACK_DELAY = 65;
 	public static final double ATTACK_RANGE = 8;
-	public static final double PROJECTILE_SPEED = 0.4;
-	public static final double SHOT_ORIGIN_DISTANCE = 0.6; //TODO: Update
+	public static final double PROJECTILE_SPEED = 0.7;
+	public static final double SHOT_ORIGIN_DISTANCE = 0.75;
 	
 	public TowerRB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
@@ -34,29 +34,27 @@ public class TowerRB extends SimpleTower{
 		return Tower.CANT_UPGRADE_MAX_LEVEL;
 	}
 	
-	//TODO: Update
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){
 		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
 		
-		int nPoints1 = 4;
-		double[] xPoints1 = {0, 0.4, 0, -0.4};
-		double[] yPoints1 = {-0.4, 0, 0.4, 0};
-		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_RED);
+		int nPoints1 = 3;
+		double[] xPoints1 = {-0.5, 0, 0};
+		double[] yPoints1 = {0, -0.5, 0.5};
+		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BLUE);
 		
-		int nPoints2 = 4;
-		double[] xPoints2 = {0.2, 0.4, 0.4, 0.2};
-		double[] yPoints2 = {-0.2, -0.2, 0.2, 0.2};
+		int nPoints2 = 3;
+		double[] xPoints2 = {0.15, 0.75, 0.15};
+		double[] yPoints2 = {-0.2, 0, 0.2};
 		result.addRotatablePolygon(nPoints2, xPoints2, yPoints2, GameState.TOWER_RED);
 		
 		return result;
 	}
 
-	//TODO: Update
 	@Override
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(xLoc, yLoc, 0.13, GameState.PROJECTILE_RED);
+		result.addFixedCircle(0, 0, 0.17, GameState.PROJECTILE_REDBLUE);
 		
 		return result;
 	}

@@ -1,8 +1,8 @@
 package backEnd;
 
-import java.util.Set;
-
+import util.Animation;
 import util.PaintableShapes;
+import util.SimpleCircleAnimation;
 
 public class TowerGB extends SimpleTower {
 	
@@ -12,13 +12,13 @@ public class TowerGB extends SimpleTower {
 	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
 	public static final double ATTACK_DAMAGE = 20;
 	public static final double ATTACK_DELAY = 40;
-	public static final double ATTACK_RANGE = 4;
-	public static final double PROJECTILE_SPEED = 0.15;
-	public static final double SHOT_ORIGIN_DISTANCE = 0.6; //TODO: update
+	public static final double ATTACK_RANGE = 7;
+	public static final double PROJECTILE_SPEED = TowerB.PROJECTILE_SPEED;
+	public static final double SHOT_ORIGIN_DISTANCE = 0.75;
 	public static final double ATTACK_AOE = 0.2;
 	
 	public static final int SLOW_DURATION = 60;
-	public static final double SLOW_STRENGTH = 1.3;
+	public static final double SLOW_STRENGTH = 1.5;
 	
 	public TowerGB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
@@ -41,29 +41,34 @@ public class TowerGB extends SimpleTower {
 		return Tower.CANT_UPGRADE_MAX_LEVEL;
 	}
 	
-	//TODO: update
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){
 		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
 		
-		int nPoints1 = 12;
-		double[] xPoints1 = {-0.4, -0.2, -0.2, 0.2, 0.2, 0.6, 0.6, 0.2, 0.2, -0.2, -0.2, -0.4};
-		double[] yPoints1 = {-0.2, -0.2, -0.4, -0.4, -0.2, -0.2, 0.2, 0.2, 0.4, 0.4, 0.2, 0.2};
-		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BLUE);
+		result.addRotatableRectangle(0.3, -0.3, 0.75, 0.3, GameState.TOWER_BLUE);
+		result.addFixedCircle(0, 0, 0.5, GameState.TOWER_GREEN);
 		
 		return result;
 	}
 
-	@Override //TODO: update
+	@Override
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(xLoc, yLoc, 0.2, GameState.PROJECTILE_BLUE);
+		int nPoints1 = 8;
+		double[] xPoints1 = {0, 0.07, 0.22, 0.07, 0, -0.07, -0.22, -0.07};
+		double[] yPoints1 = {-0.22, -0.07, 0, 0.07, 0.22, 0.07, 0, -0.07};
+		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.PROJECTILE_GREENBLUE);
 		
 		return result;
 	}
 	
 	@Override
 	protected Buff generateAttackDebuff(){
-		return new MoveSlowTowerDebuff(SLOW_DURATION, SLOW_STRENGTH);
+		return new SlowingTowerDebuff(SLOW_DURATION, SLOW_STRENGTH);
+	}
+	
+	@Override
+	protected Animation generateAttackAnimation(GameState gameState){
+		return new SimpleCircleAnimation(10, 0.2, attackAOE.modifiedValue*2, 0.6f, 0.3f, GameState.PROJECTILE_GREENBLUE);
 	}
 }
