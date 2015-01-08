@@ -1,5 +1,6 @@
 package backEnd;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,6 +89,10 @@ public abstract class Entity {
 		currHealth += modHealing;
 		if(currHealth > maxHealth.modifiedValue)
 			currHealth = maxHealth.modifiedValue;
+	}
+	
+	public void die(GameState gameState){
+		isActive = false;
 	}
 	
 	public void moveBy(double changeXLoc, double changeYLoc){
@@ -179,7 +184,7 @@ public abstract class Entity {
 	 */
 	public void postStep(GameState gameState){
 		if(currHealth <= 0)
-			isActive = false;
+			die(gameState);
 		
 		for(Buff b : buffs.values()){
 			if(!b.isActive)
@@ -200,15 +205,19 @@ public abstract class Entity {
 			paintHealthBar(g2d, centerX, centerY, tileSize);
 	}
 	
+	protected void paintStatusBar(Graphics2D g2d, int centerX, int centerY, int tileSize, double xOffset, double yOffset,
+			                      double width, double height, double percentFull, Color emptyColor, Color fullColor){
+		g2d.setColor(emptyColor);
+		g2d.fillRect((int)(centerX - (width/2 + xOffset)*tileSize), (int)(centerY - (height/2 + yOffset)*tileSize),
+				     (int)(width*tileSize), (int)(height*tileSize));
+		g2d.setColor(fullColor);
+		g2d.fillRect((int)(centerX - (width/2 + xOffset)*tileSize), (int)(centerY - (height/2 + yOffset)*tileSize),
+				     (int)(width*percentFull*tileSize), (int)(height*tileSize));
+	}
+	
 	protected void paintHealthBar(Graphics2D g2d, int centerX, int centerY, int tileSize){
-		g2d.setColor(GameState.HEALTH_BAR_EMPTY);
-		g2d.fillRect((int)(centerX - (healthBarWidth/2)*tileSize), (int)(centerY + (healthBarOffset)*tileSize),
-			         (int)(healthBarWidth*tileSize), (int)(healthBarHeight*tileSize));
-		
-		double healthPercent = currHealth / maxHealth.modifiedValue;
-		g2d.setColor(GameState.HEALTH_BAR_FULL);
-		g2d.fillRect((int)(centerX - (healthBarWidth/2)*tileSize), (int)(centerY + (healthBarOffset)*tileSize),
-			         (int)(healthBarWidth*healthPercent*tileSize), (int)(healthBarHeight*tileSize));
+		paintStatusBar(g2d, centerX, centerY, tileSize, 0, healthBarOffset, healthBarWidth, healthBarHeight, 
+				       currHealth / maxHealth.modifiedValue, GameState.HEALTH_BAR_EMPTY, GameState.HEALTH_BAR_FULL);
 	}
 	
 }

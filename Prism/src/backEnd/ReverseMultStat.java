@@ -19,12 +19,16 @@ public class ReverseMultStat extends Stat{
 	public void update() {
 		modifiedValue = baseValue;
 		if(bonusImmunityCount == 0){
+			double totalMultBonus = 1;
 			for(double d : multBonuses)
-				modifiedValue /= d;
+				totalMultBonus += d-1;
+			modifiedValue /= totalMultBonus;
 		}
 		if(penaltyImmunityCount == 0){
+			double totalMultPenalty = 1;
 			for(double d : multPenalties)
-				modifiedValue *= d;
+				totalMultPenalty += d-1;
+			modifiedValue *= totalMultPenalty;
 		}
 	}
 }

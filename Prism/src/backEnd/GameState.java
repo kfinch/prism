@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import util.Animation;
+import util.GeometryUtils;
 
 /**
  * Fully encapsulates a prism game state, and provides methods for inspecting or modifying the state.
@@ -50,9 +51,30 @@ public class GameState {
 	public Set<Entity> miscEntities; //a set of all active misc entities
 	public Set<LightSource> lightSources; //a set of all light sources
 	
+	public Prism prism;
+	
 	public List<Animation> animations; //a list of all active animations
 	
+	public double redResources;
+	public double greenResources;
+	public double blueResources;
+	public double fluxResources;
+	
+	public double redResourcesGain;
+	public double greenResourcesGain;
+	public double blueResourcesGain;
+	public double fluxResourcesGain;
+	
+	public double maximumFlux;
+	
 	public GameState(int xNodes, int yNodes){
+		this(xNodes, yNodes, GameRunner.STARTING_COLOR, GameRunner.STARTING_FLUX,
+			  GameRunner.COLOR_GAIN_RATE, GameRunner.FLUX_GAIN_RATE, GameRunner.MAXIMUM_FLUX);
+	}
+	
+	public GameState(int xNodes, int yNodes,
+			         double startingColorResources, double startingFluxResources,
+			         double colorResourcesGain, double fluxResourcesGain, double maximumFlux){
 		this.frameNumber = 0;
 		
 		this.xNodes = xNodes;
@@ -72,12 +94,22 @@ public class GameState {
 		miscEntities = new HashSet<Entity>();
 		lightSources = new HashSet<LightSource>();
 		
-		//TODO: this should probably be it's own special entity
-		Prism prism = new Prism(-15, yNodes/2, 22);
-		miscEntities.add(prism);
+		this.prism = new Prism(-15, yNodes/2, 22);
 		lightSources.add(prism);
 		
 		animations = new LinkedList<Animation>();
+		
+		this.redResources = startingColorResources;
+		this.greenResources = startingColorResources;
+		this.blueResources = startingColorResources;
+		this.fluxResources = startingFluxResources;
+		
+		this.redResourcesGain = colorResourcesGain;
+		this.greenResourcesGain = colorResourcesGain;
+		this.blueResourcesGain = colorResourcesGain;
+		this.fluxResourcesGain = fluxResourcesGain;
+		
+		this.maximumFlux = maximumFlux;
 	}
 	
 	public Node nodeAt(int x, int y){
@@ -187,7 +219,7 @@ public class GameState {
 			}
 		}
 		for(LightSource ls : lightSources){
-			if(dist(ls.getLocation().x, ls.getLocation().y, x, y) <= ls.lightRadius() - Math.sqrt(2))
+			if(GeometryUtils.dist(ls.getLocation().x, ls.getLocation().y, x, y) <= ls.lightRadius() - Math.sqrt(2))
 				return true;
 		}
 		return false;
@@ -207,7 +239,7 @@ public class GameState {
 	
 	public boolean isLit(double x, double y){
 		for(LightSource ls : lightSources){
-			if(dist(ls.getLocation().x, ls.getLocation().y, x, y) <= ls.lightRadius())
+			if(GeometryUtils.dist(ls.getLocation().x, ls.getLocation().y, x, y) <= ls.lightRadius())
 				return true;
 		}
 		return false;
@@ -221,6 +253,16 @@ public class GameState {
 			int spawnX = xNodes-1;
 			int spawnY = (int) (Math.random()*yNodes);
 			addEnemy(spawnX, spawnY, new EnemyTrash(nodeAt(spawnX, spawnY), spawnX, spawnY, frameNumber));
+		}
+		if(frameNumber % 120 == 20){
+			int spawnX = xNodes-1;
+			int spawnY = (int) (Math.random()*yNodes);
+			addEnemy(spawnX, spawnY, new EnemyNibbler(nodeAt(spawnX, spawnY), spawnX, spawnY, frameNumber));
+		}
+		if(frameNumber % 4000 == 810){
+			int spawnX = xNodes-1;
+			int spawnY = (int) (Math.random()*yNodes);
+			addEnemy(spawnX, spawnY, new EnemyBigBoss(nodeAt(spawnX, spawnY), spawnX, spawnY, frameNumber));
 		}
 		
 		//prestep all entities
@@ -329,18 +371,12 @@ public class GameState {
 				a.step();
 		}
 		
-	}
-	
-	public static double dist(double x1, double y1, double x2, double y2){
-		return Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
-	}
-	
-	public static double distFromTowerEdge(double x1, double y1, double x2, double y2){
-		double xDiff = Math.abs(x1 - x2);
-		double yDiff = Math.abs(y1 - y2);
-		xDiff = (xDiff <= 1) ? 0 : xDiff - 1;
-		yDiff = (yDiff <= 1) ? 0 : yDiff - 1;
-		return Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+		redResources += redResourcesGain;
+		greenResources += greenResourcesGain;
+		blueResources += blueResourcesGain;
+		fluxResources += fluxResourcesGain;
+		if(fluxResources > maximumFlux)
+			fluxResources = maximumFlux;
 	}
 	
 	public Set<Node> getNodesInRange(double xLoc, double yLoc, double range){
@@ -364,7 +400,7 @@ public class GameState {
 		
 		for(int x=xMin; x<=xMax; x++){
 			for(int y=yMin; y<=yMax; y++){
-				if(dist(x,y,xLoc,yLoc) <= range){
+				if(GeometryUtils.dist(x,y,xLoc,yLoc) <= range){
 					result.add(nodes[x][y]);
 				}
 			}
@@ -417,7 +453,7 @@ public class GameState {
 	public Set<Enemy> getEnemiesInRange(double xLoc, double yLoc, double range){
 		Set<Enemy> result = new HashSet<Enemy>();
 		for(Enemy en : enemies){
-			if(dist(en.xLoc, en.yLoc, xLoc, yLoc) <= range)
+			if(GeometryUtils.dist(en.xLoc, en.yLoc, xLoc, yLoc) <= range)
 				result.add(en);
 		}
 		return result;
@@ -437,7 +473,7 @@ public class GameState {
 	public Set<Projectile> getProjectilesInRange(double xLoc, double yLoc, double range){
 		Set<Projectile> result = new HashSet<Projectile>();
 		for(Projectile p : projectiles){
-			if(dist(p.xLoc, p.yLoc, xLoc, yLoc) <= range)
+			if(GeometryUtils.dist(p.xLoc, p.yLoc, xLoc, yLoc) <= range)
 				result.add(p);
 		}
 		return result;
@@ -491,9 +527,13 @@ public class GameState {
 	public Set<Tower> getTowersInRange(double xLoc, double yLoc, double range){
 		Set<Tower> result = new HashSet<Tower>();
 		for(Tower t : towers){
-			if(!t.isGhost && distFromTowerEdge(t.xLoc, t.yLoc, xLoc, yLoc) <= range)
+			if(!t.isGhost && GeometryUtils.distFromTowerEdge(t.xLoc, t.yLoc, xLoc, yLoc) <= range)
 				result.add(t);
 		}
 		return result;
+	}
+	
+	public boolean isPrismInRange(double xLoc, double yLoc, double range){
+		return (range >= xLoc);
 	}
 }

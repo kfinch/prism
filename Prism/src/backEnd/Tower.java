@@ -1,6 +1,7 @@
 package backEnd;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +17,20 @@ public abstract class Tower extends Entity {
 	
 	protected static final int GHOST_DURATION = 1000;
 	
-	protected static final int DEFAULT_UPGRADE_MULTIPLIER = 100;
 	protected static final String UPGRADE_DEBUFF_ID = "upgradingtowerdebuff";
 	
 	protected static final int DEFAULT_SELL_DURATION = 200;
 	protected static final String SELL_DEBUFF_ID = "sellingtowerdebuff";
 	
-	protected static final String CANT_UPGRADE_MAX_LEVEL = "Can't upgrade this tower; it's already max level!";
-	protected static final String CANT_UPGRADE_NO_PATH = "Can't upgrade this tower; there's no upgrade path with that color.";
+	protected static final int UPGRADE_DURATION_MULTIPLIER = 100;
+	
+	protected static final String CANT_UPGRADE_MAX_LEVEL = "This tower is already max level!";
+	protected static final String CANT_UPGRADE_NO_PATH = "There's no upgrade path with that color.";
+	protected static final String CANT_UPGRADE_ACTION_DISABLED = "This tower can't currently do that action";
+	
+	protected static final double HEALTH_BAR_OFFSET = -0.7;
+	protected static final double HEALTH_BAR_WIDTH = 1.6;
+	protected static final double HEALTH_BAR_HEIGHT = 0.3;
 	
 	protected Node currNode;
 	
@@ -71,9 +78,9 @@ public abstract class Tower extends Entity {
 		this.shapes = shapes;
 		
 		this.showHealthBar = true;
-		this.healthBarOffset = 0.6;
-		this.healthBarWidth = 1.6;
-		this.healthBarHeight = 0.3;
+		this.healthBarOffset = HEALTH_BAR_OFFSET;
+		this.healthBarWidth = HEALTH_BAR_WIDTH;
+		this.healthBarHeight = HEALTH_BAR_HEIGHT;
 	}
 	
 	public void setGhost(boolean newIsGhost){
@@ -114,27 +121,81 @@ public abstract class Tower extends Entity {
 		upgrade.currHealth = upgrade.maxHealth.modifiedValue * healthPercent;
 	}
 	
-	protected void upgradeToTower(GameState gameState, Tower upgrade){
-		prepareUpgradedTower(upgrade);
-		gameState.addTower(currNode.xLoc, currNode.yLoc, upgrade);
-		currNode.tower = upgrade;
-		gameState.towers.add(upgrade);
-		upgrade.addBuff(new UpgradingDebuff(tier), gameState);
-		gameState.towers.remove(this);
+	/*
+	 * Attempts to upgrade to the given tower, returns true if it works, false if it can't.
+	 */
+	protected boolean upgradeToTower(GameState gameState, Tower upgrade){
+		if(changeAction.canAct()){
+			prepareUpgradedTower(upgrade);
+			gameState.addTower(currNode.xLoc, currNode.yLoc, upgrade);
+			currNode.tower = upgrade;
+			gameState.towers.add(upgrade);
+			upgrade.addBuff(new UpgradingDebuff(tier), gameState);
+			gameState.towers.remove(this);
+			return true;
+		}
+		else
+			return false;
 	}
 	
-	public abstract String addRed(GameState gameState);
+	protected Tower generateRedUpgrade(){
+		return null;
+	}
 	
-	public abstract String addGreen(GameState gameState);
+	protected Tower generateGreenUpgrade(){
+		return null;
+	}
 	
-	public abstract String addBlue(GameState gameState);
+	protected Tower generateBlueUpgrade(){
+		return null;
+	}
+	
+	public String addRed(GameState gameState){
+		Tower upgrade = generateRedUpgrade();
+		if(upgrade == null)
+			return Tower.CANT_UPGRADE_MAX_LEVEL;
+		else if(!upgradeToTower(gameState, upgrade))
+			return Tower.CANT_UPGRADE_ACTION_DISABLED;
+		else
+			return null;
+	}
+	
+	public String addGreen(GameState gameState){
+		Tower upgrade = generateGreenUpgrade();
+		if(upgrade == null)
+			return Tower.CANT_UPGRADE_MAX_LEVEL;
+		else if(!upgradeToTower(gameState, upgrade))
+			return Tower.CANT_UPGRADE_ACTION_DISABLED;
+		else
+			return null;
+	}
+	
+	public String addBlue(GameState gameState){
+		Tower upgrade = generateBlueUpgrade();
+		if(upgrade == null)
+			return Tower.CANT_UPGRADE_MAX_LEVEL;
+		else if(!upgradeToTower(gameState, upgrade))
+			return Tower.CANT_UPGRADE_ACTION_DISABLED;
+		else
+			return null;
+	}
+	
+	public String sell(GameState gameState){
+		if(changeAction.canAct()){
+			addBuff(new SellingDebuff(), gameState);
+			return null;
+		}
+		else{
+			return CANT_UPGRADE_ACTION_DISABLED;
+		}
+	}
 	
 	protected static PaintableShapes generateBaseShapes(double xLoc, double yLoc){
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
 		int nPoints1 = 4;
-		double[] xPoints1 = {-1, 1, 1, -1};
-		double[] yPoints1 = {-1, -1, 1, 1};
+		double[] xPoints1 = {-0.97, 0.97, 0.97, -0.97};
+		double[] yPoints1 = {-0.97, -0.97, 0.97, 0.97};
 		result.addFixedPolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BASE);
 		
 		return result;
@@ -168,21 +229,32 @@ public abstract class Tower extends Entity {
 	}
 	
 	@Override
-	public void postStep(GameState gameState){
-		super.postStep(gameState);
-		
-		//tower aren't removed when they die, they instead become "ghosts" before respawning
-		if(currHealth <= 0){
-			isActive = true;
-			setGhost(true);
-		}
+	public void die(GameState gameState){
+		setGhost(true); //rather than being completely removed, towers become ghosts on death
 	}
 	
 	@Override
 	public void paintEntity(Graphics2D g2d, int cornerX, int cornerY, int tileSize){
 		if(isGhost)
 			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
+		
 		super.paintEntity(g2d, cornerX, cornerY, tileSize);
+		
+		int centerX = (int) (cornerX + xLoc*tileSize); //TODO: this basically repeated code =/ Solution?
+		int centerY = (int) (cornerY + yLoc*tileSize);
+		if(hasBuff(UPGRADE_DEBUFF_ID)){
+			TimedBuff tb = (TimedBuff) buffs.get(UPGRADE_DEBUFF_ID);
+			double percentComplete = ((double)tb.initialDuration - (double)tb.timer) / ((double)tb.initialDuration);
+			super.paintStatusBar(g2d, centerX, centerY, tileSize, 0, 0, 1.8, 0.6, percentComplete,
+					             Color.black, Color.white);
+		}
+		if(hasBuff(SELL_DEBUFF_ID)){
+			TimedBuff tb = (TimedBuff) buffs.get(SELL_DEBUFF_ID);
+			double percentComplete = ((double)tb.timer) / ((double)tb.initialDuration);
+			super.paintStatusBar(g2d, centerX, centerY, tileSize, 0, 0, 1.8, 0.6, percentComplete,
+					             Color.black, Color.white);
+		}
+		
 		if(isGhost)
 			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 	}
@@ -199,7 +271,7 @@ class DisableTowerDebuff extends TimedBuff {
 	
 	@Override
 	public void apply(Entity e, GameState gameState) {
-		//suppress everything
+		//suppress everything (SHUT. DOWN. EVERYTHING.)
 		e.attackAction.startSuppress();
 		e.moveAction.startSuppress();
 		e.specialAction.startSuppress();
@@ -221,7 +293,22 @@ class UpgradingDebuff extends DisableTowerDebuff {
 	
 	public UpgradingDebuff(int tier) {
 		super(Tower.UPGRADE_DEBUFF_ID, "Upgrading...", "This tower is upgrading, and is disabled until it is finished.",
-		      Tower.DEFAULT_UPGRADE_MULTIPLIER*tier);
+		      Tower.UPGRADE_DURATION_MULTIPLIER*tier);
+	}
+}
+
+class SellingDebuff extends DisableTowerDebuff {
+	
+	public SellingDebuff(){
+		super(Tower.SELL_DEBUFF_ID, "Selling...",
+			  "This tower is being sold for resources, and is disabled until it is finished.", Tower.DEFAULT_SELL_DURATION);
+	}
+	
+	@Override
+	public void remove(Entity e, GameState gameState){
+		super.remove(e, gameState);
+		e.isActive = false;
+		//TODO: give player resources for the sell! (reduced if tower is ghost on sell completion)
 	}
 }
 

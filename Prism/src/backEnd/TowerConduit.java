@@ -33,21 +33,6 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	}
 	
 	@Override
-	public String addRed(GameState gameState){
-		return Tower.CANT_UPGRADE_NO_PATH;
-	}
-	
-	@Override
-	public String addGreen(GameState gameState){
-		return Tower.CANT_UPGRADE_NO_PATH;
-	}
-	
-	@Override
-	public String addBlue(GameState gameState){
-		return Tower.CANT_UPGRADE_NO_PATH;
-	}
-	
-	@Override
 	public double lightRadius() {
 		return currentLightRadius;
 	}

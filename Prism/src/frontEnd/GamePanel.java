@@ -76,15 +76,10 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 			int diameter = (int) (radiance * 2 * tileSize);
 			g2d.fillOval(x, y, diameter, diameter);
 		}
-		g2d.setColor(Color.white);
-		g2d.fillRect(0, 0, leftMargin, panelHeight);
-		g2d.fillRect(0, 0, panelWidth, topMargin);
-		g2d.fillRect(leftMargin + tileSize*xNodes, 0, panelWidth, panelHeight);
-		g2d.fillRect(0, topMargin + tileSize*yNodes, panelWidth, panelHeight);
 		
 		//dot individual nodes
 		g2d.setColor(Color.black);
-		int dotSize = 3;
+		int dotSize = 4;
 		for(int i=0; i<xNodes; i++){
 			for(int j=0; j<yNodes; j++){
 				g2d.fillOval(leftMargin + i*tileSize + tileSize/2 - dotSize/2,
@@ -113,20 +108,27 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 		for(Animation a : game.gameState.animations)
 			a.paintAnimation(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
 		
+		//box out anything that leaks...
+		g2d.setColor(Color.white);
+		g2d.fillRect(0, 0, leftMargin, panelHeight);
+		g2d.fillRect(0, 0, panelWidth, topMargin);
+		g2d.fillRect(leftMargin + tileSize*xNodes, 0, panelWidth, panelHeight);
+		g2d.fillRect(0, topMargin + tileSize*yNodes, panelWidth, panelHeight);
+		
 		//draw resource counts / frame number
 		g2d.setFont(new Font(Font.SANS_SERIF,Font.BOLD,16));
 		
 		g2d.setColor(Color.red);
-		g2d.drawString("RED: " + ((int) game.redResources), 20, 18);
+		g2d.drawString("RED: " + ((int) game.gameState.redResources), 20, 18);
 		
 		g2d.setColor(Color.green);
-		g2d.drawString("GREEN: " + ((int) game.greenResources), 220, 18);
+		g2d.drawString("GREEN: " + ((int) game.gameState.greenResources), 220, 18);
 		
 		g2d.setColor(Color.blue);
-		g2d.drawString("BLUE: " + ((int) game.blueResources), 420, 18);
+		g2d.drawString("BLUE: " + ((int) game.gameState.blueResources), 420, 18);
 		
 		g2d.setColor(Color.gray);
-		g2d.drawString("FLUX: " + ((int) game.fluxResources), 620, 18);
+		g2d.drawString("FLUX: " + ((int) game.gameState.fluxResources), 620, 18);
 		
 		//some debugging info here
 		g2d.setColor(Color.black);
@@ -135,10 +137,13 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 				        yScreenLocToBoardLoc(mouseY) + ")", 420, panelHeight - 2);
 		
 		//draw selected tools (and highlight selected)
-		int yLine = panelHeight - bottomMargin + 20;
+		int yLine = panelHeight - bottomMargin + 80;
 		int fontSize = 30;
 		g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
 		g2d.setStroke(new BasicStroke(4));
+		
+		g2d.setColor(Color.lightGray);
+		g2d.fillRect(20, yLine-10, 310, fontSize + 30);
 		
 		g2d.setColor(Color.red);
 		g2d.drawString("R", 40, yLine + fontSize + 5);
@@ -159,8 +164,19 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 		g2d.drawString("C", 220, yLine + fontSize + 5);
 		if(game.actionSelected == GameRunner.ADD_CONDUIT_ACTION)
 			g2d.drawRect(215, yLine, 40, fontSize + 10);
+		
+		g2d.setColor(Color.black);
+		g2d.drawString("S", 280, yLine + fontSize + 5);
+		if(game.actionSelected == GameRunner.SELL_TOWER_ACTION)
+			g2d.drawRect(275, yLine, 40, fontSize + 10);
 
 		g2d.setStroke(new BasicStroke(1));
+		
+		//draw pause state
+		if(game.isPaused){
+			g2d.setColor(Color.red);
+			g2d.drawString("***PAUSED***", leftMargin, panelHeight - bottomMargin + 50);
+		}
 	}
 	
 	private double xScreenLocToBoardLoc(int screenX){
@@ -209,7 +225,15 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 		case KeyEvent.VK_G: game.greenSelected(); break;
 		case KeyEvent.VK_B: game.blueSelected(); break;
 		case KeyEvent.VK_C: game.conduitSelected(); break;
+		case KeyEvent.VK_S: game.sellSelected(); break;
+		case KeyEvent.VK_SPACE:
+			if(game.isPaused)
+				game.unpause();
+			else
+				game.pause();
+			break;
 		}
+		repaint(); //paint the UI results of this, even if paused
 	}
 
 	@Override

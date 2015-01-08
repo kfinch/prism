@@ -11,7 +11,7 @@ public class TowerB extends SimpleTower {
 	public static final double MAX_HEALTH = 100;
 	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
 	public static final double ATTACK_DAMAGE = 20;
-	public static final double ATTACK_DELAY = 100;
+	public static final double ATTACK_DELAY = 80;
 	public static final double ATTACK_RANGE = 5;
 	public static final double PROJECTILE_SPEED = 0.3;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.6;
@@ -34,32 +34,26 @@ public class TowerB extends SimpleTower {
 		return result;
 	}
 	
-	@Override
-	public String addRed(GameState gameState){
-		TowerRB upgrade = new TowerRB(currNode, xLoc, yLoc, spawnFrame);
-		upgradeToTower(gameState, upgrade);
-		return null;
+	protected Tower generateRedUpgrade(){
+		return new TowerRB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addGreen(GameState gameState){
-		TowerGB upgrade = new TowerGB(currNode, xLoc, yLoc, spawnFrame);
-		upgradeToTower(gameState, upgrade);
-		return null;
+	protected Tower generateGreenUpgrade(){
+		return new TowerGB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addBlue(GameState gameState){
-		TowerBB upgrade = new TowerBB(currNode, xLoc, yLoc, spawnFrame);
-		upgradeToTower(gameState, upgrade);
-		return null;
+	protected Tower generateBlueUpgrade(){
+		return new TowerBB(currNode, xLoc, yLoc, spawnFrame);
 	}
 
 	@Override
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(0, 0, 0.2, GameState.PROJECTILE_BLUE);
+		int nPoints1 = 5;
+		double[] xPoints1 = {-0.2, 0.12, 0.2, 0.12, -0.2};
+		double[] yPoints1 = {-0.12, -0.12, 0, 0.12, 0.12};
+		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.PROJECTILE_BLUE);
 		
 		return result;
 	}

@@ -11,6 +11,10 @@ import util.PaintableShapes;
  */
 public abstract class Enemy extends Entity {
 	
+	protected static final double HEALTH_BAR_OFFSET = -0.3;
+	protected static final double HEALTH_BAR_WIDTH = 0.6;
+	protected static final double HEALTH_BAR_HEIGHT = 0.2;
+	
 	protected Node currNode, nextNode; //node this enemy is on, and node it's headed to.
 	protected boolean toNextNode; //true if this enemy has reached it's next node.
 	
@@ -41,9 +45,9 @@ public abstract class Enemy extends Entity {
 		this.moveSpeed = new BasicStat(moveSpeed);
 		
 		this.showHealthBar = true;
-		this.healthBarOffset = 0.3;
-		this.healthBarWidth = 0.6;
-		this.healthBarHeight = 0.2;
+		this.healthBarOffset = HEALTH_BAR_OFFSET;
+		this.healthBarWidth = HEALTH_BAR_WIDTH;
+		this.healthBarHeight = HEALTH_BAR_HEIGHT;
 	}
 	
 	@Override

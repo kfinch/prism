@@ -12,26 +12,23 @@ public class TowerRR extends SimpleTower{
 	public static final double ATTACK_DELAY = 15;
 	public static final double ATTACK_RANGE = 5;
 	public static final double PROJECTILE_SPEED = TowerR.PROJECTILE_SPEED;
-	public static final double SHOT_ORIGIN_DISTANCE = 0.6; //TODO: update
+	public static final double SHOT_ORIGIN_DISTANCE = 0.85;
 	
 	public TowerRR(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, true, true, generateShapes(xLoc, yLoc));
 	}
 	
-	@Override
-	public String addRed(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateRedUpgrade(){
+		return new TowerRRR(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addGreen(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateGreenUpgrade(){
+		return new TowerRRG(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addBlue(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateBlueUpgrade(){
+		return new TowerRRB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){
@@ -55,7 +52,7 @@ public class TowerRR extends SimpleTower{
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(0, 0, 0.19, GameState.PROJECTILE_RED);
+		result.addFixedCircle(0, 0, 0.18, GameState.PROJECTILE_RED);
 		
 		return result;
 	}

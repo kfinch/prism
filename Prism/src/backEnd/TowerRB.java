@@ -19,19 +19,16 @@ public class TowerRB extends SimpleTower{
 		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, true, true, generateShapes(xLoc, yLoc));
 	}
 	
-	@Override
-	public String addRed(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateRedUpgrade(){
+		return new TowerRRB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addGreen(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateGreenUpgrade(){
+		return new TowerRGB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addBlue(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateBlueUpgrade(){
+		return new TowerRBB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){

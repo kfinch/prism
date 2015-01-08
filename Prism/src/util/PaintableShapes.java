@@ -33,7 +33,7 @@ public class PaintableShapes {
 	}
 	
 	public void addFixedRectangle(double x1, double y1, double x2, double y2, Color color){
-		shapes.add(new Rectangle(x1, y2, x2, y2, color));
+		shapes.add(new Rectangle(x1, y1, x2, y2, color));
 	}
 	
 	public void addRotatableRectangle(double x1, double y1, double x2, double y2, Color color){
@@ -109,7 +109,7 @@ public class PaintableShapes {
 				Rectangle r = (Rectangle) o;
 				g2d.setColor(r.color);
 				g2d.fillRect((int)(centerX + r.x1*tileSize), (int)(centerY + r.y1*tileSize),
-						     (int)(centerX + (r.x2-r.x1)*tileSize), (int)(centerY + (r.y2-r.y1)*tileSize));
+						     (int)((r.x2-r.x1)*tileSize), (int)((r.y2-r.y1)*tileSize));
 			}
 		}
 	}

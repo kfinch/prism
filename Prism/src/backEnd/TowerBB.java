@@ -11,11 +11,11 @@ public class TowerBB extends SimpleTower {
 	public static final double MAX_HEALTH = 200;
 	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
 	public static final double ATTACK_DAMAGE = 60;
-	public static final double ATTACK_DELAY = 100;
+	public static final double ATTACK_DELAY = 80;
 	public static final double ATTACK_RANGE = 8;
 	public static final double PROJECTILE_SPEED = TowerB.PROJECTILE_SPEED;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.7;
-	public static final double ATTACK_AOE = 0.6;
+	public static final double ATTACK_AOE = 0.8;
 	
 	public TowerBB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
@@ -23,19 +23,16 @@ public class TowerBB extends SimpleTower {
 		      true, true, generateShapes(xLoc, yLoc));
 	}
 	
-	@Override
-	public String addRed(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateRedUpgrade(){
+		return new TowerRBB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addGreen(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateGreenUpgrade(){
+		return new TowerGBB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addBlue(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateBlueUpgrade(){
+		return new TowerBBB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
 	private static PaintableShapes generateShapes(double xLoc, double yLoc){
@@ -58,7 +55,10 @@ public class TowerBB extends SimpleTower {
 	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
 		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(0, 0, 0.22, GameState.PROJECTILE_BLUE);
+		int nPoints1 = 5;
+		double[] xPoints1 = {-0.24, 0.1, 0.24, 0.1, -0.24};
+		double[] yPoints1 = {-0.14, -0.14, 0, 0.14, 0.14};
+		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.PROJECTILE_BLUE);
 		
 		return result;
 	}

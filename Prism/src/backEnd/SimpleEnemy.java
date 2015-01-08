@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import util.Animation;
+import util.GeometryUtils;
 import util.PaintableShapes;
 import util.Vector2d;
 
@@ -26,11 +27,6 @@ public abstract class SimpleEnemy extends Enemy{
 	 * The enemy doesn't "see" a tower until within 5 nodes, and it is more likely to move towards closer towers.
 	 * A value of +100 or -100 makes this enemy roughly twice as likely to move towards or away from towers, respectively.
 	 * 
-	 * "bravery" measures this enemy's willingness to continue advancing once inside attacking range.
-	 * A value of 0 indicates it will never advance (or move at all) while within attack range.
-	 * A value of 1 indicates it will always advance / move.
-	 * Values outside of 0 to 1 (inclusive) have undefined behavior.
-	 * 
 	 * "fireOnTheMove" tracks if this enemy will keep on attacking while moving.
 	 * 
 	 * "movePriorities" tracks the enemy's likelihood of choosing a given direction while moving.
@@ -51,7 +47,6 @@ public abstract class SimpleEnemy extends Enemy{
 	 * if neither of those are available it will not move.
 	 */
 	protected double towerAffinity; //TODO: NYI
-	protected double bravery; //TODO: NYI
 	protected boolean fireOnTheMove;
 	protected double[][] movePriorities;
 	protected boolean usesProjectile;
@@ -59,19 +54,19 @@ public abstract class SimpleEnemy extends Enemy{
 	protected double shotOriginDistance;
 	protected boolean appliesDebuff;
 	
-	protected boolean movedThisStep;
 	protected Entity target;
 	protected double facing;
 	
+	protected boolean shouldMove;
+	
 	public SimpleEnemy(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame,
 			           double maxHealth, double healthRegen, double attackDamage, double attackDelay,
-			           double attackRange, double moveSpeed, double towerAffinity, double bravery,
-			           boolean fireOnTheMove, double[][] movePriorities, boolean usesProjectile,
-			           double projectileSpeed, double shotOriginDistance, boolean appliesDebuff, PaintableShapes shapes) {
+			           double attackRange, double moveSpeed, double towerAffinity, boolean fireOnTheMove,
+			           double[][] movePriorities, boolean usesProjectile, double projectileSpeed,
+			           double shotOriginDistance, boolean appliesDebuff, PaintableShapes shapes) {
 		super(currNode, xLoc, yLoc, priority, spawnFrame, maxHealth, healthRegen,
 				attackDamage, attackDelay, attackRange, moveSpeed, shapes);
 		this.towerAffinity = towerAffinity;
-		this.bravery = bravery;
 		this.fireOnTheMove = fireOnTheMove;
 		this.movePriorities = movePriorities;
 		this.usesProjectile = usesProjectile;
@@ -79,7 +74,6 @@ public abstract class SimpleEnemy extends Enemy{
 		this.shotOriginDistance = shotOriginDistance;
 		this.appliesDebuff = appliesDebuff;
 		
-		this.movedThisStep = false;
 		this.target = null;
 		this.facing = 0;
 	}
@@ -162,6 +156,10 @@ public abstract class SimpleEnemy extends Enemy{
 		}
 		System.out.println();
 		*/
+		
+		if(towerAffinity != 0){
+			//TODO: do tower affinity stuff
+		}
 			
 		double rand = Math.random() * totalPriority;
 		
@@ -182,27 +180,27 @@ public abstract class SimpleEnemy extends Enemy{
 	}
 	
 	@Override
+	public void preStep(GameState gameState){
+		super.preStep(gameState);
+		
+		if(target == null || !canRetainTarget(gameState))
+			target = acquireTarget(gameState);
+		
+		if(attackTimer != -1 && !fireOnTheMove)
+			shouldMove = false;
+		else
+			shouldMove = true;
+	}
+	
+	@Override
 	public void moveStep(GameState gameState){
 		super.moveStep(gameState);
-		movedThisStep = false;
-		if(moveAction.canAct()){
+		if(moveAction.canAct() && shouldMove){
 			if(nextNode == null){
 				chooseNextNode(gameState); //nextNode can stay null after this call, hence the following if statement
 			}
 			if(nextNode != null){
-				//TODO: make facing change with movement
-				movedThisStep = true;
-				if(GameState.dist(xLoc, yLoc, nextNode.xLoc, nextNode.yLoc) <= moveSpeed.modifiedValue){
-					xLoc = nextNode.xLoc;
-					yLoc = nextNode.yLoc;
-					swapToNextNode();
-				}
-				else{
-					Vector2d moveVec = new Vector2d(nextNode.xLoc - xLoc, nextNode.yLoc - yLoc);
-					moveVec.setMagnitude(moveSpeed.modifiedValue);
-					xLoc += moveVec.x;
-					yLoc += moveVec.y;
-				}
+				move(gameState);
 			}
 		}
 	}
@@ -210,10 +208,13 @@ public abstract class SimpleEnemy extends Enemy{
 	@Override
 	public void actionStep(GameState gameState){
 		super.actionStep(gameState);
-		if(attackAction.canAct() && (fireOnTheMove || !movedThisStep)){
-			Entity target = acquireTarget(gameState);
+		if(attackAction.canAct()){
 			if(target != null && target.isActive){
-				//TODO: make facing change with attacks
+				//rotate to face target it's attacking
+				Vector2d attackVec = new Vector2d(target.xLoc - xLoc, target.yLoc - yLoc);
+				shapes.setAngle(attackVec.angle());
+				
+				//if attack off cooldown, attack!
 				if(attackTimer == -1){
 					if(usesProjectile)
 						projectileAttack(gameState, target);
@@ -225,13 +226,50 @@ public abstract class SimpleEnemy extends Enemy{
 		}
 	}
 	
+	protected void move(GameState gameState){
+		if(GeometryUtils.dist(xLoc, yLoc, nextNode.xLoc, nextNode.yLoc) <= moveSpeed.modifiedValue){
+			xLoc = nextNode.xLoc;
+			yLoc = nextNode.yLoc;
+			swapToNextNode();
+		}
+		else{
+			Vector2d moveVec = new Vector2d(nextNode.xLoc - xLoc, nextNode.yLoc - yLoc);
+			moveVec.setMagnitude(moveSpeed.modifiedValue);
+			moveBy(moveVec.x, moveVec.y);
+			shapes.setAngle(moveVec.angle());
+		}
+	}
+	
+	protected boolean canRetainTarget(GameState gameState){
+		if(!target.isActive)
+			return false;
+		
+		if(target instanceof Tower){
+			if(((Tower)target).isGhost)
+				return false;
+			else if(GeometryUtils.distFromTowerEdge(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue)
+				return false;
+			else
+				return true;
+		}
+		else{
+			if(GeometryUtils.dist(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue)
+				return false;
+			else
+				return true;
+		}
+	}
+	
 	protected Entity acquireTarget(GameState gameState){
 		//TODO: let target prism
 		Entity target = null;
 		Set<Tower> towersInRange = gameState.getTowersInRange(xLoc, yLoc, attackRange.modifiedValue);
+		if(towersInRange.size() == 0)
+			return null;
+		
 		int targetIndex = (int) (Math.random()*towersInRange.size());
 		Iterator<Tower> iter = towersInRange.iterator();
-		for(int i=0; i<targetIndex; i++)
+		for(int i=-1; i<targetIndex; i++)
 			target = iter.next();
 		return target;
 	}

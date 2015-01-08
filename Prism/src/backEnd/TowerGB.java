@@ -10,15 +10,15 @@ public class TowerGB extends SimpleTower {
 	public static final int TIER = 2;
 	public static final double MAX_HEALTH = 400;
 	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
-	public static final double ATTACK_DAMAGE = 20;
-	public static final double ATTACK_DELAY = 40;
-	public static final double ATTACK_RANGE = 7;
+	public static final double ATTACK_DAMAGE = 15;
+	public static final double ATTACK_DELAY = 30;
+	public static final double ATTACK_RANGE = 6;
 	public static final double PROJECTILE_SPEED = TowerB.PROJECTILE_SPEED;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.75;
 	public static final double ATTACK_AOE = 0.2;
 	
 	public static final int SLOW_DURATION = 60;
-	public static final double SLOW_STRENGTH = 1.5;
+	public static final double SLOW_STRENGTH = 1.4;
 	
 	public TowerGB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
@@ -26,19 +26,16 @@ public class TowerGB extends SimpleTower {
 		      true, true, generateShapes(xLoc, yLoc));
 	}
 	
-	@Override
-	public String addRed(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateRedUpgrade(){
+		return new TowerRGB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addGreen(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateGreenUpgrade(){
+		return new TowerGGB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addBlue(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateBlueUpgrade(){
+		return new TowerGBB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){

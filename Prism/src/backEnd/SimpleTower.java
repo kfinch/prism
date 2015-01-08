@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import util.Animation;
+import util.GeometryUtils;
 import util.PaintableShapes;
 import util.Vector2d;
 
@@ -51,7 +52,7 @@ public abstract class SimpleTower extends Tower{
 			}
 			//lose an acquired target
 			if((target != null) &&
-			   (GameState.dist(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue || !target.isActive)){
+			   (GeometryUtils.dist(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue || !target.isActive)){
 				//System.out.println("Turret spawned on frame " + spawnFrame + " lost acquired target..."); //TODO:
 				target = null;
 			}

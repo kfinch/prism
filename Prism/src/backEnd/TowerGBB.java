@@ -1,72 +1,80 @@
 package backEnd;
 
-import java.util.Set;
-
 import util.Animation;
 import util.PaintableShapes;
+import util.SimpleCircleAnimation;
 
-public class TowerGBB extends SimpleTower{
-
+public class TowerGBB extends SimpleTower {
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 3;
 	public static final double MAX_HEALTH = 750;
 	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
-	public static final double ATTACK_DAMAGE = 20;
-	public static final double ATTACK_DELAY = 10;
-	public static final double ATTACK_RANGE = 4;
-	public static final double ATTACK_AOE = 0;
-	public static final double PROJECTILE_SPEED = 0;
-	public static final double SHOT_ORIGIN_DISTANCE = 0;
+	public static final double ATTACK_DAMAGE = 40;
+	public static final double ATTACK_DELAY = 30;
+	public static final double ATTACK_RANGE = 7;
+	public static final double PROJECTILE_SPEED = TowerB.PROJECTILE_SPEED;
+	public static final double SHOT_ORIGIN_DISTANCE = 0.85;
+	public static final double ATTACK_AOE = 0.4;
+	
+	public static final int SLOW_DURATION = 60;
+	public static final double SLOW_STRENGTH = 1.8;
 	
 	public TowerGBB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
 		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-		      ATTACK_RANGE, ATTACK_AOE, true, false,
-		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(xLoc, yLoc));
+		      ATTACK_RANGE, ATTACK_AOE, true, true, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
+		      true, true, generateShapes(xLoc, yLoc));
 	}
 	
 	@Override
-	public String addRed(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateRedUpgrade(){
+		return null;
 	}
 	
 	@Override
-	public String addGreen(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateGreenUpgrade(){
+		return null;
 	}
 	
 	@Override
-	public String addBlue(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateBlueUpgrade(){
+		return null;
 	}
 	
-	@Override
-	protected void instantAttack(GameState gameState){
-		//TODO: Constrain to laser centered on target. Easy implement as cone?
-		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, attackAOE.modifiedValue);
-		for(Enemy e : enemiesInBlast)
-			e.harm(attackDamage.modifiedValue);
-		gameState.playAnimation(generateAttackAnimation(gameState));
-	}
-	
-	//TODO: update
-	private static PaintableShapes generateShapes(double xLoc, double yLoc){
+	public static PaintableShapes generateShapes(double xLoc, double yLoc){
 		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
 		
-		int nPoints1 = 4;
-		double[] xPoints1 = {0, 0.4, 0, -0.4};
-		double[] yPoints1 = {-0.4, 0, 0.4, 0};
-		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_RED);
+		result.addRotatableRectangle(0.3, -0.32, 0.85, 0.32, GameState.TOWER_BLUE);
 		
-		int nPoints2 = 4;
-		double[] xPoints2 = {0.2, 0.4, 0.4, 0.2};
-		double[] yPoints2 = {-0.2, -0.2, 0.2, 0.2};
-		result.addRotatablePolygon(nPoints2, xPoints2, yPoints2, GameState.TOWER_RED);
+		result.addFixedCircle(0, 0, 0.6, GameState.TOWER_GREEN);
+		
+		int nPoints1 = 8;
+		double[] xPoints1 = {0, 0.1, 0.3, 0.1, 0, -0.1, -0.3, -0.1};
+		double[] yPoints1 = {-0.3, -0.1, 0, 0.1, 0.3, 0.1, 0, -0.1};
+		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BLUE);
+		
+		return result;
+	}
+
+	@Override
+	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
+		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
+		
+		int nPoints1 = 8;
+		double[] xPoints1 = {0, 0.09, 0.25, 0.09, 0, -0.09, -0.25, -0.09};
+		double[] yPoints1 = {-0.25, -0.09, 0, 0.09, 0.25, 0.09, 0, -0.09};
+		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.PROJECTILE_GREENBLUE);
 		
 		return result;
 	}
 	
 	@Override
+	protected Buff generateAttackDebuff(){
+		return new SlowingTowerDebuff(SLOW_DURATION, SLOW_STRENGTH);
+	}
+	
+	@Override
 	protected Animation generateAttackAnimation(GameState gameState){
-		return null; //TODO: update
+		return new SimpleCircleAnimation(10, 0.2, attackAOE.modifiedValue*2, 0.6f, 0.3f, GameState.PROJECTILE_GREENBLUE);
 	}
 }

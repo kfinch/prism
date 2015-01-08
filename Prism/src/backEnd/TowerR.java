@@ -35,25 +35,16 @@ public class TowerR extends SimpleTower{
 		return result;
 	}
 
-	@Override
-	public String addRed(GameState gameState){
-		TowerRR upgrade = new TowerRR(currNode, xLoc, yLoc, spawnFrame);
-		upgradeToTower(gameState, upgrade);
-		return null;
+	protected Tower generateRedUpgrade(){
+		return new TowerRR(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addGreen(GameState gameState){
-		TowerRG upgrade = new TowerRG(currNode, xLoc, yLoc, spawnFrame);
-		upgradeToTower(gameState, upgrade);
-		return null;
+	protected Tower generateGreenUpgrade(){
+		return new TowerRG(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
-	@Override
-	public String addBlue(GameState gameState){
-		TowerRB upgrade = new TowerRB(currNode, xLoc, yLoc, spawnFrame);
-		upgradeToTower(gameState, upgrade);
-		return null;
+	protected Tower generateBlueUpgrade(){
+		return new TowerRB(currNode, xLoc, yLoc, spawnFrame);
 	}
 	
 	@Override

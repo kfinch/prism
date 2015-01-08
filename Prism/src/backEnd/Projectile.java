@@ -29,6 +29,15 @@ public abstract class Projectile extends Entity {
 	
 	protected abstract void payload(GameState gameState);
 	
+	protected void move(Vector2d moveVec){
+		moveVec.setMagnitude(moveSpeed.modifiedValue);
+		super.moveBy(moveVec.x, moveVec.y);
+	}
+	
+	protected void rotate(Vector2d moveVec){
+		shapes.setAngle(moveVec.angle());
+	}
+	
 	@Override
 	public void moveStep(GameState gameState){
 		if(moveAction.canAct()){
@@ -37,8 +46,8 @@ public abstract class Projectile extends Entity {
 				triggerPayload = true;
 			}
 			else{
-				moveVec.setMagnitude(moveSpeed.modifiedValue);
-				super.moveBy(moveVec.x, moveVec.y);
+				move(moveVec);
+				rotate(moveVec);
 			}
 		}
 	}

@@ -21,25 +21,27 @@ public class TowerGGG extends SimpleTower{
 	}
 	
 	@Override
-	public String addRed(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateRedUpgrade(){
+		return null;
 	}
 	
 	@Override
-	public String addGreen(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateGreenUpgrade(){
+		return null;
 	}
 	
 	@Override
-	public String addBlue(GameState gameState){
-		return Tower.CANT_UPGRADE_MAX_LEVEL;
+	protected Tower generateBlueUpgrade(){
+		return null;
 	}
 	
-	//TODO: update shapes
 	public static PaintableShapes generateShapes(double xLoc, double yLoc){
 		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
 		
-		result.addFixedCircle(0, 0, 0.5, GameState.TOWER_GREEN);
+		result.addFixedCircle(0, 0, 0.8, GameState.TOWER_GREEN);
+		result.addFixedCircle(0, 0, 0.55, GameState.TOWER_BASE);
+		result.addFixedRectangle(-0.9, -0.15, 0.9, 0.15, GameState.TOWER_BASE);
+		result.addFixedCircle(0, 0, 0.35, GameState.TOWER_GREEN);
 		
 		return result;
 	}
