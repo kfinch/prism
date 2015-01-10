@@ -11,18 +11,18 @@ import java.util.Set;
  */
 public class Node {
 	
-	protected boolean isBuffer; //is this node a "buffer node"? (not in bounds)
+	public boolean isBuffer; //is this node a "buffer node"? (not in bounds)
 	
-	protected int xLoc, yLoc;
+	public int xLoc, yLoc;
 	
-	protected Set<TerrainEffect> terrainEffects;
+	public Set<TerrainEffect> terrainEffects;
 	
 	//measures how 'attractive' this node is to a moving enemy. 
 	//should only do multiplicative buffs/debuffs to this
-	protected Stat attractiveness;
+	public Stat attractiveness;
 	
-	protected Set<Enemy> enemies; //enemies either on this node or traveling from it.
-	protected Tower tower; //tower centered on this node (or null if there is none)
+	public Set<Enemy> enemies; //enemies either on this node or traveling from it.
+	public Tower tower; //tower centered on this node (or null if there is none)
 	
 	public Node(int xLoc, int yLoc){
 		this.xLoc = xLoc;

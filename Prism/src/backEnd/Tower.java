@@ -15,11 +15,11 @@ import util.PaintableShapes;
  */
 public abstract class Tower extends Entity {
 	
-	protected static final int GHOST_DURATION = 1000;
+	protected static final int GHOST_DURATION = 2000; //TODO: look into ways of making ghost more harmfruu
 	
 	protected static final String UPGRADE_DEBUFF_ID = "upgradingtowerdebuff";
 	
-	protected static final int DEFAULT_SELL_DURATION = 200;
+	protected static final int DEFAULT_SELL_DURATION = 100;
 	protected static final String SELL_DEBUFF_ID = "sellingtowerdebuff";
 	
 	protected static final int UPGRADE_DURATION_MULTIPLIER = 100;
@@ -31,6 +31,26 @@ public abstract class Tower extends Entity {
 	protected static final double HEALTH_BAR_OFFSET = -0.7;
 	protected static final double HEALTH_BAR_WIDTH = 1.6;
 	protected static final double HEALTH_BAR_HEIGHT = 0.3;
+	
+	protected static final double T1G0_HEALTH = 100;
+	protected static final double T1G1_HEALTH = 250;
+	
+	protected static final double T2G0_HEALTH = 200;
+	protected static final double T2G1_HEALTH = 400;
+	protected static final double T2G2_HEALTH = 750;
+	
+	protected static final double T3G0_HEALTH = 400;
+	protected static final double T3G1_HEALTH = 750;
+	protected static final double T3G2_HEALTH = 1400;
+	protected static final double T3G3_HEALTH = 2000;
+	
+	protected static final double T4G0_HEALTH = 800;
+	protected static final double T4G1_HEALTH = 1300;
+	protected static final double T4G2_HEALTH = 2000;
+	protected static final double T4G3_HEALTH = 3200;
+	protected static final double T4G4_HEALTH = 4000;
+	
+	protected static final double BASE_HEALTH_REGEN = 0.02;
 	
 	protected Node currNode;
 	
@@ -92,7 +112,6 @@ public abstract class Tower extends Entity {
 			moveAction.startSuppress();
 			specialAction.startSuppress();
 			passiveAction.startSuppress();
-			changeAction.startSuppress();
 		}
 		else if(!newIsGhost && isGhost){
 			isGhost = false;
@@ -102,7 +121,6 @@ public abstract class Tower extends Entity {
 			moveAction.endSuppress();
 			specialAction.endSuppress();
 			passiveAction.endSuppress();
-			changeAction.endSuppress();
 		}
 	}
 	
@@ -125,7 +143,7 @@ public abstract class Tower extends Entity {
 	 * Attempts to upgrade to the given tower, returns true if it works, false if it can't.
 	 */
 	protected boolean upgradeToTower(GameState gameState, Tower upgrade){
-		if(changeAction.canAct()){
+		if(changeAction.canAct() && !isGhost){
 			prepareUpgradedTower(upgrade);
 			gameState.addTower(currNode.xLoc, currNode.yLoc, upgrade);
 			currNode.tower = upgrade;
@@ -205,19 +223,29 @@ public abstract class Tower extends Entity {
 	public void preStep(GameState gameState){
 		super.preStep(gameState);
 		
-		if(!gameState.isLit(xLoc, yLoc) && isLit){
+		boolean currIsLit = true;
+		for(int xi=currNode.xLoc-1; xi<=currNode.xLoc+1; xi++){
+			for(int yi=currNode.yLoc-1; yi<=currNode.yLoc+1; yi++){
+				if(!gameState.isLit(xi, yi))
+					currIsLit = false;
+			}
+		}
+		
+		if(!currIsLit && isLit){
 			moveAction.startSuppress();
 			attackAction.startSuppress();
 			specialAction.startSuppress();
 			passiveAction.startSuppress();
 			changeAction.startSuppress();
+			isLit = false;
 		}
-		else if(gameState.isLit(xLoc, yLoc) && !isLit){
+		else if(currIsLit && !isLit){
 			moveAction.endSuppress();
 			attackAction.endSuppress();
 			specialAction.endSuppress();
 			passiveAction.endSuppress();
 			changeAction.endSuppress();
+			isLit = true;
 		}
 		
 		if(passiveAction.canAct()){

@@ -13,7 +13,7 @@ import util.Vector2d;
  * 
  * @author Kelton Finch
  */
-public abstract class SimpleEnemy extends Enemy{
+public abstract class SimpleEnemy extends Enemy {
 	
 	/*
 	 * SimpleEnemy behavior:
@@ -46,6 +46,10 @@ public abstract class SimpleEnemy extends Enemy{
 	 * with equal probability, if neither of those are possible it will travel north or south with equal probability,
 	 * if neither of those are available it will not move.
 	 */
+	
+	protected int waveSize;
+	protected double baseKillReward;
+	
 	protected double towerAffinity; //TODO: NYI
 	protected boolean fireOnTheMove;
 	protected double[][] movePriorities;
@@ -59,13 +63,16 @@ public abstract class SimpleEnemy extends Enemy{
 	
 	protected boolean shouldMove;
 	
-	public SimpleEnemy(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame,
-			           double maxHealth, double healthRegen, double attackDamage, double attackDelay,
-			           double attackRange, double moveSpeed, double towerAffinity, boolean fireOnTheMove,
-			           double[][] movePriorities, boolean usesProjectile, double projectileSpeed,
+	public SimpleEnemy(int tier, int waveSize, double baseKillReward, Node currNode, double xLoc, double yLoc,
+			           double priority, int spawnFrame, double maxHealth, double healthRegen,
+			           double attackDamage, double attackDelay, double attackRange, double moveSpeed,
+			           double towerAffinity, boolean fireOnTheMove, double[][] movePriorities,
+			           boolean usesProjectile, double projectileSpeed,
 			           double shotOriginDistance, boolean appliesDebuff, PaintableShapes shapes) {
-		super(currNode, xLoc, yLoc, priority, spawnFrame, maxHealth, healthRegen,
+		super(tier, currNode, xLoc, yLoc, priority, spawnFrame, maxHealth, healthRegen,
 				attackDamage, attackDelay, attackRange, moveSpeed, shapes);
+		this.waveSize = waveSize;
+		this.baseKillReward = baseKillReward;
 		this.towerAffinity = towerAffinity;
 		this.fireOnTheMove = fireOnTheMove;
 		this.movePriorities = movePriorities;
@@ -76,6 +83,16 @@ public abstract class SimpleEnemy extends Enemy{
 		
 		this.target = null;
 		this.facing = 0;
+	}
+	
+	@Override
+	public int getWaveSize(){
+		return waveSize;
+	}
+	
+	@Override
+	public double getKillReward(){
+		return baseKillReward * (1 + 0.1*tier);
 	}
 	
 	protected void swapToNextNode(){
@@ -261,14 +278,13 @@ public abstract class SimpleEnemy extends Enemy{
 	}
 	
 	protected Entity acquireTarget(GameState gameState){
-		//TODO: let target prism
 		Entity target = null;
-		Set<Tower> towersInRange = gameState.getTowersInRange(xLoc, yLoc, attackRange.modifiedValue);
-		if(towersInRange.size() == 0)
+		Set<Entity> targetsInRange = gameState.getTowersAndPrismInRange(xLoc, yLoc, attackRange.modifiedValue);
+		if(targetsInRange.size() == 0)
 			return null;
 		
-		int targetIndex = (int) (Math.random()*towersInRange.size());
-		Iterator<Tower> iter = towersInRange.iterator();
+		int targetIndex = (int) (Math.random()*targetsInRange.size());
+		Iterator<Entity> iter = targetsInRange.iterator();
 		for(int i=-1; i<targetIndex; i++)
 			target = iter.next();
 		return target;

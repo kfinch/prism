@@ -6,8 +6,8 @@ public class TowerGG extends SimpleTower{
 
 	public static final double PRIORITY = 0;
 	public static final int TIER = 2;
-	public static final double MAX_HEALTH = 750;
-	public static final double HEALTH_REGEN = MAX_HEALTH / 200;
+	public static final double MAX_HEALTH = Tower.T2G2_HEALTH;
+	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER * 10; //TowerGG has bonus regen
 	public static final double ATTACK_DAMAGE = 0;
 	public static final double ATTACK_DELAY = 1000;
 	public static final double ATTACK_RANGE = 0;

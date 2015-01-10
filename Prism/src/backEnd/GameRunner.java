@@ -6,24 +6,30 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.Timer;
 
 import frontEnd.GamePanel;
+import frontEnd.PrismFrontEnd;
 
 public class GameRunner implements ActionListener {
 
 	public static final String BUILD_ERROR_BLOCKED = "Can't build here, there's something in the way.";
 	public static final String BUILD_ERROR_INSUFFICIENT_RESOURCES = "You have insufficient resources";
 	
-	public static final double STARTING_COLOR = 300;
+	public static final double STARTING_COLOR = 4000; //400
 	public static final double STARTING_FLUX = 100;
 	public static final double MAXIMUM_FLUX = 200;
 	public static final double COLOR_GAIN_RATE = 0.1;
 	public static final double FLUX_GAIN_RATE = 0.1;
 	
-	protected static final double TOWER_COST_MULTIPLIER = 10; //TODO: should be 100, lowered for testing
-	protected static final double CONDUIT_TOWER_COST = 10; //TODO: should be 100, lowered for testing
+	public static final double TOWER_COST_MULTIPLIER = 10; //100
+	public static final double CONDUIT_TOWER_COST = 10; //100
+	
+	public static final int WAVE_DURATION = 1200;
+	public static final int WAVE_DOWNTIME = 400;
 	
 	public static final int DEFAULT_BOARD_WIDTH = 45;
 	public static final int DEFAULT_BOARD_HEIGHT = 15;
@@ -44,31 +50,51 @@ public class GameRunner implements ActionListener {
 	
 	public GameState gameState;
 	public GamePanel display;
+	public PrismFrontEnd frontEnd;
+	
+	public int currentTier;
+	public Enemy waveEnemies;
+	public int spawnDelay;
 	
 	private Timer gameClock;
 	
 	public boolean isPaused;
 	
-	public GameRunner(){
-		boardWidth = DEFAULT_BOARD_WIDTH;
-		boardHeight = DEFAULT_BOARD_HEIGHT;
-		gameState = new GameState(boardWidth, boardHeight);
-		display = new GamePanel(this);
+	public Node nodeMouseOver;
+	public Tower towerMouseOver;
+	
+	public GameRunner(PrismFrontEnd frontEnd){
+		this.boardWidth = DEFAULT_BOARD_WIDTH;
+		this.boardHeight = DEFAULT_BOARD_HEIGHT;
+		this.gameState = new GameState(boardWidth, boardHeight);
+		this.display = new GamePanel(this);
+		this.frontEnd = frontEnd;
 		
-		actionSelected = NO_ACTION;
+		this.actionSelected = NO_ACTION;
 		
-		gameClock = new Timer(STEP_DURATION, this);
+		this.gameClock = new Timer(STEP_DURATION, this);
 	}
 	
 	public void step(){
+		if(gameState.frameNumber % (WAVE_DURATION + WAVE_DOWNTIME) == 0){
+			currentTier++;
+			waveEnemies = new EnemyNibbler(currentTier, null, 0, 0, 0);
+			spawnDelay = WAVE_DURATION / waveEnemies.getWaveSize();
+		}
+		
+		if(gameState.frameNumber % (WAVE_DURATION + WAVE_DOWNTIME) <= WAVE_DURATION &&
+		   gameState.frameNumber % spawnDelay == 0){ //TODO: do something about this, this is super awkward
+			gameState.spawnEnemy(waveEnemies);
+		}
+		
 		gameState.step();
 		display.repaint();
 	}
 
 	public void newGame(){
 		gameState = new GameState(boardWidth, boardHeight);
-		gameClock.restart();
-		isPaused = false;
+		currentTier = 1; //this will need change as I implement different difficulties
+		pause();
 	}
 	
 	public void pause(){
@@ -81,38 +107,60 @@ public class GameRunner implements ActionListener {
 		isPaused = false;
 	}
 	
-	public void nodeClicked(Node n){
+	public void quitToMenu(){
+		gameClock.stop();
+		isPaused = true;
+		frontEnd.swapToMenuPanel();
+	}
+	
+	public void boardMouseOver(double xLoc, double yLoc){
+		if(xLoc < 0 || xLoc > gameState.xNodes || yLoc < 0 || yLoc > gameState.yNodes){
+			towerMouseOver = null;
+			nodeMouseOver = null;
+			return;
+		}
+		
+		int x = (int) Math.round(xLoc);
+		int y = (int) Math.round(yLoc);
+		towerMouseOver = null;
+		nodeMouseOver = gameState.nodeAt(x, y);
+		
+		Set<Tower> towersMouseOver = gameState.getTowersInEdgeRange(xLoc, yLoc, 0);
+		if(!towersMouseOver.isEmpty()){
+			towerMouseOver = towersMouseOver.iterator().next();
+			nodeMouseOver = towerMouseOver.currNode;
+		}
+	}
+	
+	public void boardClicked(double xLoc, double yLoc){
+		boardMouseOver(xLoc, yLoc);
+		
 		switch(actionSelected){
 		case NO_ACTION: break;
 		case ADD_RED_ACTION:
-			System.out.println("Attempting to add red at (" + n.xLoc + "," + n.yLoc + ") clicked.");
-			if(n.tower != null)
-				upgradeRed(n.tower);
-			else
-				newRedTower(n);
+			if(towerMouseOver != null)
+				upgradeRed(towerMouseOver);
+			else if(nodeMouseOver != null)
+				newRedTower(nodeMouseOver);
 			break;
 		case ADD_GREEN_ACTION:
-			System.out.println("Attempting to add green at (" + n.xLoc + "," + n.yLoc + ") clicked.");
-			if(n.tower != null)
-				upgradeGreen(n.tower);
-			else
-				newGreenTower(n);
+			if(towerMouseOver != null)
+				upgradeGreen(towerMouseOver);
+			else if(nodeMouseOver != null)
+				newGreenTower(nodeMouseOver);
 			break;
 		case ADD_BLUE_ACTION:
-			System.out.println("Attempting to add blue at (" + n.xLoc + "," + n.yLoc + ") clicked.");
-			if(n.tower != null)
-				upgradeBlue(n.tower);
-			else
-				newBlueTower(n);
+			if(towerMouseOver != null)
+				upgradeBlue(towerMouseOver);
+			else if(nodeMouseOver != null)
+				newBlueTower(nodeMouseOver);
 			break;
 		case ADD_CONDUIT_ACTION:
-			System.out.println("Attempting to add conduit at (" + n.xLoc + "," + n.yLoc + ") clicked.");
-			newConduitTower(n);
+			newConduitTower(nodeMouseOver);
 			break;
 		case SELL_TOWER_ACTION:
-			System.out.println("Attempting to sell tower at (" + n.xLoc + "," + n.yLoc + ") clicked.");
-			if(n.tower != null){
-				n.tower.sell(gameState);
+			if(towerMouseOver != null){
+				towerMouseOver.sell(gameState);
 			}
 			break;
 		default: throw new IllegalArgumentException("Invalid action type: " + actionSelected);
@@ -121,7 +169,7 @@ public class GameRunner implements ActionListener {
 	}
 	
 	private String newRedTower(Node n){
-		if(gameState.redResources <= TOWER_COST_MULTIPLIER)
+		if(gameState.redResources < TOWER_COST_MULTIPLIER)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
 		if(!gameState.isValidTowerLocation(n.xLoc, n.yLoc))
 			return BUILD_ERROR_BLOCKED;
@@ -133,7 +181,7 @@ public class GameRunner implements ActionListener {
 	}
 	
 	private String newGreenTower(Node n){
-		if(gameState.greenResources <= TOWER_COST_MULTIPLIER)
+		if(gameState.greenResources < TOWER_COST_MULTIPLIER)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
 		if(!gameState.isValidTowerLocation(n.xLoc, n.yLoc))
 			return BUILD_ERROR_BLOCKED;
@@ -145,7 +193,7 @@ public class GameRunner implements ActionListener {
 	}
 	
 	private String newBlueTower(Node n){
-		if(gameState.blueResources <= TOWER_COST_MULTIPLIER)
+		if(gameState.blueResources < TOWER_COST_MULTIPLIER)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
 		if(!gameState.isValidTowerLocation(n.xLoc, n.yLoc))
 			return BUILD_ERROR_BLOCKED;
@@ -157,7 +205,7 @@ public class GameRunner implements ActionListener {
 	}
 	
 	private String newConduitTower(Node n){
-		if(gameState.fluxResources <= CONDUIT_TOWER_COST)
+		if(gameState.fluxResources < CONDUIT_TOWER_COST)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
 		if(!gameState.isValidTowerLocation(n.xLoc, n.yLoc))
 			return BUILD_ERROR_BLOCKED;
@@ -170,7 +218,7 @@ public class GameRunner implements ActionListener {
 	
 	private String upgradeRed(Tower t){
 		double cost = TOWER_COST_MULTIPLIER * Math.pow(2, t.tier);
-		if(gameState.redResources <= cost)
+		if(gameState.redResources < cost)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
 		String message = t.addRed(gameState);
 		if(message == null)
@@ -180,7 +228,7 @@ public class GameRunner implements ActionListener {
 	
 	private String upgradeGreen(Tower t){
 		double cost = TOWER_COST_MULTIPLIER * Math.pow(2, t.tier);
-		if(gameState.greenResources <= cost)
+		if(gameState.greenResources < cost)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
 		String message = t.addGreen(gameState);
 		if(message == null)
@@ -190,7 +238,7 @@ public class GameRunner implements ActionListener {
 	
 	private String upgradeBlue(Tower t){
 		double cost = TOWER_COST_MULTIPLIER * Math.pow(2, t.tier);
-		if(gameState.blueResources <= cost)
+		if(gameState.blueResources < cost)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
 		String message = t.addBlue(gameState);
 		if(message == null)

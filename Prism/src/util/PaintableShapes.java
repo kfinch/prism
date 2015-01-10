@@ -86,6 +86,21 @@ public class PaintableShapes {
 		}
 	}
 	
+	//changes color of all shapes to the specified color
+	public void setColor(Color color){
+		for(Object o : shapes){
+			if(o instanceof Circle){
+				((Circle) o).color = color;
+			}
+			else if(o instanceof Polygon){
+				((Polygon) o).color = color;
+			}
+			else if(o instanceof Rectangle){
+				((Rectangle) o).color = color;
+			}
+		}
+	}
+	
 	public void paintShapes(Graphics2D g2d, int centerX, int centerY, int tileSize){
 		for(Object o : shapes){
 			if(o instanceof Circle){

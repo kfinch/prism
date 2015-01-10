@@ -17,6 +17,9 @@ import util.GeometryUtils;
  */
 public class GameState {
 	
+	public static final Color BACKGROUND_LIGHT = Color.decode("#aaaaaa");
+	public static final Color BACKGROUND_DARK = Color.decode("#666666");
+	
 	public static final Color HEALTH_BAR_FULL = Color.decode("#006600");
 	public static final Color HEALTH_BAR_EMPTY = Color.decode("#660000");
 	
@@ -94,7 +97,7 @@ public class GameState {
 		miscEntities = new HashSet<Entity>();
 		lightSources = new HashSet<LightSource>();
 		
-		this.prism = new Prism(-15, yNodes/2, 22);
+		this.prism = new Prism(-2, yNodes/2, 22, 15);
 		lightSources.add(prism);
 		
 		animations = new LinkedList<Animation>();
@@ -246,25 +249,6 @@ public class GameState {
 	}
 	
 	public void step(){
-		frameNumber++;
-		
-		//TODO: put enemy spawning somewhere that makes sense?
-		if(frameNumber % 40 == 0){
-			int spawnX = xNodes-1;
-			int spawnY = (int) (Math.random()*yNodes);
-			addEnemy(spawnX, spawnY, new EnemyTrash(nodeAt(spawnX, spawnY), spawnX, spawnY, frameNumber));
-		}
-		if(frameNumber % 120 == 20){
-			int spawnX = xNodes-1;
-			int spawnY = (int) (Math.random()*yNodes);
-			addEnemy(spawnX, spawnY, new EnemyNibbler(nodeAt(spawnX, spawnY), spawnX, spawnY, frameNumber));
-		}
-		if(frameNumber % 4000 == 810){
-			int spawnX = xNodes-1;
-			int spawnY = (int) (Math.random()*yNodes);
-			addEnemy(spawnX, spawnY, new EnemyBigBoss(nodeAt(spawnX, spawnY), spawnX, spawnY, frameNumber));
-		}
-		
 		//prestep all entities
 		for(Entity e : enemies)
 			e.preStep(this);
@@ -274,6 +258,7 @@ public class GameState {
 			e.preStep(this);
 		for(Entity e : miscEntities)
 			e.preStep(this);
+		prism.preStep(this);
 		
 		//movestep all entities
 		for(Entity e : enemies)
@@ -284,6 +269,7 @@ public class GameState {
 			e.moveStep(this);
 		for(Entity e : miscEntities)
 			e.moveStep(this);
+		prism.moveStep(this);
 		
 		//actionstep all entities
 		for(Entity e : enemies)
@@ -294,6 +280,7 @@ public class GameState {
 			e.actionStep(this);
 		for(Entity e : miscEntities)
 			e.actionStep(this);
+		prism.actionStep(this);
 		
 		//poststep all entities
 		for(Entity e : enemies)
@@ -304,6 +291,7 @@ public class GameState {
 			e.postStep(this);
 		for(Entity e : miscEntities)
 			e.postStep(this);
+		prism.postStep(this);
 		
 		//clean up inactive entities
 		Iterator<Enemy> enIter = enemies.iterator();
@@ -338,6 +326,8 @@ public class GameState {
 								ressurect = false;
 						}
 					}
+					if(!t.isLit)
+						ressurect = false;
 					if(ressurect)
 						t.setGhost(false);
 				}
@@ -377,6 +367,10 @@ public class GameState {
 		fluxResources += fluxResourcesGain;
 		if(fluxResources > maximumFlux)
 			fluxResources = maximumFlux;
+		
+		//TODO: check for prism dead, and end the game if it is
+		
+		frameNumber++;
 	}
 	
 	public Set<Node> getNodesInRange(double xLoc, double yLoc, double range){
@@ -524,7 +518,7 @@ public class GameState {
 	
 	//much simpler (but also slower) version of getTowersInRange()
 	//this version also DOES NOT see ghost towers
-	public Set<Tower> getTowersInRange(double xLoc, double yLoc, double range){
+	public Set<Tower> getTowersInEdgeRange(double xLoc, double yLoc, double range){
 		Set<Tower> result = new HashSet<Tower>();
 		for(Tower t : towers){
 			if(!t.isGhost && GeometryUtils.distFromTowerEdge(t.xLoc, t.yLoc, xLoc, yLoc) <= range)
@@ -533,7 +527,34 @@ public class GameState {
 		return result;
 	}
 	
+	public Set<Tower> getTowersInCenterRange(double xLoc, double yLoc, double range){
+		Set<Tower> result = new HashSet<Tower>();
+		for(Tower t : towers){
+			if(!t.isGhost && GeometryUtils.dist(t.xLoc, t.yLoc, xLoc, yLoc) <= range)
+				result.add(t);
+		}
+		return result;
+	}
+	
 	public boolean isPrismInRange(double xLoc, double yLoc, double range){
 		return (range >= xLoc);
+	}
+	
+	public Set<Entity> getTowersAndPrismInRange(double xLoc, double yLoc, double range){
+		Set<Entity> result = new HashSet<Entity>();
+		for(Tower t : towers){
+			if(!t.isGhost && GeometryUtils.distFromTowerEdge(t.xLoc, t.yLoc, xLoc, yLoc) <= range)
+				result.add(t);
+		}
+		if(isPrismInRange(xLoc, yLoc, range))
+			result.add(prism);
+		
+		return result;
+	}
+	
+	public void spawnEnemy(Enemy waveEnemies){
+		int spawnX = xNodes-1;
+		int spawnY = (int) (Math.random()*yNodes);
+		addEnemy(spawnX, spawnY, waveEnemies.generateCopy(nodeAt(spawnX, spawnY), spawnX, spawnY, frameNumber));
 	}
 }

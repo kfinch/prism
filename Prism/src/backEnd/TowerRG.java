@@ -10,8 +10,8 @@ public class TowerRG extends SimpleTower{
 
 	public static final double PRIORITY = 0;
 	public static final int TIER = 2;
-	public static final double MAX_HEALTH = 400;
-	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
+	public static final double MAX_HEALTH = Tower.T2G1_HEALTH;
+	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
 	public static final double ATTACK_DAMAGE = 50;
 	public static final double ATTACK_DELAY = 50;
 	public static final double ATTACK_RANGE = 0;

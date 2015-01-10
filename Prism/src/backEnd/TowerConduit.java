@@ -1,9 +1,6 @@
 package backEnd;
 
 import java.awt.Color;
-import java.util.HashSet;
-import java.util.Set;
-
 import util.PaintableShapes;
 import util.Point2d;
 
@@ -12,7 +9,7 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	public static final double PRIORITY = 0;
 	public static final int TIER = 1;
 	public static final double MAX_HEALTH = 200;
-	public static final double HEALTH_REGEN = MAX_HEALTH / 1000;
+	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
 	public static final double ATTACK_DAMAGE = 0;
 	public static final double ATTACK_DELAY = 1000;
 	public static final double ATTACK_RANGE = 0;
@@ -34,7 +31,10 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	
 	@Override
 	public double lightRadius() {
-		return currentLightRadius;
+		if(isGhost)
+			return 0;
+		else
+			return currentLightRadius;
 	}
 	
 	@Override

@@ -9,6 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.JPanel;
 
@@ -16,9 +17,10 @@ import util.Animation;
 import util.Point2d;
 import backEnd.Entity;
 import backEnd.GameRunner;
+import backEnd.GameState;
 import backEnd.LightSource;
 
-public class GamePanel extends JPanel implements MouseListener, KeyListener {
+public class GamePanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
 
 	private static final int EDGE_BUFFER_SIZE = 30;
 	
@@ -38,6 +40,7 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 		//adds listeners to receive input
 		addKeyListener(this);
 		addMouseListener(this);
+		addMouseMotionListener(this);
 		setFocusable(true);
 		
 		mouseX = 0;
@@ -49,12 +52,12 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 		panelHeight = getSize().height;
 		xNodes = game.gameState.xNodes;
 		yNodes = game.gameState.yNodes;
-		tileSize = Math.min((panelWidth-EDGE_BUFFER_SIZE*2)/xNodes, (panelWidth-EDGE_BUFFER_SIZE*2)/yNodes);
+		tileSize = Math.min((panelWidth-EDGE_BUFFER_SIZE*4)/xNodes, (panelWidth-EDGE_BUFFER_SIZE*2)/yNodes);
 		
 		topMargin = EDGE_BUFFER_SIZE;
 		bottomMargin = panelHeight - yNodes*tileSize - EDGE_BUFFER_SIZE;
-		leftMargin = EDGE_BUFFER_SIZE;
-		rightMargin = panelWidth - xNodes*tileSize - EDGE_BUFFER_SIZE;
+		leftMargin = EDGE_BUFFER_SIZE*3;
+		rightMargin = panelWidth - xNodes*tileSize - EDGE_BUFFER_SIZE*3;
 	}
 	
 	public void paintComponent(Graphics g){
@@ -65,9 +68,9 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 	
 	private void doPainting(Graphics2D g2d){
 		//draw light levels
-		g2d.setColor(Color.darkGray);
+		g2d.setColor(GameState.BACKGROUND_DARK);
 		g2d.fillRect(leftMargin, topMargin, tileSize*xNodes, tileSize*yNodes);
-		g2d.setColor(Color.lightGray);
+		g2d.setColor(GameState.BACKGROUND_LIGHT);
 		for(LightSource ls : game.gameState.lightSources){
 			double radiance = ls.lightRadius();
 			Point2d loc = ls.getLocation();
@@ -108,12 +111,42 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 		for(Animation a : game.gameState.animations)
 			a.paintAnimation(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
 		
+		//draw mouse-over box
+		if(game.nodeMouseOver != null){
+			switch(game.actionSelected){
+			case GameRunner.ADD_RED_ACTION: 
+				g2d.setColor(new Color(200, 40, 40, 100));
+				break;
+			case GameRunner.ADD_GREEN_ACTION: 
+				g2d.setColor(new Color(40, 200, 40, 100));
+				break;
+			case GameRunner.ADD_BLUE_ACTION: 
+				g2d.setColor(new Color(40, 40, 200, 100));
+				break;
+			case GameRunner.ADD_CONDUIT_ACTION: 
+				g2d.setColor(new Color(200, 200, 200, 100));
+				break;
+			case GameRunner.SELL_TOWER_ACTION:
+				g2d.setColor(new Color(200, 200, 200, 150));
+				break;
+			default:
+				g2d.setColor(new Color(200, 200, 200, 0));
+				break;
+			}
+			g2d.fillRect(xBoardLocToScreenLoc(game.nodeMouseOver.xLoc) - tileSize,
+					     yBoardLocToScreenLoc(game.nodeMouseOver.yLoc) - tileSize,
+					     tileSize*2, tileSize*2);
+		}
+		
 		//box out anything that leaks...
 		g2d.setColor(Color.white);
 		g2d.fillRect(0, 0, leftMargin, panelHeight);
 		g2d.fillRect(0, 0, panelWidth, topMargin);
 		g2d.fillRect(leftMargin + tileSize*xNodes, 0, panelWidth, panelHeight);
 		g2d.fillRect(0, topMargin + tileSize*yNodes, panelWidth, panelHeight);
+		
+		//draw the prism! (which leaks by design)
+		game.gameState.prism.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
 		
 		//draw resource counts / frame number
 		g2d.setFont(new Font(Font.SANS_SERIF,Font.BOLD,16));
@@ -180,11 +213,11 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 	}
 	
 	private double xScreenLocToBoardLoc(int screenX){
-		return ((screenX - leftMargin) / tileSize) + 1;
+		return ((double)(screenX - leftMargin) / tileSize) - 0.5;
 	}
 	
 	private double yScreenLocToBoardLoc(int screenY){
-		return ((screenY - topMargin) / tileSize) + 1;
+		return ((double)(screenY - topMargin) / tileSize) - 0.5;
 	}
 	
 	private int xBoardLocToScreenLoc(double boardX){
@@ -200,10 +233,10 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 		mouseX = e.getX();
 		mouseY = e.getY();
 		
-		int boardX = (int) xScreenLocToBoardLoc(mouseX);
-		int boardY = (int) yScreenLocToBoardLoc(mouseY);
+		double boardX = xScreenLocToBoardLoc(mouseX);
+		double boardY = yScreenLocToBoardLoc(mouseY);
 		if(boardX > 0 && boardX <= xNodes && boardY > 0 && boardY <= yNodes)
-			game.nodeClicked(game.gameState.nodes[boardX][boardY]);
+			game.boardClicked(boardX, boardY);
 	}
 
 	@Override
@@ -219,6 +252,23 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 	public void mouseReleased(MouseEvent e) {}
 
 	@Override
+	public void mouseDragged(MouseEvent e) {}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		mouseX = e.getX();
+		mouseY = e.getY();
+		
+		double boardX = xScreenLocToBoardLoc(mouseX);
+		double boardY = yScreenLocToBoardLoc(mouseY);
+		
+		game.boardMouseOver(boardX, boardY);
+		
+		repaint();
+	}
+
+	
+	@Override
 	public void keyPressed(KeyEvent e) {
 		switch(e.getKeyCode()){
 		case KeyEvent.VK_R: game.redSelected(); break;
@@ -226,21 +276,24 @@ public class GamePanel extends JPanel implements MouseListener, KeyListener {
 		case KeyEvent.VK_B: game.blueSelected(); break;
 		case KeyEvent.VK_C: game.conduitSelected(); break;
 		case KeyEvent.VK_S: game.sellSelected(); break;
+		
 		case KeyEvent.VK_SPACE:
 			if(game.isPaused)
 				game.unpause();
 			else
 				game.pause();
 			break;
+			
+		case KeyEvent.VK_BACK_SPACE: game.newGame(); break;
+		case KeyEvent.VK_ESCAPE: game.quitToMenu();; break;
 		}
 		repaint(); //paint the UI results of this, even if paused
 	}
-
+	
 	@Override
 	public void keyReleased(KeyEvent e) {}
 
 	@Override
 	public void keyTyped(KeyEvent e) {}
-	
 	
 }

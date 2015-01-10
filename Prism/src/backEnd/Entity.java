@@ -186,9 +186,14 @@ public abstract class Entity {
 		if(currHealth <= 0)
 			die(gameState);
 		
-		for(Buff b : buffs.values()){
-			if(!b.isActive)
-				removeBuff(b, gameState);
+		Iterator<Buff> bIter = buffs.values().iterator();
+		Buff b;
+		while(bIter.hasNext()){
+			b = bIter.next();
+			if(!b.isActive){
+				b.remove(this, gameState);
+				bIter.remove();
+			}
 		}
 	}
 	
