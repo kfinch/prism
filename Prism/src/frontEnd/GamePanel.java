@@ -52,7 +52,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		panelHeight = getSize().height;
 		xNodes = game.gameState.xNodes;
 		yNodes = game.gameState.yNodes;
-		tileSize = Math.min((panelWidth-EDGE_BUFFER_SIZE*4)/xNodes, (panelWidth-EDGE_BUFFER_SIZE*2)/yNodes);
+		tileSize = Math.min((panelWidth-EDGE_BUFFER_SIZE*5)/xNodes, (panelWidth-EDGE_BUFFER_SIZE*2)/yNodes);
 		
 		topMargin = EDGE_BUFFER_SIZE;
 		bottomMargin = panelHeight - yNodes*tileSize - EDGE_BUFFER_SIZE;
@@ -126,6 +126,12 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 			case GameRunner.ADD_CONDUIT_ACTION: 
 				g2d.setColor(new Color(200, 200, 200, 100));
 				break;
+			case GameRunner.TELEPORT_TOWER_SRC_ACTION:
+				g2d.setColor(new Color(255, 240, 15, 50));
+				break;
+			case GameRunner.TELEPORT_TOWER_DST_ACTION:
+				g2d.setColor(new Color(255, 240, 15, 150));
+				break;
 			case GameRunner.SELL_TOWER_ACTION:
 				g2d.setColor(new Color(200, 200, 200, 150));
 				break;
@@ -138,6 +144,26 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 					     tileSize*2, tileSize*2);
 		}
 		
+		//draw mouse over ranges
+		if(game.towerMouseOver != null){
+			float[] dash = {8.0f};
+			g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
+			g2d.setColor(GameState.UI_GOLD);
+			double range = game.towerMouseOver.attackRange.modifiedValue;
+			int x = xBoardLocToScreenLoc(game.towerMouseOver.xLoc - range);
+			int y = yBoardLocToScreenLoc(game.towerMouseOver.yLoc - range);
+			int diameter = (int) (range * 2 * tileSize);
+			if(diameter != 0)
+				g2d.drawOval(x, y, diameter, diameter);
+		}
+		
+		//highlight tower to teleport
+		if(game.actionSelected == GameRunner.TELEPORT_TOWER_DST_ACTION){
+			g2d.setColor(GameState.UI_GOLD);
+			g2d.drawRect((int)game.towerToTeleport.xLoc - tileSize, (int)game.towerToTeleport.yLoc - tileSize,
+					     tileSize*2, tileSize*2);
+		}
+		
 		//box out anything that leaks...
 		g2d.setColor(Color.white);
 		g2d.fillRect(0, 0, leftMargin, panelHeight);
@@ -145,8 +171,9 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		g2d.fillRect(leftMargin + tileSize*xNodes, 0, panelWidth, panelHeight);
 		g2d.fillRect(0, topMargin + tileSize*yNodes, panelWidth, panelHeight);
 		
-		//draw the prism! (which leaks by design)
+		//draw the prisms! (which leaks by design)
 		game.gameState.prism.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
+		game.gameState.darkPrism.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
 		
 		//draw resource counts / frame number
 		g2d.setFont(new Font(Font.SANS_SERIF,Font.BOLD,16));
@@ -176,7 +203,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		g2d.setStroke(new BasicStroke(4));
 		
 		g2d.setColor(Color.lightGray);
-		g2d.fillRect(20, yLine-10, 310, fontSize + 30);
+		g2d.fillRect(20, yLine-10, 370, fontSize + 30);
 		
 		g2d.setColor(Color.red);
 		g2d.drawString("R", 40, yLine + fontSize + 5);
@@ -202,6 +229,12 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		g2d.drawString("S", 280, yLine + fontSize + 5);
 		if(game.actionSelected == GameRunner.SELL_TOWER_ACTION)
 			g2d.drawRect(275, yLine, 40, fontSize + 10);
+		
+		g2d.setColor(GameState.UI_GOLD);
+		g2d.drawString("T", 340, yLine + fontSize + 5);
+		if(game.actionSelected == GameRunner.TELEPORT_TOWER_SRC_ACTION ||
+		   game.actionSelected == GameRunner.TELEPORT_TOWER_DST_ACTION)
+			g2d.drawRect(335, yLine, 40, fontSize + 10);
 
 		g2d.setStroke(new BasicStroke(1));
 		
@@ -229,15 +262,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
-		mouseX = e.getX();
-		mouseY = e.getY();
-		
-		double boardX = xScreenLocToBoardLoc(mouseX);
-		double boardY = yScreenLocToBoardLoc(mouseY);
-		if(boardX > 0 && boardX <= xNodes && boardY > 0 && boardY <= yNodes)
-			game.boardClicked(boardX, boardY);
-	}
+	public void mouseClicked(MouseEvent e) {}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {}
@@ -246,7 +271,15 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 	public void mouseExited(MouseEvent e) {}
 
 	@Override
-	public void mousePressed(MouseEvent e) {}
+	public void mousePressed(MouseEvent e) {
+		mouseX = e.getX();
+		mouseY = e.getY();
+		
+		double boardX = xScreenLocToBoardLoc(mouseX);
+		double boardY = yScreenLocToBoardLoc(mouseY);
+		if(boardX > 0 && boardX <= xNodes && boardY > 0 && boardY <= yNodes)
+			game.boardClicked(boardX, boardY);
+	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {}
@@ -275,7 +308,9 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		case KeyEvent.VK_G: game.greenSelected(); break;
 		case KeyEvent.VK_B: game.blueSelected(); break;
 		case KeyEvent.VK_C: game.conduitSelected(); break;
+		case KeyEvent.VK_T: game.teleportSelected(); break;
 		case KeyEvent.VK_S: game.sellSelected(); break;
+		case KeyEvent.VK_SHIFT: game.noneSelected(); break;
 		
 		case KeyEvent.VK_SPACE:
 			if(game.isPaused)

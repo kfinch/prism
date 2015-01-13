@@ -19,14 +19,15 @@ public class GameRunner implements ActionListener {
 	public static final String BUILD_ERROR_BLOCKED = "Can't build here, there's something in the way.";
 	public static final String BUILD_ERROR_INSUFFICIENT_RESOURCES = "You have insufficient resources";
 	
-	public static final double STARTING_COLOR = 4000; //400
+	public static final double STARTING_COLOR = 500; //500
 	public static final double STARTING_FLUX = 100;
 	public static final double MAXIMUM_FLUX = 200;
 	public static final double COLOR_GAIN_RATE = 0.1;
 	public static final double FLUX_GAIN_RATE = 0.1;
 	
-	public static final double TOWER_COST_MULTIPLIER = 10; //100
-	public static final double CONDUIT_TOWER_COST = 10; //100
+	public static final double TOWER_COST_MULTIPLIER = 100; //100
+	public static final double CONDUIT_TOWER_COST = 100; //100
+	public static final double TELEPORT_COST = 40;
 	
 	public static final int WAVE_DURATION = 1200;
 	public static final int WAVE_DOWNTIME = 400;
@@ -40,6 +41,8 @@ public class GameRunner implements ActionListener {
 	public static final int ADD_BLUE_ACTION = 3;
 	public static final int ADD_CONDUIT_ACTION = 4;
 	public static final int SELL_TOWER_ACTION = 5;
+	public static final int TELEPORT_TOWER_SRC_ACTION = 6;
+	public static final int TELEPORT_TOWER_DST_ACTION = 7;
 	
 	public static final int STEP_DURATION = 25;
 	
@@ -63,6 +66,8 @@ public class GameRunner implements ActionListener {
 	public Node nodeMouseOver;
 	public Tower towerMouseOver;
 	
+	public Tower towerToTeleport; //TODO: make this a generic tower to *?
+	
 	public GameRunner(PrismFrontEnd frontEnd){
 		this.boardWidth = DEFAULT_BOARD_WIDTH;
 		this.boardHeight = DEFAULT_BOARD_HEIGHT;
@@ -85,6 +90,16 @@ public class GameRunner implements ActionListener {
 		if(gameState.frameNumber % (WAVE_DURATION + WAVE_DOWNTIME) <= WAVE_DURATION &&
 		   gameState.frameNumber % spawnDelay == 0){ //TODO: do something about this, this is super awkward
 			gameState.spawnEnemy(waveEnemies);
+		}
+		
+		if(gameState.playerLose){ //game over, player loses
+			System.out.println("PLAYER LOSE");
+			newGame(); //TODO: make "game over, you lose" message in client, and quit to menu instead
+		}
+		
+		if(gameState.playerWin){
+			System.out.println("PLAYER WIN");
+			newGame(); //TODO: make "game over, you win" message in client, and quit to menu instead
 		}
 		
 		gameState.step();
@@ -158,9 +173,15 @@ public class GameRunner implements ActionListener {
 		case ADD_CONDUIT_ACTION:
 			newConduitTower(nodeMouseOver);
 			break;
+		case TELEPORT_TOWER_SRC_ACTION:
+			startTeleportTower(towerMouseOver);
+			break;
+		case TELEPORT_TOWER_DST_ACTION:
+			finishTeleportTower(nodeMouseOver);
+			break;
 		case SELL_TOWER_ACTION:
 			if(towerMouseOver != null){
-				towerMouseOver.sell(gameState);
+				towerMouseOver.sellTower(gameState);
 			}
 			break;
 		default: throw new IllegalArgumentException("Invalid action type: " + actionSelected);
@@ -246,6 +267,30 @@ public class GameRunner implements ActionListener {
 		return message;
 	}
 	
+	private String startTeleportTower(Tower target){
+		towerToTeleport = target;
+		if(towerToTeleport != null)
+			actionSelected = TELEPORT_TOWER_DST_ACTION;
+		if(gameState.fluxResources < TELEPORT_COST)
+			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
+		return null;
+	}
+	
+	private String finishTeleportTower(Node dst){
+		if(gameState.fluxResources < TELEPORT_COST)
+			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
+		if(gameState.isValidTowerLocation(dst.xLoc, dst.yLoc)){
+			towerToTeleport.teleportTower(gameState, dst);
+			towerToTeleport = null;
+			actionSelected = NO_ACTION;
+			gameState.fluxResources -= TELEPORT_COST;
+			return null;
+		}
+		else{
+			return BUILD_ERROR_BLOCKED;
+		}
+	}
+	
 	public void redSelected(){
 		actionSelected = ADD_RED_ACTION;
 	}
@@ -264,6 +309,14 @@ public class GameRunner implements ActionListener {
 	
 	public void sellSelected(){
 		actionSelected = SELL_TOWER_ACTION;
+	}
+	
+	public void teleportSelected(){
+		actionSelected = TELEPORT_TOWER_SRC_ACTION;
+	}
+	
+	public void noneSelected(){
+		actionSelected = NO_ACTION;
 	}
 	
 	@Override

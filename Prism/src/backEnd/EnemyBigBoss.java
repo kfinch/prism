@@ -6,7 +6,7 @@ import util.PaintableShapes;
 
 public class EnemyBigBoss extends SimpleEnemy {
 
-	public static final int WAVE_SIZE = 1;
+	public static final int WAVE_SIZE = 2;
 	public static final double BASE_KILL_REWARD = 60;
 	
 	public static final double PRIORITY = 0;

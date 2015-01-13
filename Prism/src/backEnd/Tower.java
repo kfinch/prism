@@ -18,11 +18,13 @@ public abstract class Tower extends Entity {
 	protected static final int GHOST_DURATION = 2000; //TODO: look into ways of making ghost more harmfruu
 	
 	protected static final String UPGRADE_DEBUFF_ID = "upgradingtowerdebuff";
-	
-	protected static final int DEFAULT_SELL_DURATION = 100;
-	protected static final String SELL_DEBUFF_ID = "sellingtowerdebuff";
-	
 	protected static final int UPGRADE_DURATION_MULTIPLIER = 100;
+	
+	protected static final String SELL_DEBUFF_ID = "sellingtowerdebuff";
+	protected static final int DEFAULT_SELL_DURATION = 100;
+	
+	protected static final String TELEPORT_DEBUFF_ID = "teleportingtowerdebuff";
+	protected static final int DEFAULT_TELEPORT_DURATION = 100;
 	
 	protected static final String CANT_UPGRADE_MAX_LEVEL = "This tower is already max level!";
 	protected static final String CANT_UPGRADE_NO_PATH = "There's no upgrade path with that color.";
@@ -52,24 +54,24 @@ public abstract class Tower extends Entity {
 	
 	protected static final double BASE_HEALTH_REGEN = 0.02;
 	
-	protected Node currNode;
+	public Node currNode;
 	
-	protected boolean isGhost;
-	protected int ghostTimer;
+	public boolean isGhost;
+	public int ghostTimer;
 	
-	protected double priority;
-	protected int spawnFrame;
-	protected int tier;
+	public double priority;
+	public int spawnFrame;
+	public int tier;
 	
-	protected Stat attackDamage, attackDelay, attackRange, attackAOE;
-	protected boolean canAOE;
-	protected int attackTimer;
+	public Stat attackDamage, attackDelay, attackRange, attackAOE;
+	public boolean canAOE;
+	public int attackTimer;
 	
-	protected double facing;
+	public double facing;
 	
-	protected boolean isLit;
+	public boolean isLit;
 	
-	protected PaintableShapes shapes;
+	public PaintableShapes shapes;
 	
 	public Tower(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, int tier, double maxHealth,
 			     double healthRegen, double attackDamage, double attackDelay, double attackRange, double attackAOE,
@@ -140,20 +142,42 @@ public abstract class Tower extends Entity {
 	}
 	
 	/*
-	 * Attempts to upgrade to the given tower, returns true if it works, false if it can't.
+	 * Attempts to change this tower to the given tower, returns true if it works, false if it can't.
 	 */
-	protected boolean upgradeToTower(GameState gameState, Tower upgrade){
+	protected boolean morphTower(GameState gameState, Tower morph){
 		if(changeAction.canAct() && !isGhost){
-			prepareUpgradedTower(upgrade);
-			gameState.addTower(currNode.xLoc, currNode.yLoc, upgrade);
-			currNode.tower = upgrade;
-			gameState.towers.add(upgrade);
-			upgrade.addBuff(new UpgradingDebuff(tier), gameState);
+			prepareUpgradedTower(morph);
+			gameState.addTower(currNode.xLoc, currNode.yLoc, morph);
+			currNode.tower = morph;
+			gameState.towers.add(morph);
+			morph.addBuff(new UpgradingDebuff(tier), gameState);
 			gameState.towers.remove(this);
 			return true;
 		}
 		else
 			return false;
+	}
+	
+	/*
+	 * Attempts to teleport this tower to the target location, returns true if it works, false if it can't.
+	 */
+	protected boolean teleportTower(GameState gameState, Node dst){
+		if(changeAction.canAct() && !isGhost && gameState.isValidTowerLocation(dst.xLoc, dst.yLoc)){
+			addBuff(new TeleportingDebuff(dst), gameState);
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	public String sellTower(GameState gameState){
+		if(changeAction.canAct()){
+			addBuff(new SellingDebuff(), gameState);
+			return null;
+		}
+		else{
+			return CANT_UPGRADE_ACTION_DISABLED;
+		}
 	}
 	
 	protected Tower generateRedUpgrade(){
@@ -172,7 +196,7 @@ public abstract class Tower extends Entity {
 		Tower upgrade = generateRedUpgrade();
 		if(upgrade == null)
 			return Tower.CANT_UPGRADE_MAX_LEVEL;
-		else if(!upgradeToTower(gameState, upgrade))
+		else if(!morphTower(gameState, upgrade))
 			return Tower.CANT_UPGRADE_ACTION_DISABLED;
 		else
 			return null;
@@ -182,7 +206,7 @@ public abstract class Tower extends Entity {
 		Tower upgrade = generateGreenUpgrade();
 		if(upgrade == null)
 			return Tower.CANT_UPGRADE_MAX_LEVEL;
-		else if(!upgradeToTower(gameState, upgrade))
+		else if(!morphTower(gameState, upgrade))
 			return Tower.CANT_UPGRADE_ACTION_DISABLED;
 		else
 			return null;
@@ -192,20 +216,10 @@ public abstract class Tower extends Entity {
 		Tower upgrade = generateBlueUpgrade();
 		if(upgrade == null)
 			return Tower.CANT_UPGRADE_MAX_LEVEL;
-		else if(!upgradeToTower(gameState, upgrade))
+		else if(!morphTower(gameState, upgrade))
 			return Tower.CANT_UPGRADE_ACTION_DISABLED;
 		else
 			return null;
-	}
-	
-	public String sell(GameState gameState){
-		if(changeAction.canAct()){
-			addBuff(new SellingDebuff(), gameState);
-			return null;
-		}
-		else{
-			return CANT_UPGRADE_ACTION_DISABLED;
-		}
 	}
 	
 	protected static PaintableShapes generateBaseShapes(double xLoc, double yLoc){
@@ -257,6 +271,17 @@ public abstract class Tower extends Entity {
 	}
 	
 	@Override
+	public void postStep(GameState gameState){
+		super.postStep(gameState);
+		//if(currNode.tower != this){ //TODO: remove debugging
+		//	System.out.println("Representation mismatch with " + this);
+		//	System.out.println("I'm @ " + xLoc + " " + yLoc +
+		//			           "  curr node = " + currNode + " @ " + currNode.xLoc + " " + currNode.yLoc);
+		//	System.out.println("My node's tower is " + currNode.tower);
+		//}
+	}
+	
+	@Override
 	public void die(GameState gameState){
 		setGhost(true); //rather than being completely removed, towers become ghosts on death
 	}
@@ -279,6 +304,12 @@ public abstract class Tower extends Entity {
 		if(hasBuff(SELL_DEBUFF_ID)){
 			TimedBuff tb = (TimedBuff) buffs.get(SELL_DEBUFF_ID);
 			double percentComplete = ((double)tb.timer) / ((double)tb.initialDuration);
+			super.paintStatusBar(g2d, centerX, centerY, tileSize, 0, 0, 1.8, 0.6, percentComplete,
+					             Color.black, Color.white);
+		}
+		if(hasBuff(TELEPORT_DEBUFF_ID)){
+			TimedBuff tb = (TimedBuff) buffs.get(TELEPORT_DEBUFF_ID);
+			double percentComplete = ((double)tb.initialDuration - (double)tb.timer) / ((double)tb.initialDuration);
 			super.paintStatusBar(g2d, centerX, centerY, tileSize, 0, 0, 1.8, 0.6, percentComplete,
 					             Color.black, Color.white);
 		}
@@ -338,6 +369,35 @@ class SellingDebuff extends DisableTowerDebuff {
 		e.isActive = false;
 		//TODO: give player resources for the sell! (reduced if tower is ghost on sell completion)
 	}
+}
+
+//TODO: THINK LONG AND HARD ABOUT POSSIBLE SPECIAL CASES THAT WILL HAVE INCORRECT BEHAVIOR.
+class TeleportingDebuff extends DisableTowerDebuff {
+
+	public Node dst;
+	public Tower proxy;
+	
+	public TeleportingDebuff(Node dst){
+		super(Tower.TELEPORT_DEBUFF_ID, "Teleporting...", "This tower is teleporting, and is disabled until it finishes",
+			  Tower.DEFAULT_TELEPORT_DURATION);
+		this.dst = dst;
+	}
+	
+	@Override
+	public void apply(Entity e, GameState gameState){
+		super.apply(e, gameState);
+		Tower t = (Tower) e;
+		proxy = new TowerProxy(t, dst, dst.xLoc, dst.yLoc);
+		gameState.addTower(dst.xLoc, dst.yLoc, proxy);
+	}
+	
+	@Override
+	public void remove(Entity e, GameState gameState){
+		super.remove(e, gameState);
+		Tower t = (Tower) e;
+		gameState.moveTower(dst.xLoc, dst.yLoc, t); //this kills the proxy
+	}
+	
 }
 
 

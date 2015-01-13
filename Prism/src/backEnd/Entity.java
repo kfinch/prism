@@ -25,26 +25,26 @@ public abstract class Entity {
 	
 	public double xLoc, yLoc;
 	
-	protected Stat maxHealth;
-	protected double currHealth;
-	protected Stat receivedDamageModifier;
-	protected Stat receivedHealingModifier;
-	protected Stat healthRegen;
+	public Stat maxHealth;
+	public double currHealth;
+	public Stat receivedDamageModifier;
+	public Stat receivedHealingModifier;
+	public Stat healthRegen;
 	
-	protected ActionType moveAction; //any action that involves moving this entity
-	protected ActionType attackAction; //this entity's basic attack(s) (if it has one)
-	protected ActionType specialAction; //this entity's special actions, abilities, etc ???
-	protected ActionType passiveAction; //this entity's passive actions, like reloading, regenerating, auras, etc...
-	protected ActionType changeAction; //this entity's actions that change it, like an upgrade or sell
+	public ActionType moveAction; //any action that involves moving this entity
+	public ActionType attackAction; //this entity's basic attack(s) (if it has one)
+	public ActionType specialAction; //this entity's special actions, abilities, etc ???
+	public ActionType passiveAction; //this entity's passive actions, like reloading, regenerating, auras, etc...
+	public ActionType changeAction; //this entity's actions that change it, like an upgrade or sell
 	
-	protected PaintableShapes shapes;
+	public PaintableShapes shapes;
 	
-	protected Map<String, Buff> buffs;
+	public Map<String, Buff> buffs;
 	
-	protected boolean showHealthBar;
-	protected double healthBarOffset;
-	protected double healthBarWidth;
-	protected double healthBarHeight;
+	public boolean showHealthBar;
+	public double healthBarOffset;
+	public double healthBarWidth;
+	public double healthBarHeight;
 	
 	public Entity(double xLoc, double yLoc, double maxHealth, double healthRegen, PaintableShapes shapes){
 		this.isActive = true;

@@ -1,5 +1,7 @@
 package backEnd;
 
+import util.Animation;
+import util.CombatTextAnimation;
 import util.PaintableShapes;
 
 /**
@@ -17,17 +19,17 @@ public abstract class Enemy extends Entity {
 	
 	protected static final double TIER_STAT_MULTIPLIER = 0.1;
 	
-	protected int tier; //enemy's tier. Unlike for towers, this isn't fixed, enemy's stats should scale with their tier.
+	public int tier; //enemy's tier. Unlike for towers, this isn't fixed, enemy's stats should scale with their tier.
 	
-	protected Node currNode, nextNode; //node this enemy is on, and node it's headed to.
-	protected boolean toNextNode; //true if this enemy has reached it's next node.
+	public Node currNode, nextNode; //node this enemy is on, and node it's headed to.
+	public boolean toNextNode; //true if this enemy has reached it's next node.
 	
-	protected double priority; //attack priority of this enemy
-	protected int spawnFrame; //frame this enemy spawned on
+	public double priority; //attack priority of this enemy
+	public int spawnFrame; //frame this enemy spawned on
 	
-	protected Stat attackDamage, attackDelay, attackRange; //enemy's attack stats
-	protected int attackTimer; //tracks when enemy can next attack
-	protected Stat moveSpeed; //enemy's move stat
+	public Stat attackDamage, attackDelay, attackRange; //enemy's attack stats
+	public int attackTimer; //tracks when enemy can next attack
+	public Stat moveSpeed; //enemy's move stat
 	
 	public Enemy(int tier, Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, double maxHealth,
 			     double healthRegen, double attackDamage, double attackDelay, double attackRange,
@@ -68,6 +70,11 @@ public abstract class Enemy extends Entity {
 		gameState.redResources += getKillReward();
 		gameState.greenResources += getKillReward();
 		gameState.blueResources += getKillReward();
+		
+		Animation killRewardCombatText = new CombatTextAnimation("+" + (int)(getKillReward()), 0.5,
+				                                                 GameState.UI_GOLD, 0.5, 30);
+		killRewardCombatText.setLocation(xLoc, yLoc);
+		gameState.playAnimation(killRewardCombatText);
 	}
 	
 	@Override

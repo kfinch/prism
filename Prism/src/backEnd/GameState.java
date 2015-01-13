@@ -28,6 +28,8 @@ public class GameState {
 	public static final Color TOWER_GREEN = Color.decode("#00aa00");
 	public static final Color TOWER_BLUE = Color.decode("#0000aa");
 	
+	public static final Color UI_GOLD = Color.decode("#ffe80f");
+	
 	public static final Color ENEMY_DRAB_GREEN = Color.decode("#556b2f");
 	public static final Color ENEMY_ORANGE = Color.decode("#ff8c00");
 	public static final Color ENEMY_PURPLE = Color.decode("#ff00bb");
@@ -55,6 +57,7 @@ public class GameState {
 	public Set<LightSource> lightSources; //a set of all light sources
 	
 	public Prism prism;
+	public DarkPrism darkPrism;
 	
 	public List<Animation> animations; //a list of all active animations
 	
@@ -69,6 +72,9 @@ public class GameState {
 	public double fluxResourcesGain;
 	
 	public double maximumFlux;
+	
+	public boolean playerWin;
+	public boolean playerLose;
 	
 	public GameState(int xNodes, int yNodes){
 		this(xNodes, yNodes, GameRunner.STARTING_COLOR, GameRunner.STARTING_FLUX,
@@ -98,7 +104,10 @@ public class GameState {
 		lightSources = new HashSet<LightSource>();
 		
 		this.prism = new Prism(-2, yNodes/2, 22, 15);
-		lightSources.add(prism);
+		addMiscEntity(prism);
+		
+		this.darkPrism = new DarkPrism(xNodes+1, yNodes/2);
+		addMiscEntity(darkPrism);
 		
 		animations = new LinkedList<Animation>();
 		
@@ -113,6 +122,9 @@ public class GameState {
 		this.fluxResourcesGain = fluxResourcesGain;
 		
 		this.maximumFlux = maximumFlux;
+		
+		this.playerWin = false;
+		this.playerLose = false;
 	}
 	
 	public Node nodeAt(int x, int y){
@@ -213,18 +225,24 @@ public class GameState {
 	
 	public boolean isValidTowerLocation(int x, int y){
 		Node n;
-		for(int xi = x-1; xi<=x+1; xi++){
+		for(int xi = x-1; xi<=x+1; xi++){ //check for not over another tower, or on edge of screen
 			for(int yi = y-1; yi<=y+1; yi++){
-				//TODO: allow to build over ghost towers? (currently does not allow)
 				n = nodeAt(xi,yi);
-				if(n.isBuffer || n.tower != null || !n.enemies.isEmpty())
+				if(n.isBuffer || n.tower != null)
 					return false;
 			}
 		}
-		for(LightSource ls : lightSources){
+		
+		for(Enemy e : enemies){ //check if enemies in the way
+			if(GeometryUtils.distFromTowerEdge(e.xLoc, e.yLoc, x, y) <= 0) //TODO: make margin bigger?
+				return false;
+		}
+		
+		for(LightSource ls : lightSources){ //check for is lit
 			if(GeometryUtils.dist(ls.getLocation().x, ls.getLocation().y, x, y) <= ls.lightRadius() - Math.sqrt(2))
 				return true;
 		}
+		
 		return false;
 	}
 	
@@ -234,10 +252,41 @@ public class GameState {
 		tower.onSpawn(this);
 	}
 	
+	/*
+	 * Moves the given tower to a new location. Will overwrite and set inactive a tower at the destination.
+	 * Also does not check if the destination is valid.
+	 */
+	public void moveTower(int x, int y, Tower tower){
+		Node dst = nodeAt(x,y);
+		Node src = tower.currNode;
+		//System.out.println("Teleporting from src @ " + src.xLoc + " " + src.yLoc + " " + src.tower +
+		//		           " to dst @ " + dst.xLoc + " " + dst.yLoc + " " + dst.tower);
+		                   
+		
+		//this special case so it won't deactivate itself if told to move to where it already is.
+		if(src == dst)
+			return;
+		
+		src.tower = null;
+		dst.tower.isActive = false; //kills off any tower already at dst (check your destination!)
+		tower.currNode = dst;
+		tower.xLoc = x;
+		tower.yLoc = y;
+		dst.tower = tower;
+		
+		//System.out.println("After: src @ " + src.xLoc + " " + src.yLoc + " " + src.tower +
+		//                   " to dst @ " + dst.xLoc + " " + dst.yLoc + " " + dst.tower);
+	}
+	
 	public void addEnemy(int x, int y, Enemy enemy){
 		nodeAt(x,y).enemies.add(enemy);
 		enemies.add(enemy);
 		enemy.onSpawn(this);
+	}
+	
+	public void addMiscEntity(Entity entity){
+		miscEntities.add(entity);
+		entity.onSpawn(this);
 	}
 	
 	public boolean isLit(double x, double y){
@@ -249,7 +298,7 @@ public class GameState {
 	}
 	
 	public void step(){
-		//prestep all entities
+		//pre step all entities
 		for(Entity e : enemies)
 			e.preStep(this);
 		for(Entity e : towers)
@@ -258,9 +307,8 @@ public class GameState {
 			e.preStep(this);
 		for(Entity e : miscEntities)
 			e.preStep(this);
-		prism.preStep(this);
 		
-		//movestep all entities
+		//move step all entities
 		for(Entity e : enemies)
 			e.moveStep(this);
 		for(Entity e : towers)
@@ -269,9 +317,8 @@ public class GameState {
 			e.moveStep(this);
 		for(Entity e : miscEntities)
 			e.moveStep(this);
-		prism.moveStep(this);
 		
-		//actionstep all entities
+		//action step all entities
 		for(Entity e : enemies)
 			e.actionStep(this);
 		for(Entity e : towers)
@@ -280,9 +327,8 @@ public class GameState {
 			e.actionStep(this);
 		for(Entity e : miscEntities)
 			e.actionStep(this);
-		prism.actionStep(this);
 		
-		//poststep all entities
+		//post step all entities
 		for(Entity e : enemies)
 			e.postStep(this);
 		for(Entity e : towers)
@@ -291,7 +337,6 @@ public class GameState {
 			e.postStep(this);
 		for(Entity e : miscEntities)
 			e.postStep(this);
-		prism.postStep(this);
 		
 		//clean up inactive entities
 		Iterator<Enemy> enIter = enemies.iterator();
@@ -313,7 +358,9 @@ public class GameState {
 			t = tIter.next();
 			if(!t.isActive){
 				t.onDespawn(this);
-				nodeAt((int)t.xLoc,(int)t.yLoc).tower = null;
+				Node n = nodeAt((int)t.xLoc,(int)t.yLoc);
+				if(n.tower == t) //this check here so as not to accidentally kill a moving tower that overwrote another.
+					nodeAt((int)t.xLoc,(int)t.yLoc).tower = null;
 				tIter.remove();
 			}
 			else if(t.isGhost){
@@ -338,16 +385,20 @@ public class GameState {
 		Projectile p;
 		while(pIter.hasNext()){
 			p = pIter.next();
-			if(!p.isActive)
+			if(!p.isActive){
+				p.onDespawn(this);
 				pIter.remove();
+			}
 		}
 		
 		Iterator<Entity> eIter = miscEntities.iterator();
 		Entity e;
 		while(eIter.hasNext()){
 			e = eIter.next();
-			if(!e.isActive)
+			if(!e.isActive){
+				e.onDespawn(this);
 				eIter.remove();
+			}
 		}
 		
 		//step all animations, remove those that are no longer active
@@ -361,6 +412,7 @@ public class GameState {
 				a.step();
 		}
 		
+		//player gains resources
 		redResources += redResourcesGain;
 		greenResources += greenResourcesGain;
 		blueResources += blueResourcesGain;
@@ -368,7 +420,13 @@ public class GameState {
 		if(fluxResources > maximumFlux)
 			fluxResources = maximumFlux;
 		
-		//TODO: check for prism dead, and end the game if it is
+		//check for game over
+		if(prism.currHealth <= 0){ //player lose
+			playerLose = true;
+		}
+		else if(darkPrism.currHealth <= 0){ //player win
+			playerWin = true;
+		}
 		
 		frameNumber++;
 	}

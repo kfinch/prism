@@ -37,13 +37,15 @@ public class Prism extends Entity implements LightSource {
 		int nPoints1 = 4;
 		double[] xPoints1 = {0,2,0,-2};
 		double[] yPoints1 = {-2,0,2,0};
-		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, Color.black);
+		result.addFixedPolygon(nPoints1, xPoints1, yPoints1, GameState.UI_GOLD);
 		
 		return result;
 	}
 
 	@Override
-	public void onSpawn(GameState gameState) {}
+	public void onSpawn(GameState gameState) {
+		gameState.lightSources.add(this);
+	}
 
 	@Override
 	public void onDespawn(GameState gameState) {}
