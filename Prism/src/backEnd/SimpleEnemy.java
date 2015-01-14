@@ -92,7 +92,7 @@ public abstract class SimpleEnemy extends Enemy {
 	
 	@Override
 	public double getKillReward(){
-		return baseKillReward * (1 + 0.1*tier);
+		return baseKillReward * (1 + Enemy.TIER_STAT_MULTIPLIER*3*tier);
 	}
 	
 	protected void swapToNextNode(){

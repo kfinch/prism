@@ -17,7 +17,7 @@ public abstract class Enemy extends Entity {
 	protected static final double HEALTH_BAR_WIDTH = 0.6;
 	protected static final double HEALTH_BAR_HEIGHT = 0.2;
 	
-	protected static final double TIER_STAT_MULTIPLIER = 0.1;
+	protected static final double TIER_STAT_MULTIPLIER = 0.05;
 	
 	public int tier; //enemy's tier. Unlike for towers, this isn't fixed, enemy's stats should scale with their tier.
 	
@@ -34,7 +34,7 @@ public abstract class Enemy extends Entity {
 	public Enemy(int tier, Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, double maxHealth,
 			     double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			     double moveSpeed, PaintableShapes shapes){
-		super(xLoc, yLoc, maxHealth * (1 + tier*TIER_STAT_MULTIPLIER), healthRegen, shapes);
+		super(xLoc, yLoc, maxHealth * Math.pow(1+TIER_STAT_MULTIPLIER, tier), healthRegen, shapes);
 		
 		this.tier = tier;
 		
@@ -45,7 +45,7 @@ public abstract class Enemy extends Entity {
 		this.priority = priority;
 		this.spawnFrame = spawnFrame;
 		
-		this.attackDamage = new BasicStat(attackDamage * (1 + tier*TIER_STAT_MULTIPLIER));
+		this.attackDamage = new BasicStat(attackDamage * Math.pow(1+TIER_STAT_MULTIPLIER, tier));
 		this.attackDelay = new ReverseMultStat(attackDelay);
 		this.attackRange = new BasicStat(attackRange);
 		this.attackTimer = -1;
