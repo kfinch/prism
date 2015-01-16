@@ -32,7 +32,7 @@ public class DarkPrism extends Entity {
 	@Override
 	public void postStep(GameState gameState){
 		if(gameState.isLit(xLoc, yLoc)){
-			harm(1);
+			harm(1, null);
 		}
 	}
 }

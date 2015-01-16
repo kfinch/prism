@@ -146,12 +146,13 @@ public abstract class Tower extends Entity {
 	 */
 	protected boolean morphTower(GameState gameState, Tower morph){
 		if(changeAction.canAct() && !isGhost){
-			prepareUpgradedTower(morph);
+			prepareUpgradedTower(morph); //generate morphed version
+			
+			//remove this, replace it with upgraded version
+			gameState.removeTower(this);
 			gameState.addTower(currNode.xLoc, currNode.yLoc, morph);
-			currNode.tower = morph;
-			gameState.towers.add(morph);
+			
 			morph.addBuff(new UpgradingDebuff(tier), gameState);
-			gameState.towers.remove(this);
 			return true;
 		}
 		else
@@ -232,6 +233,12 @@ public abstract class Tower extends Entity {
 		
 		return result;
 	}
+	
+	//called when Tower is moved from src to dst
+	public void onMove(GameState gameState, Node src, Node dst){}
+	
+	//called when Tower is upgraded (to this)
+	public void onUpgrade(GameState gameState){}
 	
 	@Override
 	public void preStep(GameState gameState){

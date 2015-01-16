@@ -7,7 +7,9 @@ import java.util.Set;
 
 import util.Animation;
 import util.PaintableShapes;
+import util.Point2d;
 import util.SimpleCircleAnimation;
+import util.SimpleRayAnimation;
 import util.Vector2d;
 
 public class TowerRRG extends SimpleTower{
@@ -49,7 +51,7 @@ public class TowerRRG extends SimpleTower{
 		double healing = attackDamage.modifiedValue * LIFESTEAL_PERCENT;
 		Set<Tower> nearbyTowers = gameState.getTowersInCenterRange(xLoc, yLoc, attackAOE.modifiedValue);
 		for(Tower t : nearbyTowers)
-			t.heal(healing);
+			t.heal(healing, this);
 		Animation healingAnimation = new SimpleCircleAnimation(15, 0.6, 2.2, 0.4f, 0.2f, GameState.PROJECTILE_GREEN);
 		healingAnimation.setLocation(xLoc, yLoc);
 		gameState.playAnimation(healingAnimation);
@@ -78,57 +80,7 @@ public class TowerRRG extends SimpleTower{
 	
 	@Override
 	protected Animation generateAttackAnimation(GameState gameState){
-		return new VampAnimation(this, target);
+		return new SimpleRayAnimation(10, new Point2d(xLoc, yLoc), new Point2d(target.xLoc, target.yLoc), 0.25,
+				                      0.7f, 0.1f, GameState.PROJECTILE_RED);
 	}
-}
-
-//TODO: a lot of custom code for probably no reason? generalize this
-class VampAnimation extends Animation {
-
-	static final Color COLOR = GameState.PROJECTILE_RED;
-	static final int DURATION = 10;
-	static final float STARTING_ALPHA = 0.7f;
-	static final float ENDING_ALPHA = 0.1f;
-	static final double WIDTH = 0.25;
-	
-	Vector2d atkVec;
-	double width;
-	
-	Color color;
-	int frameCount;
-	float alpha, alphaStep;
-	
-	public VampAnimation(Entity src, Entity dst){
-		this.xLoc = src.xLoc;
-		this.yLoc = src.yLoc;
-		
-		this.atkVec = new Vector2d(dst.xLoc - src.xLoc, dst.yLoc - src.yLoc);
-		
-		this.color = COLOR;
-		this.frameCount = 0;
-		this.alpha = STARTING_ALPHA;
-		this.alphaStep = (ENDING_ALPHA-STARTING_ALPHA)/DURATION;
-	}
-	
-	@Override
-	public void step() {
-		alpha += alphaStep;
-		
-		frameCount++;
-		if(frameCount >= DURATION)
-			isActive = false;
-	}
-
-	@Override
-	public void paintAnimationFromCenter(Graphics2D g2d, int centerX,
-			int centerY, int tileSize) {
-		float[] colorComps = new float[3];
-		colorComps = color.getColorComponents(colorComps);
-		g2d.setColor(new Color(colorComps[0],colorComps[1], colorComps[2],alpha));
-		
-		g2d.setStroke(new BasicStroke((float) WIDTH*tileSize));
-		g2d.drawLine(centerX, centerY, (int)(centerX + atkVec.x*tileSize), (int)(centerY + atkVec.y*tileSize));
-		g2d.setStroke(new BasicStroke(1));
-	}
-	
 }

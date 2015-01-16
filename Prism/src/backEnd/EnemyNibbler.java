@@ -5,7 +5,7 @@ import util.PaintableShapes;
 
 public class EnemyNibbler extends SimpleEnemy {
 
-	public static final int WAVE_SIZE = 35; //35
+	public static final int WAVE_SIZE = 45; //35
 	public static final double BASE_KILL_REWARD = 2;
 	
 	public static final double PRIORITY = 0;
@@ -18,7 +18,7 @@ public class EnemyNibbler extends SimpleEnemy {
 	
 	public static final double TOWER_AFFINITY = 0;
 	public static final boolean FIRE_ON_THE_MOVE = false;
-	public static final double[][] MOVE_PRIORITIES = {{2.3, 3, 2.3},
+	public static final double[][] MOVE_PRIORITIES = {{2.5, 3, 2.5},
 		                                              {1, 0, 1},
 		                                              {0, 0, 0}};
 	public static final boolean USES_PROJECTILE = false;

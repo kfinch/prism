@@ -6,6 +6,7 @@ import java.util.Set;
 import util.Animation;
 import util.GeometryUtils;
 import util.PaintableShapes;
+import util.Point2d;
 import util.Vector2d;
 
 /**
@@ -92,7 +93,7 @@ public abstract class SimpleEnemy extends Enemy {
 	
 	@Override
 	public double getKillReward(){
-		return baseKillReward * (1 + Enemy.TIER_STAT_MULTIPLIER*3*tier);
+		return baseKillReward * (1 + Enemy.TIER_STAT_MULTIPLIER*4*tier);
 	}
 	
 	protected void swapToNextNode(){
@@ -123,6 +124,7 @@ public abstract class SimpleEnemy extends Enemy {
 		System.out.println();
 		*/
 		
+		//eliminate invalid move directions
 		for(int i=0; i<3; i++){
 			for(int j=0; j<3; j++){
 				if(validMoveDirections[i][j]){
@@ -147,7 +149,11 @@ public abstract class SimpleEnemy extends Enemy {
 		}
 		System.out.println();
 		*/
-			
+		
+		//eliminate priorities not within 1 of highest, normalize around 1 as highest priority
+		//then weight based on attractiveness
+		
+		Vector2d attractionVector = gameState.getAttractionAtPoint(new Point2d(xLoc, yLoc));
 		for(int i=0; i<3; i++){
 			for(int j=0; j<3; j++){
 				if(Double.isNaN(modPriorities[i][j]))
@@ -156,7 +162,10 @@ public abstract class SimpleEnemy extends Enemy {
 					modPriorities[i][j] = Double.NaN;
 				else{
 					modPriorities[i][j] -= (highestPriority-1);
-					modPriorities[i][j] *= gameState.nodes[i][j].attractiveness.modifiedValue;
+					Vector2d moveVec = new Vector2d(i-1,j-1);
+					double dot = attractionVector.dot(moveVec);
+					double multiplier = dot >= 0 ? 1 + dot : 1 / (1-dot);
+					modPriorities[i][j] *= multiplier;
 					totalPriority += modPriorities[i][j];		
 				}
 			}
@@ -299,7 +308,7 @@ public abstract class SimpleEnemy extends Enemy {
 	}
 	
 	protected void instantAttack(GameState gameState, Entity target){
-		target.harm(attackDamage.modifiedValue);
+		target.harm(attackDamage.modifiedValue, this);
 		if(appliesDebuff)
 			target.addBuff(generateAttackDebuff(), gameState);
 		Animation a = generateInstantAttackAnimation(gameState);
@@ -320,7 +329,7 @@ public abstract class SimpleEnemy extends Enemy {
 	}
 	
 	protected Projectile generateProjectile(GameState gameState, double xLoc, double yLoc){
-		return new SimpleProjectile(xLoc, yLoc, target, projectileSpeed, attackDamage.modifiedValue,
+		return new SimpleProjectile(this, xLoc, yLoc, target, projectileSpeed, attackDamage.modifiedValue,
 				                    0, false, generateAttackDebuff(), generateProjectileShapes(xLoc, yLoc));
 	}
 	

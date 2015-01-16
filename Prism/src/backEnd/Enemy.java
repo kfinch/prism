@@ -17,7 +17,7 @@ public abstract class Enemy extends Entity {
 	protected static final double HEALTH_BAR_WIDTH = 0.6;
 	protected static final double HEALTH_BAR_HEIGHT = 0.2;
 	
-	protected static final double TIER_STAT_MULTIPLIER = 0.05;
+	protected static final double TIER_STAT_MULTIPLIER = 0.15;
 	
 	public int tier; //enemy's tier. Unlike for towers, this isn't fixed, enemy's stats should scale with their tier.
 	

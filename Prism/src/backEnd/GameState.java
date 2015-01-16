@@ -9,6 +9,8 @@ import java.util.Set;
 
 import util.Animation;
 import util.GeometryUtils;
+import util.Point2d;
+import util.Vector2d;
 
 /**
  * Fully encapsulates a prism game state, and provides methods for inspecting or modifying the state.
@@ -54,7 +56,9 @@ public class GameState {
 	public Set<Tower> towers; //a set of all active towers
 	public Set<Projectile> projectiles; //a set of all active projectiles
 	public Set<Entity> miscEntities; //a set of all active misc entities
+	
 	public Set<LightSource> lightSources; //a set of all light sources
+	public Set<AttractSource> attractSources; //a set of all attract sources
 	
 	public Prism prism;
 	public DarkPrism darkPrism;
@@ -101,7 +105,9 @@ public class GameState {
 		towers = new HashSet<Tower>();
 		projectiles = new HashSet<Projectile>();
 		miscEntities = new HashSet<Entity>();
+		
 		lightSources = new HashSet<LightSource>();
+		attractSources = new HashSet<AttractSource>();
 		
 		this.prism = new Prism(-2, yNodes/2, 22, 15);
 		addMiscEntity(prism);
@@ -252,6 +258,12 @@ public class GameState {
 		tower.onSpawn(this);
 	}
 	
+	public void removeTower(Tower tower){
+		tower.currNode.tower = null;
+		towers.remove(tower);
+		tower.onDespawn(this);
+	}
+	
 	/*
 	 * Moves the given tower to a new location. Will overwrite and set inactive a tower at the destination.
 	 * Also does not check if the destination is valid.
@@ -273,6 +285,7 @@ public class GameState {
 		tower.xLoc = x;
 		tower.yLoc = y;
 		dst.tower = tower;
+		tower.onMove(this, src, dst);
 		
 		//System.out.println("After: src @ " + src.xLoc + " " + src.yLoc + " " + src.tower +
 		//                   " to dst @ " + dst.xLoc + " " + dst.yLoc + " " + dst.tower);
@@ -295,6 +308,13 @@ public class GameState {
 				return true;
 		}
 		return false;
+	}
+	
+	public Vector2d getAttractionAtPoint(Point2d point){
+		Vector2d result = new Vector2d(0,0);
+		for(AttractSource as : attractSources)
+			result.add(as.getAttractionVectorFromPoint(point));
+		return result;
 	}
 	
 	public void step(){

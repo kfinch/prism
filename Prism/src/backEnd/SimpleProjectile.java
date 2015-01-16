@@ -10,15 +10,17 @@ public class SimpleProjectile extends Projectile {
 	public static final double MAX_HEALTH = 1;
 	public static final double HEALTH_REGEN = 0;
 	
+	public Entity source;
 	public double damage;
 	public double aoe;
 	public boolean isAOE;
 	public Buff appliedDebuff;
 	public Animation playedAnimation;
 	
-	public SimpleProjectile(double xLoc, double yLoc, Entity target, double moveSpeed, double damage, double aoe,
-							boolean isAOE, Buff appliedDebuff, PaintableShapes shapes) {
+	public SimpleProjectile(Entity source, double xLoc, double yLoc, Entity target, double moveSpeed, double damage,
+			                double aoe, boolean isAOE, Buff appliedDebuff, PaintableShapes shapes) {
 		super(xLoc, yLoc, MAX_HEALTH, HEALTH_REGEN, target, moveSpeed, shapes);
+		this.source = source;
 		this.damage = damage;
 		this.aoe = aoe;
 		this.isAOE = isAOE;
@@ -37,17 +39,17 @@ public class SimpleProjectile extends Projectile {
 			//	System.out.println("Target was dead!");
 			if(debuffs){
 				for(Enemy e : enemiesInBlast){
-					e.harm(damage);
+					e.harm(damage, source);
 					e.addBuff(appliedDebuff, gameState);
 				}
 			}
 			else{
 				for(Enemy e : enemiesInBlast)
-					e.harm(damage);
+					e.harm(damage, source);
 			}
 		}
 		else{
-			target.harm(damage);
+			target.harm(damage, source);
 			if(debuffs)
 				target.addBuff(appliedDebuff, gameState);
 		}

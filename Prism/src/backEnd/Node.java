@@ -17,10 +17,6 @@ public class Node {
 	
 	public Set<TerrainEffect> terrainEffects;
 	
-	//measures how 'attractive' this node is to a moving enemy. 
-	//should only do multiplicative buffs/debuffs to this
-	public Stat attractiveness;
-	
 	public Set<Enemy> enemies; //enemies either on this node or traveling from it.
 	public Tower tower; //tower centered on this node (or null if there is none)
 	
@@ -30,7 +26,6 @@ public class Node {
 		
 		isBuffer = false;
 		terrainEffects = new HashSet<TerrainEffect>();
-		attractiveness = new BasicStat(1);
 		enemies = new HashSet<Enemy>();
 		tower = null;
 	}

@@ -11,11 +11,11 @@ public class TowerGBB extends SimpleTower {
 	public static final double MAX_HEALTH = Tower.T3G1_HEALTH;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
 	public static final double ATTACK_DAMAGE = 40;
-	public static final double ATTACK_DELAY = 30;
-	public static final double ATTACK_RANGE = 7;
+	public static final double ATTACK_DELAY = 25;
+	public static final double ATTACK_RANGE = 6;
 	public static final double PROJECTILE_SPEED = TowerB.PROJECTILE_SPEED;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.85;
-	public static final double ATTACK_AOE = 0.4;
+	public static final double ATTACK_AOE = 0.6;
 	
 	public static final int SLOW_DURATION = 60;
 	public static final double SLOW_STRENGTH = 1.8;
@@ -51,7 +51,7 @@ public class TowerGBB extends SimpleTower {
 		int nPoints1 = 8;
 		double[] xPoints1 = {0, 0.1, 0.3, 0.1, 0, -0.1, -0.3, -0.1};
 		double[] yPoints1 = {-0.3, -0.1, 0, 0.1, 0.3, 0.1, 0, -0.1};
-		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BLUE);
+		result.addFixedPolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BLUE);
 		
 		return result;
 	}

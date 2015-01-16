@@ -11,8 +11,8 @@ public class TowerB extends SimpleTower {
 	public static final double MAX_HEALTH = Tower.T1G0_HEALTH;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
 	public static final double ATTACK_DAMAGE = 20;
-	public static final double ATTACK_DELAY = 80;
-	public static final double ATTACK_RANGE = 5;
+	public static final double ATTACK_DELAY = 70;
+	public static final double ATTACK_RANGE = 6;
 	public static final double PROJECTILE_SPEED = 0.3;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.6;
 	public static final double ATTACK_AOE = 0.4;

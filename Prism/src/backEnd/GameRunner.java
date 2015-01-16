@@ -22,7 +22,7 @@ public class GameRunner implements ActionListener {
 	public static final double STARTING_COLOR = 500; //500
 	public static final double STARTING_FLUX = 100;
 	public static final double MAXIMUM_FLUX = 200;
-	public static final double COLOR_GAIN_RATE = 0.1;
+	public static final double COLOR_GAIN_RATE = 0.02;
 	public static final double FLUX_GAIN_RATE = 0.1;
 	
 	public static final double TOWER_COST_MULTIPLIER = 100; //100
@@ -108,7 +108,7 @@ public class GameRunner implements ActionListener {
 
 	public void newGame(){
 		gameState = new GameState(boardWidth, boardHeight);
-		currentTier = 1; //this will need change as I implement different difficulties
+		currentTier = 0; //this will need change as I implement different difficulties
 		pause();
 	}
 	

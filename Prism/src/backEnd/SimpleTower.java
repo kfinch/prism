@@ -128,17 +128,17 @@ public abstract class SimpleTower extends Tower{
 			Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(target.xLoc, target.yLoc, attackAOE.modifiedValue);
 			if(appliesDebuff){
 				for(Enemy e : enemiesInBlast){
-					e.harm(attackDamage.modifiedValue);
+					e.harm(attackDamage.modifiedValue, this);
 					e.addBuff(generateAttackDebuff(), gameState);
 				}
 			}
 			else{
 				for(Enemy e : enemiesInBlast)
-					e.harm(attackDamage.modifiedValue);
+					e.harm(attackDamage.modifiedValue, this);
 			}
 		}
 		else{
-			target.harm(attackDamage.modifiedValue);
+			target.harm(attackDamage.modifiedValue, this);
 			if(appliesDebuff)
 				target.addBuff(generateAttackDebuff(), gameState);
 		}
@@ -162,7 +162,7 @@ public abstract class SimpleTower extends Tower{
 	}
 	
 	protected Projectile generateProjectile(GameState gameState, double xLoc, double yLoc){
-		return new SimpleProjectile(xLoc, yLoc, target, projectileSpeed, attackDamage.modifiedValue,
+		return new SimpleProjectile(this, xLoc, yLoc, target, projectileSpeed, attackDamage.modifiedValue,
 				                    attackAOE.modifiedValue, canAOE, generateAttackDebuff(),
 				                    generateProjectileShapes(xLoc, yLoc));
 	}           

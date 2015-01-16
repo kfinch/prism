@@ -26,7 +26,11 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 	
 	protected int panelWidth, panelHeight; //size of game panel in pixels
 	protected int tileSize; //size of game tiles, in pixels
-	protected int topMargin, bottomMargin, leftMargin, rightMargin; //margin between edge of panel and edge of board
+	protected int unitSize; //size in pixels of a 'unit' used to preserve aspect ratio. Panel UI fits in 20x12 units.
+	protected int boardWidth, boardHeight; //size of game board in pixels
+	protected int xBoardLeft, xBoardRight;
+	protected int yLineTop, yLineBot;
+	protected int xLineLeft1, xLineLeft2, xLineCenter1, xLineCenter2, xLineRight1, xLineRight2;
 	
 	protected int xNodes, yNodes; //size of game board, in tiles
 	
@@ -47,17 +51,46 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		mouseY = 0;
 	}
 	
+	/*
+	 * Updates dimensional variables used to draw the game panel.
+	 * GamePanel allows for a resizable window, but its expected aspect ratio will always be 10:6
+	 */
 	private void updateDimensions(){
 		panelWidth = getSize().width;
 		panelHeight = getSize().height;
+		
 		xNodes = game.gameState.xNodes;
 		yNodes = game.gameState.yNodes;
-		tileSize = Math.min((panelWidth-EDGE_BUFFER_SIZE*5)/xNodes, (panelWidth-EDGE_BUFFER_SIZE*2)/yNodes);
 		
-		topMargin = EDGE_BUFFER_SIZE;
-		bottomMargin = panelHeight - yNodes*tileSize - EDGE_BUFFER_SIZE;
-		leftMargin = EDGE_BUFFER_SIZE*3;
-		rightMargin = panelWidth - xNodes*tileSize - EDGE_BUFFER_SIZE*3;
+		//calculate tile size
+		tileSize = (int) Math.min(panelWidth/(xNodes+6), (panelHeight*0.6)/(yNodes));
+		
+		//calculate unit size
+		unitSize = Math.min(panelWidth/20, panelHeight/12);
+		
+		//generate board dimensions
+		boardWidth = tileSize*xNodes;
+		boardHeight = tileSize*yNodes;
+		xBoardLeft = (panelWidth-boardWidth)/2;
+		xBoardRight = xBoardLeft + boardWidth;
+		
+		//generate ui y-lines
+		yLineTop = unitSize;
+		yLineBot = (int) (unitSize*8.5);
+		
+		//generate ui x-lines
+		xLineLeft1 = (panelWidth/2) - 10*unitSize;
+		xLineLeft2 = (panelWidth/2) - 5*unitSize;
+		xLineCenter1 = (panelWidth/2) - 4*unitSize;
+		xLineCenter2 = (panelWidth/2) + 1*unitSize;
+		xLineRight1 = (panelWidth/2) + 2*unitSize;
+		xLineRight2 = (panelWidth/2) + 10*unitSize;
+		
+		//TODO: remove debugging
+		//System.out.println("DIMENSIONS: panelWidth=" + panelWidth + " panelHeight=" + panelHeight);
+		//System.out.println("xNodes=" + xNodes + " yNodes=" + yNodes);
+		//System.out.println("tileSize=" + tileSize + " unitSize=" + unitSize);
+		//System.out.println("boardWidth=" + boardWidth + " boardHeight=" + boardHeight);
 	}
 	
 	public void paintComponent(Graphics g){
@@ -69,7 +102,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 	private void doPainting(Graphics2D g2d){
 		//draw light levels
 		g2d.setColor(GameState.BACKGROUND_DARK);
-		g2d.fillRect(leftMargin, topMargin, tileSize*xNodes, tileSize*yNodes);
+		g2d.fillRect(xBoardLeft, yLineTop, boardWidth, boardHeight);
 		g2d.setColor(GameState.BACKGROUND_LIGHT);
 		for(LightSource ls : game.gameState.lightSources){
 			double radiance = ls.lightRadius();
@@ -85,8 +118,8 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		int dotSize = 4;
 		for(int i=0; i<xNodes; i++){
 			for(int j=0; j<yNodes; j++){
-				g2d.fillOval(leftMargin + i*tileSize + tileSize/2 - dotSize/2,
-						     topMargin + j*tileSize + tileSize/2 - dotSize/2,
+				g2d.fillOval(xBoardLeft + i*tileSize + tileSize/2 - dotSize/2,
+						     yLineTop + j*tileSize + tileSize/2 - dotSize/2,
 						     dotSize, dotSize);
 			}
 		}
@@ -96,20 +129,20 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		
 		//draw entities
 		for(Entity e : game.gameState.towers)
-			e.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
+			e.paintEntity(g2d, xBoardLeft + tileSize/2, yLineTop + tileSize/2, tileSize);
 		
 		for(Entity e : game.gameState.enemies)
-			e.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
+			e.paintEntity(g2d, xBoardLeft + tileSize/2, yLineTop + tileSize/2, tileSize);
 		
 		for(Entity e : game.gameState.projectiles)
-			e.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
+			e.paintEntity(g2d, xBoardLeft + tileSize/2, yLineTop + tileSize/2, tileSize);
 		
 		for(Entity e : game.gameState.miscEntities)
-			e.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
+			e.paintEntity(g2d, xBoardLeft + tileSize/2, yLineTop + tileSize/2, tileSize);
 		
 		//draw animations
 		for(Animation a : game.gameState.animations)
-			a.paintAnimation(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
+			a.paintAnimation(g2d, xBoardLeft + tileSize/2, yLineTop + tileSize/2, tileSize);
 		
 		//draw mouse-over box
 		if(game.nodeMouseOver != null){
@@ -160,105 +193,130 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		//highlight tower to teleport
 		if(game.actionSelected == GameRunner.TELEPORT_TOWER_DST_ACTION){
 			g2d.setColor(GameState.UI_GOLD);
-			g2d.drawRect((int)game.towerToTeleport.xLoc - tileSize, (int)game.towerToTeleport.yLoc - tileSize,
+			g2d.drawRect(xBoardLocToScreenLoc(game.towerToTeleport.xLoc - tileSize),
+					     yBoardLocToScreenLoc(game.towerToTeleport.yLoc - tileSize),
 					     tileSize*2, tileSize*2);
 		}
 		
 		//box out anything that leaks...
 		g2d.setColor(Color.white);
-		g2d.fillRect(0, 0, leftMargin, panelHeight);
-		g2d.fillRect(0, 0, panelWidth, topMargin);
-		g2d.fillRect(leftMargin + tileSize*xNodes, 0, panelWidth, panelHeight);
-		g2d.fillRect(0, topMargin + tileSize*yNodes, panelWidth, panelHeight);
+		g2d.fillRect(0, 0, xBoardLeft, panelHeight);
+		g2d.fillRect(0, 0, panelWidth, yLineTop);
+		g2d.fillRect(xBoardLeft + tileSize*xNodes, 0, panelWidth, panelHeight);
+		g2d.fillRect(0, yLineTop + tileSize*yNodes, panelWidth, panelHeight);
 		
 		//draw the prisms! (which leaks by design)
-		game.gameState.prism.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
-		game.gameState.darkPrism.paintEntity(g2d, leftMargin + tileSize/2, topMargin + tileSize/2, tileSize);
+		game.gameState.prism.paintEntity(g2d, xBoardLeft + tileSize/2, yLineTop + tileSize/2, tileSize);
+		game.gameState.darkPrism.paintEntity(g2d, xBoardLeft + tileSize/2, yLineTop + tileSize/2, tileSize);
 		
-		//draw resource counts / frame number
-		g2d.setFont(new Font(Font.SANS_SERIF,Font.BOLD,16));
+		//draw resource counts
+		g2d.setFont(new Font(Font.SANS_SERIF,Font.BOLD,16)); //TODO: make scaling font size
 		
+		//TODO: redo the placing of these
 		g2d.setColor(Color.red);
-		g2d.drawString("RED: " + ((int) game.gameState.redResources), 20, 18);
+		g2d.drawString("RED: " + ((int) game.gameState.redResources), (panelWidth/2)-unitSize*6, yLineTop - 5);
 		
 		g2d.setColor(Color.green);
-		g2d.drawString("GREEN: " + ((int) game.gameState.greenResources), 220, 18);
+		g2d.drawString("GREEN: " + ((int) game.gameState.greenResources), (panelWidth/2)-unitSize*3, yLineTop - 5);
 		
 		g2d.setColor(Color.blue);
-		g2d.drawString("BLUE: " + ((int) game.gameState.blueResources), 420, 18);
+		g2d.drawString("BLUE: " + ((int) game.gameState.blueResources), (panelWidth/2)+unitSize, yLineTop - 5);
 		
 		g2d.setColor(Color.gray);
-		g2d.drawString("FLUX: " + ((int) game.gameState.fluxResources), 620, 18);
+		g2d.drawString("FLUX: " + ((int) game.gameState.fluxResources), (panelWidth/2)+unitSize*4, yLineTop - 5);
 		
-		//some debugging info here
-		g2d.setColor(Color.black);
-		g2d.drawString("Frame #" + game.gameState.frameNumber, 20, panelHeight - 2);
-		g2d.drawString("Node last clicked on: (" + xScreenLocToBoardLoc(mouseX) + "," +
-				        yScreenLocToBoardLoc(mouseY) + ")", 420, panelHeight - 2);
-		
-		//draw selected tools (and highlight selected)
-		int yLine = panelHeight - bottomMargin + 80;
-		int fontSize = 30;
+		//draw tool panel (and highlight the current selection) (5x4 units)
+		int subUnitSize = unitSize/10;
+		int fontSize = (int) (unitSize*0.7); //TODO: tweak this, obviously (maybe also make a global font size?)
 		g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
-		g2d.setStroke(new BasicStroke(4));
+		g2d.setStroke(new BasicStroke(3)); //TODO: should this be a static 3, or variable as well?
 		
 		g2d.setColor(Color.lightGray);
-		g2d.fillRect(20, yLine-10, 370, fontSize + 30);
+		g2d.fillRect(xLineLeft1, yLineBot, unitSize*5, panelHeight); //draws all the way to bottom of screen
 		
 		g2d.setColor(Color.red);
-		g2d.drawString("R", 40, yLine + fontSize + 5);
+		g2d.drawString("R", xLineLeft1 + 5*subUnitSize, yLineBot + fontSize + 4*subUnitSize);
 		if(game.actionSelected == GameRunner.ADD_RED_ACTION)
-			g2d.drawRect(35, yLine, 40, fontSize + 10);
+			g2d.drawRect(xLineLeft1 + 3*subUnitSize, yLineBot + 3*subUnitSize, 10*subUnitSize, 10*subUnitSize);
 		
 		g2d.setColor(Color.green);
-		g2d.drawString("G", 100, yLine + fontSize + 5);
+		g2d.drawString("G", xLineLeft1 + 20*subUnitSize, yLineBot + fontSize + 4*subUnitSize);
 		if(game.actionSelected == GameRunner.ADD_GREEN_ACTION)
-			g2d.drawRect(95, yLine, 40, fontSize + 10);
+			g2d.drawRect(xLineLeft1 + 18*subUnitSize, yLineBot + 3*subUnitSize, 10*subUnitSize, 10*subUnitSize);
 		
 		g2d.setColor(Color.blue);
-		g2d.drawString("B", 160, yLine + fontSize + 5);
+		g2d.drawString("B", xLineLeft1 + 35*subUnitSize, yLineBot + fontSize + 4*subUnitSize);
 		if(game.actionSelected == GameRunner.ADD_BLUE_ACTION)
-			g2d.drawRect(155, yLine, 40, fontSize + 10);
+			g2d.drawRect(xLineLeft1 + 33*subUnitSize, yLineBot + 3*subUnitSize, 10*subUnitSize, 10*subUnitSize);
 		
-		g2d.setColor(Color.darkGray);
-		g2d.drawString("C", 220, yLine + fontSize + 5);
+		g2d.setColor(Color.gray);
+		g2d.drawString("C", xLineLeft1 + 5*subUnitSize, yLineBot + fontSize + 19*subUnitSize);
 		if(game.actionSelected == GameRunner.ADD_CONDUIT_ACTION)
-			g2d.drawRect(215, yLine, 40, fontSize + 10);
+			g2d.drawRect(xLineLeft1 + 3*subUnitSize, yLineBot + 18*subUnitSize, 10*subUnitSize, 10*subUnitSize);
 		
 		g2d.setColor(Color.black);
-		g2d.drawString("S", 280, yLine + fontSize + 5);
+		g2d.drawString("S", xLineLeft1 + 20*subUnitSize, yLineBot + fontSize + 19*subUnitSize);
 		if(game.actionSelected == GameRunner.SELL_TOWER_ACTION)
-			g2d.drawRect(275, yLine, 40, fontSize + 10);
+			g2d.drawRect(xLineLeft1 + 18*subUnitSize, yLineBot + 18*subUnitSize, 10*subUnitSize, 10*subUnitSize);
 		
 		g2d.setColor(GameState.UI_GOLD);
-		g2d.drawString("T", 340, yLine + fontSize + 5);
+		g2d.drawString("T", xLineLeft1 + 35*subUnitSize, yLineBot + fontSize + 19*subUnitSize);
 		if(game.actionSelected == GameRunner.TELEPORT_TOWER_SRC_ACTION ||
 		   game.actionSelected == GameRunner.TELEPORT_TOWER_DST_ACTION)
-			g2d.drawRect(335, yLine, 40, fontSize + 10);
+			g2d.drawRect(xLineLeft1 + 33*subUnitSize, yLineBot + 18*subUnitSize, 10*subUnitSize, 10*subUnitSize);
 
 		g2d.setStroke(new BasicStroke(1));
+		
+		//draw tower info panel
+		g2d.setColor(Color.lightGray);
+		g2d.fillRect(xLineCenter1, yLineBot, unitSize*5, panelHeight); //draws all the way to bottom of screen
+		
+		//draw wave info panel
+		g2d.setColor(Color.lightGray);
+		g2d.fillRect(xLineRight1, yLineBot, unitSize*8, panelHeight); //draws all the way to bottom of screen
+		
+		if(game.waveEnemies != null){
+			fontSize = (int) (unitSize*0.3); //TODO: tweak this, obviously (maybe also make a global font size?)
+			g2d.setColor(Color.black);
+			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
+			
+			g2d.drawString("Wave Tier: " + game.waveEnemies.tier,
+					       xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 2*subUnitSize);
+			g2d.drawString("Wave Size: " + game.waveEnemies.getWaveSize(),
+					       xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 7*subUnitSize);
+			g2d.drawString("Health: " + String.format("%.2f", game.waveEnemies.maxHealth.modifiedValue),
+				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 12*subUnitSize);
+			g2d.drawString("Attack Damage: " + String.format("%.2f", game.waveEnemies.attackDamage.modifiedValue),
+				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 17*subUnitSize);
+			double attackRate = 1000 / GameRunner.STEP_DURATION / game.waveEnemies.attackDelay.modifiedValue;
+			g2d.drawString("Attack Rate: " + String.format("%.2f", attackRate),
+				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 22*subUnitSize);
+			g2d.drawString("Movement Speed: " + String.format("%.2f", game.waveEnemies.moveSpeed.modifiedValue),
+				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 27*subUnitSize);
+		}
 		
 		//draw pause state
 		if(game.isPaused){
 			g2d.setColor(Color.red);
-			g2d.drawString("***PAUSED***", leftMargin, panelHeight - bottomMargin + 50);
+			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, (int) (unitSize*0.6)));
+			g2d.drawString("***PAUSED***", (int) (xLineLeft1 + unitSize*0.5), (int) (yLineBot-unitSize*0.3));
 		}
 	}
 	
 	private double xScreenLocToBoardLoc(int screenX){
-		return ((double)(screenX - leftMargin) / tileSize) - 0.5;
+		return ((double)(screenX - xBoardLeft) / tileSize) - 0.5;
 	}
 	
 	private double yScreenLocToBoardLoc(int screenY){
-		return ((double)(screenY - topMargin) / tileSize) - 0.5;
+		return ((double)(screenY - yLineTop) / tileSize) - 0.5;
 	}
 	
 	private int xBoardLocToScreenLoc(double boardX){
-		return (int) ((boardX * tileSize) + leftMargin + tileSize/2);
+		return (int) ((boardX * tileSize) + xBoardLeft + tileSize/2);
 	}
 	
 	private int yBoardLocToScreenLoc(double boardY){
-		return (int) ((boardY * tileSize) + topMargin + tileSize/2);
+		return (int) ((boardY * tileSize) + yLineTop + tileSize/2);
 	}
 
 	@Override

@@ -21,13 +21,13 @@ public class TowerProxy extends Tower {
 	}
 
 	@Override
-	public void harm(double damage){
-		proxied.harm(damage);
+	public void harm(double damage, Entity source){
+		proxied.harm(damage, source);
 	}
 	
 	@Override
-	public void heal(double healing){
-		proxied.heal(healing);
+	public void heal(double healing, Entity source){
+		proxied.heal(healing, source);
 	}
 	
 	@Override

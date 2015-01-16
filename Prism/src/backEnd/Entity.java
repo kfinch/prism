@@ -71,7 +71,7 @@ public abstract class Entity {
 		showHealthBar = false;
 	}
 	
-	public void harm(double damage){
+	public void harm(double damage, Entity source){
 		receivedDamageModifier.baseValue = damage;
 		receivedDamageModifier.update();
 		double modDamage = receivedDamageModifier.modifiedValue;
@@ -80,7 +80,7 @@ public abstract class Entity {
 		currHealth -= modDamage;
 	}
 	
-	public void heal(double healing){
+	public void heal(double healing, Entity source){
 		receivedHealingModifier.baseValue = healing;
 		receivedHealingModifier.update();
 		double modHealing = receivedHealingModifier.modifiedValue;

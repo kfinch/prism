@@ -47,7 +47,7 @@ public class TowerRG extends SimpleTower{
 	protected void instantAttack(GameState gameState){
 		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, attackAOE.modifiedValue);
 		for(Enemy e : enemiesInBlast)
-			e.harm(attackDamage.modifiedValue);
+			e.harm(attackDamage.modifiedValue, this);
 		
 		Animation a = generateAttackAnimation(gameState);
 		if(a != null){
