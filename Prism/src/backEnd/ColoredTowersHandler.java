@@ -5,6 +5,7 @@ package backEnd;
  */
 public class ColoredTowersHandler {
 	
+	/*
 	public static Tower getTowerType(int red, int green, int blue, int spawnFrame){
 		int tier = red + green + blue;
 		
@@ -56,5 +57,6 @@ public class ColoredTowersHandler {
 		}
 		throw new IllegalArgumentException("No tower with RGB = " + red + " " + green + " " + blue);
 	}
+	*/
 	
 }

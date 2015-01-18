@@ -19,8 +19,7 @@ public class SimpleRayAnimation extends Animation {
 		super();
 		this.duration = duration;
 		this.frameCount = 0;
-		this.xLoc = p1.x;
-		this.yLoc = p1.y;
+		this.loc = p1;
 		this.rayVec = new Vector2d(p2.x - p1.x, p2.y - p1.y);
 		this.width = width;
 		this.alpha = startingAlpha;

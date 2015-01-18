@@ -18,8 +18,8 @@ public class Prism extends Entity implements LightSource {
 	
 	public float hue;
 	
-	public Prism(double xLoc, double yLoc, double radiance, double radianceSetBack) {
-		super(xLoc, yLoc, MAX_HEALTH, HEALTH_REGEN, generatePaintableShapes(xLoc, yLoc));
+	public Prism(GameState gameState, Point2d loc, double radiance, double radianceSetBack) {
+		super(gameState, loc, MAX_HEALTH, HEALTH_REGEN, generatePaintableShapes(loc));
 		this.radiance = radiance;
 		this.radianceSetBack = radianceSetBack;
 		
@@ -31,8 +31,8 @@ public class Prism extends Entity implements LightSource {
 		this.healthBarHeight = 0.8;
 	}
 
-	private static PaintableShapes generatePaintableShapes(double xLoc, double yLoc){
-		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
+	private static PaintableShapes generatePaintableShapes(Point2d loc){
+		PaintableShapes result = new PaintableShapes(loc);
 		
 		int nPoints1 = 4;
 		double[] xPoints1 = {0,2,0,-2};
@@ -43,15 +43,15 @@ public class Prism extends Entity implements LightSource {
 	}
 
 	@Override
-	public void onSpawn(GameState gameState) {
+	public void onSpawn() {
 		gameState.lightSources.add(this);
 	}
 
 	@Override
-	public void onDespawn(GameState gameState) {}
+	public void onDespawn() {}
 
 	@Override
-	public void preStep(GameState gameState){
+	public void preStep(){
 		shapes.setColor(Color.getHSBColor(hue, 1f, 1f));
 		hue += COLOR_CYCLE_RATE;
 	}
@@ -63,6 +63,6 @@ public class Prism extends Entity implements LightSource {
 
 	@Override
 	public Point2d getLocation() { //this is for light source. Gives location further back.
-		return new Point2d(-radianceSetBack, yLoc);
+		return new Point2d(-radianceSetBack, loc.y);
 	}
 }

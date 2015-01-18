@@ -9,20 +9,15 @@ import java.io.Serializable;
  * 
  * @author Kelton Finch
  */
-public class Vector2d implements Serializable {
+public final class Vector2d implements Serializable {
 	
 	private static final long serialVersionUID = 131002731141050668L;
 	
-	public double x, y;
+	public final double x, y;
 	
 	public Vector2d(double x, double y){
 		this.x = x;
 		this.y = y;
-	}
-	
-	public Vector2d(){
-		this.x = 0;
-		this.y = 0;
 	}
 	
 	public Vector2d(Vector2d v){
@@ -30,11 +25,16 @@ public class Vector2d implements Serializable {
 		this.y = v.y;
 	}
 	
+	public Vector2d(Point2d start, Point2d finish){
+		this.x = finish.x - start.x;
+		this.y = finish.y - start.y;
+	}
+	
 	/**
 	 * Compute vector's angle with respect to the origin
 	 * @return vector's angle, in radians
 	 */
-	public double angle(){
+	public double getAngle(){
 		return Math.atan2(y, x);
 	}
 	
@@ -42,54 +42,44 @@ public class Vector2d implements Serializable {
 	 * Compute vector's magnitude
 	 * @return vector's magnitude
 	 */
-	public double magnitude(){
+	public double getMagnitude(){
 		return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 	}
 	
 	/**
-	 * Generates a new x and y from a given angle and magnitude.
-	 * x and y are modified as a side effect of this method.
+	 * Generates a new vector with the given angle and magnitude
 	 * @param angle The new vector's angle
 	 * @param magnitude The new vector's magnitude
 	 */
-	public void setAngleAndMagnitude(double angle, double magnitude){
-		x = magnitude * Math.cos(angle);
-		y = magnitude * Math.sin(angle);
-	}
-	
-	public void setAngle(double angle){
-		setAngleAndMagnitude(angle, magnitude());
-	}
-	
-	public void setMagnitude(double magnitude){
-		setAngleAndMagnitude(angle(), magnitude);
+	public static Vector2d vectorFromAngleAndMagnitude(double angle, double magnitude){
+		return new Vector2d(magnitude * Math.cos(angle), magnitude * Math.sin(angle));
 	}
 	
 	/**
-	 * Adds another vector to this one.
-	 * @param v The vector to be added.
+	 * Generates the result of adding another vector to this vector
+	 * @param add the vector to add
+	 * @return the result of this + add
 	 */
-	public void add(Vector2d v){
-		x += v.x;
-		y += v.y;
+	public Vector2d afterAdd(Vector2d add){
+		return new Vector2d(x + add.x, y + add.y);
 	}
 	
 	/**
-	 * Subtracts another vector from this one.
-	 * @param v The vector to be subtracted.
+	 * Generates the result of subtracting another vector from this vector
+	 * @param subtract the vector to subtract
+	 * @return the result of this - add
 	 */
-	public void subtract(Vector2d v){
-		x -= v.x;
-		y -= v.y;
+	public Vector2d afterSubtract(Vector2d subtract){
+		return new Vector2d(x - subtract.x, y - subtract.y);
 	}
 	
 	/**
-	 * Scalar multiplies this vector
-	 * @param mult The scalar to multiply this vector by
+	 * Generates the result of scalar multiplying this vector
+	 * @param mult the amount to scalar multiply this vector by
+	 * @return the result of this * mult
 	 */
-	public void multiply(double mult){
-		x *= mult;
-		y *= mult;
+	public Vector2d afterMultiply(double mult){
+		return new Vector2d(x*mult, y*mult);
 	}
 	
 	/**
@@ -102,35 +92,21 @@ public class Vector2d implements Serializable {
 	}
 	
 	/**
-	 * Normalizes this vector. (Turns it into a unit vector with the same angle)
+	 * Computes the result of normalizing this vector.
+	 * @return A vector that is this vector after normalization
 	 */
-	public void normalize(){
-		double mag = magnitude();
-		x = x/mag;
-		y = y/mag;
-	}
-	
-	/**
-	 * Provides a normalized version of this vector. (A unit vector with same angle as this vector)
-	 * @return A normalized version of this vector.
-	 */
-	public Vector2d normalVector(){
-		Vector2d result = new Vector2d(this);
-		result.normalize();
-		return result;
+	public Vector2d afterNormalize(){
+		double mag = getMagnitude();
+		return new Vector2d(x/mag, y/mag);
 	}
 	
 	public Vector2d vectorProjection(double angle){
-		Vector2d result = new Vector2d();
-		double resultMag = magnitude() * Math.cos(angle() - angle);
-		result.setAngleAndMagnitude(angle, resultMag);
-		return result;
+		double resultMag = getMagnitude() * Math.cos(getAngle() - angle);
+		return Vector2d.vectorFromAngleAndMagnitude(angle, resultMag);
 	}
 	
 	public Vector2d vectorRejection(double angle){
-		Vector2d result = new Vector2d(this);
-		result.subtract(vectorProjection(angle));
-		return result;
+		return afterSubtract(vectorProjection(angle));
 	}
 	
 	/**

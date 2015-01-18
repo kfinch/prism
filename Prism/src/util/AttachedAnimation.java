@@ -16,7 +16,7 @@ public abstract class AttachedAnimation extends Animation {
 	@Override
 	public void step(){
 		if(anchor.isActive)
-			setLocation(anchor.xLoc, anchor.yLoc);
+			setLocation(anchor.loc);
 		else
 			this.isActive = false;
 	}

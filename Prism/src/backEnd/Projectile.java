@@ -1,6 +1,7 @@
 package backEnd;
 
 import util.PaintableShapes;
+import util.Point2d;
 import util.Vector2d;
 
 /**
@@ -18,31 +19,30 @@ public abstract class Projectile extends Entity {
 	
 	protected Stat moveSpeed;
 	
-	public Projectile(double xLoc, double yLoc, double maxHealth, double healthRegen, Entity target, double moveSpeed,
-					  PaintableShapes shapes) {
-		super(xLoc, yLoc, maxHealth, healthRegen, shapes);
-		
+	public Projectile(GameState gameState, Point2d loc, double maxHealth, double healthRegen,
+			          Entity target, double moveSpeed, PaintableShapes shapes) {
+		super(gameState, loc, maxHealth, healthRegen, shapes);
 		this.target = target;
 		this.triggerPayload = false;
 		this.moveSpeed = new BasicStat(moveSpeed);
 	}
 	
-	protected abstract void payload(GameState gameState);
+	protected abstract void payload();
 	
 	protected void move(Vector2d moveVec){
-		moveVec.setMagnitude(moveSpeed.modifiedValue);
-		super.moveBy(moveVec.x, moveVec.y);
+		moveVec = Vector2d.vectorFromAngleAndMagnitude(moveVec.getAngle(), moveSpeed.modifiedValue);
+		super.moveBy(moveVec);
 	}
 	
 	protected void rotate(Vector2d moveVec){
-		shapes.setAngle(moveVec.angle());
+		shapes.setAngle(moveVec.getAngle());
 	}
 	
 	@Override
-	public void moveStep(GameState gameState){
+	public void moveStep(){
 		if(moveAction.canAct()){
-			Vector2d moveVec = new Vector2d(target.xLoc - xLoc, target.yLoc - yLoc);
-			if(moveVec.magnitude() <= moveSpeed.modifiedValue){
+			Vector2d moveVec = new Vector2d(loc, target.loc);
+			if(moveVec.getMagnitude() <= moveSpeed.modifiedValue){
 				triggerPayload = true;
 			}
 			else{
@@ -53,11 +53,11 @@ public abstract class Projectile extends Entity {
 	}
 	
 	@Override
-	public void actionStep(GameState gameState){
+	public void actionStep(){
 		if(triggerPayload){
 			//a projectile that can't attack when it hits its target still goes away, but doesn't trigger its payload.
 			if(attackAction.canAct())
-				payload(gameState);
+				payload();
 			isActive = false;
 		}
 	}

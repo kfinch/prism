@@ -4,6 +4,7 @@ import java.util.Set;
 
 import util.Animation;
 import util.PaintableShapes;
+import util.Point2d;
 import util.SimpleCircleAnimation;
 
 public class TowerRGG extends SimpleTower{
@@ -19,10 +20,27 @@ public class TowerRGG extends SimpleTower{
 	public static final double PROJECTILE_SPEED = 0;
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
-	public TowerRGG(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+	public TowerRGG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, false,
-		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(xLoc, yLoc));
+		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
+	}
+	
+	private static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
+		
+		result.addFixedCircle(0, 0, 0.8, GameState.TOWER_GREEN);
+		
+		result.addFixedCircle(0, 0, 0.55, GameState.TOWER_BASE);
+		
+		result.addFixedRectangle(-0.9, -0.15, 0.9, 0.15, GameState.TOWER_BASE);
+		
+		int nPoints1 = 4;
+		double[] xPoints1 = {0, 0.4, 0, -0.4};
+		double[] yPoints1 = {-0.4, 0, 0.4, 0};
+		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_RED);
+		
+		return result;
 	}
 	
 	@Override
@@ -41,43 +59,26 @@ public class TowerRGG extends SimpleTower{
 	}
 	
 	@Override
-	protected Enemy acquireTarget(GameState gameState){
+	protected Enemy acquireTarget(){
 		attackRange.modifiedValue = attackAOE.modifiedValue;
-		return super.acquireTarget(gameState);
+		return super.acquireTarget();
 	}
 	
 	@Override
-	protected void instantAttack(GameState gameState){
-		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, attackAOE.modifiedValue);
+	protected void instantAttack(){
+		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(loc, attackAOE.modifiedValue);
 		for(Enemy e : enemiesInBlast)
-			e.harm(attackDamage.modifiedValue, this);
+			e.harm(attackDamage.modifiedValue, true, this);
 		
-		Animation a = generateAttackAnimation(gameState);
+		Animation a = generateAttackAnimation();
 		if(a != null){
-			a.setLocation(xLoc, yLoc);
+			a.setLocation(loc);
 			gameState.playAnimation(a);
 		}
 	}
 	
-	private static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
-		
-		result.addFixedCircle(0, 0, 0.8, GameState.TOWER_GREEN);
-		
-		result.addFixedCircle(0, 0, 0.55, GameState.TOWER_BASE);
-		
-		result.addFixedRectangle(-0.9, -0.15, 0.9, 0.15, GameState.TOWER_BASE);
-		
-		int nPoints1 = 4;
-		double[] xPoints1 = {0, 0.4, 0, -0.4};
-		double[] yPoints1 = {-0.4, 0, 0.4, 0};
-		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_RED);
-		
-		return result;
-	}
-	
 	@Override
-	protected Animation generateAttackAnimation(GameState gameState){
+	protected Animation generateAttackAnimation(){
 		return new SimpleCircleAnimation(20, attackAOE.modifiedValue*2, attackAOE.modifiedValue*2, 0.6f, 0.0f,
 				                         GameState.PROJECTILE_REDGREEN);
 	}

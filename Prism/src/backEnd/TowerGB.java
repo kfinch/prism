@@ -2,6 +2,7 @@ package backEnd;
 
 import util.Animation;
 import util.PaintableShapes;
+import util.Point2d;
 import util.SimpleCircleAnimation;
 
 public class TowerGB extends SimpleTower {
@@ -20,26 +21,26 @@ public class TowerGB extends SimpleTower {
 	public static final int SLOW_DURATION = 60;
 	public static final double SLOW_STRENGTH = 1.4;
 	
-	public TowerGB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+	public TowerGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, true, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
-		      true, true, generateShapes(xLoc, yLoc));
+		      true, true, generateShapes(loc));
 	}
 	
 	protected Tower generateRedUpgrade(){
-		return new TowerRGB(currNode, xLoc, yLoc, spawnFrame);
+		return new TowerRGB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	protected Tower generateGreenUpgrade(){
-		return new TowerGGB(currNode, xLoc, yLoc, spawnFrame);
+		return new TowerGGB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	protected Tower generateBlueUpgrade(){
-		return new TowerGBB(currNode, xLoc, yLoc, spawnFrame);
+		return new TowerGBB(gameState, loc, currNode, spawnFrame);
 	}
 	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	private static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		result.addRotatableRectangle(0.3, -0.3, 0.75, 0.3, GameState.TOWER_BLUE);
 		result.addFixedCircle(0, 0, 0.5, GameState.TOWER_GREEN);
@@ -48,8 +49,8 @@ public class TowerGB extends SimpleTower {
 	}
 
 	@Override
-	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
-		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
+	protected PaintableShapes generateProjectileShapes(Point2d loc) {
+		PaintableShapes result = new PaintableShapes(loc);
 		
 		int nPoints1 = 8;
 		double[] xPoints1 = {0, 0.07, 0.22, 0.07, 0, -0.07, -0.22, -0.07};
@@ -61,11 +62,11 @@ public class TowerGB extends SimpleTower {
 	
 	@Override
 	protected Buff generateAttackDebuff(){
-		return new SlowingTowerDebuff(SLOW_DURATION, SLOW_STRENGTH);
+		return new SlowingTowerDebuff(gameState, SLOW_DURATION, SLOW_STRENGTH);
 	}
 	
 	@Override
-	protected Animation generateAttackAnimation(GameState gameState){
+	protected Animation generateAttackAnimation(){
 		return new SimpleCircleAnimation(10, 0.2, attackAOE.modifiedValue*2, 0.6f, 0.3f, GameState.PROJECTILE_GREENBLUE);
 	}
 }

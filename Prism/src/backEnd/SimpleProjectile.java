@@ -4,6 +4,7 @@ import java.util.Set;
 
 import util.Animation;
 import util.PaintableShapes;
+import util.Point2d;
 
 public class SimpleProjectile extends Projectile {
 
@@ -17,9 +18,9 @@ public class SimpleProjectile extends Projectile {
 	public Buff appliedDebuff;
 	public Animation playedAnimation;
 	
-	public SimpleProjectile(Entity source, double xLoc, double yLoc, Entity target, double moveSpeed, double damage,
-			                double aoe, boolean isAOE, Buff appliedDebuff, PaintableShapes shapes) {
-		super(xLoc, yLoc, MAX_HEALTH, HEALTH_REGEN, target, moveSpeed, shapes);
+	public SimpleProjectile(GameState gameState, Point2d loc, Entity source, Entity target, double moveSpeed,
+			                double damage, double aoe, boolean isAOE, Buff appliedDebuff, PaintableShapes shapes) {
+		super(gameState, loc, MAX_HEALTH, HEALTH_REGEN, target, moveSpeed, shapes);
 		this.source = source;
 		this.damage = damage;
 		this.aoe = aoe;
@@ -28,10 +29,10 @@ public class SimpleProjectile extends Projectile {
 	}
 	
 	@Override
-	protected void payload(GameState gameState) {
+	protected void payload(){
 		boolean debuffs = appliedDebuff != null;
 		if(isAOE){
-			Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(target.xLoc, target.yLoc, aoe);
+			Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(target.loc, aoe);
 			//TODO: remove debugging code
 			//System.out.println(enemiesInBlast.size() + " enemies caught in " + aoe + " radius payload" +
 			//		           " with target @" + target.xLoc + "," + target.yLoc + " on frame " + gameState.frameNumber);
@@ -39,22 +40,22 @@ public class SimpleProjectile extends Projectile {
 			//	System.out.println("Target was dead!");
 			if(debuffs){
 				for(Enemy e : enemiesInBlast){
-					e.harm(damage, source);
-					e.addBuff(appliedDebuff, gameState);
+					e.harm(damage, true, source);
+					e.addBuff(appliedDebuff);
 				}
 			}
 			else{
 				for(Enemy e : enemiesInBlast)
-					e.harm(damage, source);
+					e.harm(damage, true, source);
 			}
 		}
 		else{
-			target.harm(damage, source);
+			target.harm(damage, true, source);
 			if(debuffs)
-				target.addBuff(appliedDebuff, gameState);
+				target.addBuff(appliedDebuff);
 		}
 		if(playedAnimation != null){
-			playedAnimation.setLocation(target.xLoc, target.yLoc);
+			playedAnimation.setLocation(target.loc);
 			gameState.playAnimation(playedAnimation);
 		}
 	}

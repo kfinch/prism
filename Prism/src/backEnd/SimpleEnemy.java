@@ -64,13 +64,13 @@ public abstract class SimpleEnemy extends Enemy {
 	
 	protected boolean shouldMove;
 	
-	public SimpleEnemy(int tier, int waveSize, double baseKillReward, Node currNode, double xLoc, double yLoc,
+	public SimpleEnemy(GameState gameState, Point2d loc, int tier, int waveSize, double baseKillReward, Node currNode,
 			           double priority, int spawnFrame, double maxHealth, double healthRegen,
 			           double attackDamage, double attackDelay, double attackRange, double moveSpeed,
 			           double towerAffinity, boolean fireOnTheMove, double[][] movePriorities,
 			           boolean usesProjectile, double projectileSpeed,
 			           double shotOriginDistance, boolean appliesDebuff, PaintableShapes shapes) {
-		super(tier, currNode, xLoc, yLoc, priority, spawnFrame, maxHealth, healthRegen,
+		super(gameState, loc, tier, currNode, priority, spawnFrame, maxHealth, healthRegen,
 				attackDamage, attackDelay, attackRange, moveSpeed, shapes);
 		this.waveSize = waveSize;
 		this.baseKillReward = baseKillReward;
@@ -153,7 +153,7 @@ public abstract class SimpleEnemy extends Enemy {
 		//eliminate priorities not within 1 of highest, normalize around 1 as highest priority
 		//then weight based on attractiveness
 		
-		Vector2d attractionVector = gameState.getAttractionAtPoint(new Point2d(xLoc, yLoc));
+		Vector2d attractionVector = gameState.getAttractionAtPoint(loc);
 		for(int i=0; i<3; i++){
 			for(int j=0; j<3; j++){
 				if(Double.isNaN(modPriorities[i][j]))
@@ -197,7 +197,7 @@ public abstract class SimpleEnemy extends Enemy {
 				if(!Double.isNaN(modPriorities[i][j])){
 					rand -= modPriorities[i][j];
 					if(rand <= 0){
-						nextNode = gameState.nodeAt((int)xLoc + i - 1, (int)yLoc + j - 1);
+						nextNode = gameState.nodeAt((int)loc.x + i - 1, (int)loc.y + j - 1);
 						return;
 					}
 				}
@@ -206,11 +206,11 @@ public abstract class SimpleEnemy extends Enemy {
 	}
 	
 	@Override
-	public void preStep(GameState gameState){
-		super.preStep(gameState);
+	public void preStep(){
+		super.preStep();
 		
-		if(target == null || !canRetainTarget(gameState))
-			target = acquireTarget(gameState);
+		if(target == null || !canRetainTarget())
+			target = acquireTarget();
 		
 		if(attackTimer != -1 && !fireOnTheMove)
 			shouldMove = false;
@@ -219,76 +219,75 @@ public abstract class SimpleEnemy extends Enemy {
 	}
 	
 	@Override
-	public void moveStep(GameState gameState){
-		super.moveStep(gameState);
+	public void moveStep(){
+		super.moveStep();
 		if(moveAction.canAct() && shouldMove){
 			if(nextNode == null){
 				chooseNextNode(gameState); //nextNode can stay null after this call, hence the following if statement
 			}
 			if(nextNode != null){
-				move(gameState);
+				move();
 			}
 		}
 	}
 	
 	@Override
-	public void actionStep(GameState gameState){
-		super.actionStep(gameState);
+	public void actionStep(){
+		super.actionStep();
 		if(attackAction.canAct()){
 			if(target != null && target.isActive){
 				//rotate to face target it's attacking
-				Vector2d attackVec = new Vector2d(target.xLoc - xLoc, target.yLoc - yLoc);
-				shapes.setAngle(attackVec.angle());
+				Vector2d attackVec = new Vector2d(loc, target.loc);
+				shapes.setAngle(attackVec.getAngle());
 				
 				//if attack off cooldown, attack!
 				if(attackTimer == -1){
 					if(usesProjectile)
-						projectileAttack(gameState, target);
+						projectileAttack(target);
 					else
-						instantAttack(gameState, target);
+						instantAttack(target);
 					attackTimer = 0;
 				}
 			}
 		}
 	}
 	
-	protected void move(GameState gameState){
-		if(GeometryUtils.dist(xLoc, yLoc, nextNode.xLoc, nextNode.yLoc) <= moveSpeed.modifiedValue){
-			xLoc = nextNode.xLoc;
-			yLoc = nextNode.yLoc;
+	protected void move(){
+		if(GeometryUtils.dist(loc.x, loc.y, nextNode.xLoc, nextNode.yLoc) <= moveSpeed.modifiedValue){
+			loc = new Point2d(nextNode.xLoc, nextNode.yLoc);
 			swapToNextNode();
 		}
 		else{
-			Vector2d moveVec = new Vector2d(nextNode.xLoc - xLoc, nextNode.yLoc - yLoc);
-			moveVec.setMagnitude(moveSpeed.modifiedValue);
-			moveBy(moveVec.x, moveVec.y);
-			shapes.setAngle(moveVec.angle());
+			Vector2d moveVec = new Vector2d(nextNode.xLoc - loc.x, nextNode.yLoc - loc.y);
+			moveVec = Vector2d.vectorFromAngleAndMagnitude(moveVec.getAngle(), moveSpeed.modifiedValue);
+			moveBy(moveVec);
+			shapes.setAngle(moveVec.getAngle());
 		}
 	}
 	
-	protected boolean canRetainTarget(GameState gameState){
+	protected boolean canRetainTarget(){
 		if(!target.isActive)
 			return false;
 		
 		if(target instanceof Tower){
 			if(((Tower)target).isGhost)
 				return false;
-			else if(GeometryUtils.distFromTowerEdge(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue)
+			else if(GeometryUtils.distFromTowerEdge(loc, target.loc) > attackRange.modifiedValue)
 				return false;
 			else
 				return true;
 		}
 		else{
-			if(GeometryUtils.dist(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue)
+			if(GeometryUtils.dist(loc, target.loc) > attackRange.modifiedValue)
 				return false;
 			else
 				return true;
 		}
 	}
 	
-	protected Entity acquireTarget(GameState gameState){
+	protected Entity acquireTarget(){
 		Entity target = null;
-		Set<Entity> targetsInRange = gameState.getTowersAndPrismInRange(xLoc, yLoc, attackRange.modifiedValue);
+		Set<Entity> targetsInRange = gameState.getTowersAndPrismInRange(loc, attackRange.modifiedValue);
 		if(targetsInRange.size() == 0)
 			return null;
 		
@@ -299,18 +298,16 @@ public abstract class SimpleEnemy extends Enemy {
 		return target;
 	}
 	
-	protected void projectileAttack(GameState gameState, Entity target){
-		Vector2d offset = new Vector2d();
-		offset.setAngleAndMagnitude(facing, shotOriginDistance);
-		double shotOriginX = xLoc + offset.x;
-		double shotOriginY = yLoc + offset.y;
-		gameState.projectiles.add(generateProjectile(gameState, shotOriginX, shotOriginY));
+	protected void projectileAttack(Entity target){
+		Vector2d offset = Vector2d.vectorFromAngleAndMagnitude(facing, shotOriginDistance);
+		Point2d shotOrigin = loc.afterTranslate(offset);
+		gameState.projectiles.add(generateProjectile(shotOrigin));
 	}
 	
-	protected void instantAttack(GameState gameState, Entity target){
-		target.harm(attackDamage.modifiedValue, this);
+	protected void instantAttack(Entity target){
+		target.harm(attackDamage.modifiedValue, true, this);
 		if(appliesDebuff)
-			target.addBuff(generateAttackDebuff(), gameState);
+			target.addBuff(generateAttackDebuff());
 		Animation a = generateInstantAttackAnimation(gameState);
 		if(a != null)
 			gameState.playAnimation(a);
@@ -320,7 +317,7 @@ public abstract class SimpleEnemy extends Enemy {
 		return null;
 	}
 	
-	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc){
+	protected PaintableShapes generateProjectileShapes(Point2d projLoc){
 		return null;
 	}
 	
@@ -328,9 +325,9 @@ public abstract class SimpleEnemy extends Enemy {
 		return null;
 	}
 	
-	protected Projectile generateProjectile(GameState gameState, double xLoc, double yLoc){
-		return new SimpleProjectile(this, xLoc, yLoc, target, projectileSpeed, attackDamage.modifiedValue,
-				                    0, false, generateAttackDebuff(), generateProjectileShapes(xLoc, yLoc));
+	protected Projectile generateProjectile(Point2d projLoc){
+		return new SimpleProjectile(gameState, loc, this, target, projectileSpeed, attackDamage.modifiedValue,
+				                    0, false, generateAttackDebuff(), generateProjectileShapes(projLoc));
 	}
 	
 }

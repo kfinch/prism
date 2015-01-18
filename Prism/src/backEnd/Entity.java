@@ -11,6 +11,8 @@ import java.util.Set;
 import util.Animation;
 import util.AttachedAnimation;
 import util.PaintableShapes;
+import util.Point2d;
+import util.Vector2d;
 
 /**
  * An abstract entity that has an active status, a location, has hit points, and can take damage or be healed.
@@ -23,7 +25,9 @@ public abstract class Entity {
 	
 	public boolean isActive;
 	
-	public double xLoc, yLoc;
+	protected GameState gameState;
+	
+	public Point2d loc;
 	
 	public Stat maxHealth;
 	public double currHealth;
@@ -46,11 +50,12 @@ public abstract class Entity {
 	public double healthBarWidth;
 	public double healthBarHeight;
 	
-	public Entity(double xLoc, double yLoc, double maxHealth, double healthRegen, PaintableShapes shapes){
+	public Entity(GameState gameState, Point2d loc, double maxHealth, double healthRegen, PaintableShapes shapes){
 		this.isActive = true;
 		
-		this.xLoc = xLoc;
-		this.yLoc = yLoc;
+		this.gameState = gameState;
+		
+		this.loc = loc;
 		
 		this.maxHealth = new BasicStat(maxHealth);
 		this.currHealth = this.maxHealth.modifiedValue;
@@ -71,7 +76,7 @@ public abstract class Entity {
 		showHealthBar = false;
 	}
 	
-	public void harm(double damage, Entity source){
+	public void harm(double damage, boolean isDirectAttack, Entity source){
 		receivedDamageModifier.baseValue = damage;
 		receivedDamageModifier.update();
 		double modDamage = receivedDamageModifier.modifiedValue;
@@ -80,7 +85,7 @@ public abstract class Entity {
 		currHealth -= modDamage;
 	}
 	
-	public void heal(double healing, Entity source){
+	public void heal(double healing, boolean isDirectHeal, Entity source){
 		receivedHealingModifier.baseValue = healing;
 		receivedHealingModifier.update();
 		double modHealing = receivedHealingModifier.modifiedValue;
@@ -91,44 +96,40 @@ public abstract class Entity {
 			currHealth = maxHealth.modifiedValue;
 	}
 	
-	public void die(GameState gameState){
+	public void die(){
 		isActive = false;
 	}
 	
-	public void moveBy(double changeXLoc, double changeYLoc){
-		xLoc += changeXLoc;
-		yLoc += changeYLoc;
-		shapes.xLoc = xLoc;
-		shapes.yLoc = yLoc;
+	public void moveBy(Vector2d moveVec){
+		loc = loc.afterTranslate(moveVec);
+		shapes.loc = shapes.loc.afterTranslate(moveVec);
 	}
 	
-	public void moveTo(double newXLoc, double newYLoc){
-		xLoc = newXLoc;
-		yLoc = newYLoc;
-		shapes.xLoc = xLoc;
-		shapes.yLoc = yLoc;
+	public void moveTo(Point2d newLoc){
+		loc = new Point2d(newLoc);
+		shapes.loc = new Point2d(newLoc);
 	}
 	
-	public void addBuff(Buff buff, GameState gameState){
+	public void addBuff(Buff buff){
 		if(buffs.containsKey(buff.id))
-			buff.handleDuplicate(buffs.get(buff.id), gameState);
+			buff.handleDuplicate(buffs.get(buff.id));
 		else{
 			buffs.put(buff.id, buff);
-			buff.apply(this, gameState);
+			buff.apply(this);
 		}
 	}
 	
-	public boolean dispelBuff(Buff buff, GameState gameState){
+	public boolean dispelBuff(Buff buff){
 		if(buff.isDispellable){
-			removeBuff(buff, gameState);
+			removeBuff(buff);
 			return true;
 		}
 		else
 			return false;
 	}
 	
-	public void removeBuff(Buff buff, GameState gameState){
-		buff.remove(this, gameState);
+	public void removeBuff(Buff buff){
+		buff.remove(this);
 		buffs.remove(buff.id);
 	}
 	
@@ -143,17 +144,17 @@ public abstract class Entity {
 	/**
 	 * Called right after this entity is added to the game state.
 	 */
-	public void onSpawn(GameState gameState){}
+	public void onSpawn(){}
 	
 	/**
 	 * Called right before this entity is removed from the game state due to isActive == false
 	 */
-	public void onDespawn(GameState gameState){}
+	public void onDespawn(){}
 	
 	/**
 	 * Auras are applied, HoTs and DoTs tick, etc...
 	 */
-	public void preStep(GameState gameState){
+	public void preStep(){
 		if(passiveAction.canAct()){
 			currHealth += healthRegen.modifiedValue;
 			if(currHealth > maxHealth.modifiedValue)
@@ -161,37 +162,33 @@ public abstract class Entity {
 		}
 		
 		for(Buff b : buffs.values()){
-			b.step(this, gameState);
+			b.step(this);
 		}
 	}
 	
 	/**
 	 * Entities move.
 	 */
-	public void moveStep(GameState gameState){
-		
-	}
+	public void moveStep(){}
 	
 	/**
 	 * Actions! Entities attack and/or use abilities, etc...
 	 */
-	public void actionStep(GameState gameState){
-		
-	}
+	public void actionStep(){}
 	
 	/**
 	 * Cleanup! Timed out effects are removed, dead entities are removed, etc...
 	 */
-	public void postStep(GameState gameState){
+	public void postStep(){
 		if(currHealth <= 0)
-			die(gameState);
+			die();
 		
 		Iterator<Buff> bIter = buffs.values().iterator();
 		Buff b;
 		while(bIter.hasNext()){
 			b = bIter.next();
 			if(!b.isActive){
-				b.remove(this, gameState);
+				b.remove(this);
 				bIter.remove();
 			}
 		}
@@ -201,10 +198,9 @@ public abstract class Entity {
 	 * Paints this entity.
 	 */
 	public void paintEntity(Graphics2D g2d, int cornerX, int cornerY, int tileSize){
-		int centerX = (int) (cornerX + xLoc*tileSize);
-		int centerY = (int) (cornerY + yLoc*tileSize);
-		shapes.xLoc = xLoc;
-		shapes.yLoc = yLoc;
+		int centerX = (int) (cornerX + loc.x*tileSize);
+		int centerY = (int) (cornerY + loc.y*tileSize);
+		shapes.loc = new Point2d(loc);
 		shapes.paintShapes(g2d, centerX, centerY, tileSize);
 		if(showHealthBar && currHealth != maxHealth.modifiedValue)
 			paintHealthBar(g2d, centerX, centerY, tileSize);

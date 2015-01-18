@@ -109,10 +109,10 @@ public class GameState {
 		lightSources = new HashSet<LightSource>();
 		attractSources = new HashSet<AttractSource>();
 		
-		this.prism = new Prism(-2, yNodes/2, 22, 15);
+		this.prism = new Prism(this, new Point2d(-2, yNodes/2), 22, 15); //TODO make some of these constants
 		addMiscEntity(prism);
 		
-		this.darkPrism = new DarkPrism(xNodes+1, yNodes/2);
+		this.darkPrism = new DarkPrism(this, new Point2d(xNodes+1, yNodes/2));
 		addMiscEntity(darkPrism);
 		
 		animations = new LinkedList<Animation>();
@@ -240,7 +240,7 @@ public class GameState {
 		}
 		
 		for(Enemy e : enemies){ //check if enemies in the way
-			if(GeometryUtils.distFromTowerEdge(e.xLoc, e.yLoc, x, y) <= 0) //TODO: make margin bigger?
+			if(GeometryUtils.distFromTowerEdge(e.loc.x, e.loc.y, x, y) <= 0) //TODO: make margin bigger?
 				return false;
 		}
 		
@@ -255,13 +255,13 @@ public class GameState {
 	public void addTower(int x, int y, Tower tower){
 		nodeAt(x,y).tower = tower;
 		towers.add(tower);
-		tower.onSpawn(this);
+		tower.onSpawn();
 	}
 	
 	public void removeTower(Tower tower){
 		tower.currNode.tower = null;
 		towers.remove(tower);
-		tower.onDespawn(this);
+		tower.onDespawn();
 	}
 	
 	/*
@@ -282,10 +282,9 @@ public class GameState {
 		src.tower = null;
 		dst.tower.isActive = false; //kills off any tower already at dst (check your destination!)
 		tower.currNode = dst;
-		tower.xLoc = x;
-		tower.yLoc = y;
+		tower.loc = new Point2d(x,y);
 		dst.tower = tower;
-		tower.onMove(this, src, dst);
+		tower.onMove(src, dst);
 		
 		//System.out.println("After: src @ " + src.xLoc + " " + src.yLoc + " " + src.tower +
 		//                   " to dst @ " + dst.xLoc + " " + dst.yLoc + " " + dst.tower);
@@ -294,17 +293,17 @@ public class GameState {
 	public void addEnemy(int x, int y, Enemy enemy){
 		nodeAt(x,y).enemies.add(enemy);
 		enemies.add(enemy);
-		enemy.onSpawn(this);
+		enemy.onSpawn();
 	}
 	
 	public void addMiscEntity(Entity entity){
 		miscEntities.add(entity);
-		entity.onSpawn(this);
+		entity.onSpawn();
 	}
 	
-	public boolean isLit(double x, double y){
+	public boolean isLit(Point2d loc){
 		for(LightSource ls : lightSources){
-			if(GeometryUtils.dist(ls.getLocation().x, ls.getLocation().y, x, y) <= ls.lightRadius())
+			if(ls.getLocation().distanceTo(loc) <= ls.lightRadius())
 				return true;
 		}
 		return false;
@@ -313,50 +312,50 @@ public class GameState {
 	public Vector2d getAttractionAtPoint(Point2d point){
 		Vector2d result = new Vector2d(0,0);
 		for(AttractSource as : attractSources)
-			result.add(as.getAttractionVectorFromPoint(point));
+			result = result.afterAdd(as.getAttractionVectorFromPoint(point));
 		return result;
 	}
 	
 	public void step(){
 		//pre step all entities
 		for(Entity e : enemies)
-			e.preStep(this);
+			e.preStep();
 		for(Entity e : towers)
-			e.preStep(this);
+			e.preStep();
 		for(Entity e : projectiles)
-			e.preStep(this);
+			e.preStep();
 		for(Entity e : miscEntities)
-			e.preStep(this);
+			e.preStep();
 		
 		//move step all entities
 		for(Entity e : enemies)
-			e.moveStep(this);
+			e.moveStep();
 		for(Entity e : towers)
-			e.moveStep(this);
+			e.moveStep();
 		for(Entity e : projectiles)
-			e.moveStep(this);
+			e.moveStep();
 		for(Entity e : miscEntities)
-			e.moveStep(this);
+			e.moveStep();
 		
 		//action step all entities
 		for(Entity e : enemies)
-			e.actionStep(this);
+			e.actionStep();
 		for(Entity e : towers)
-			e.actionStep(this);
+			e.actionStep();
 		for(Entity e : projectiles)
-			e.actionStep(this);
+			e.actionStep();
 		for(Entity e : miscEntities)
-			e.actionStep(this);
+			e.actionStep();
 		
 		//post step all entities
 		for(Entity e : enemies)
-			e.postStep(this);
+			e.postStep();
 		for(Entity e : towers)
-			e.postStep(this);
+			e.postStep();
 		for(Entity e : projectiles)
-			e.postStep(this);
+			e.postStep();
 		for(Entity e : miscEntities)
-			e.postStep(this);
+			e.postStep();
 		
 		//clean up inactive entities
 		Iterator<Enemy> enIter = enemies.iterator();
@@ -364,7 +363,7 @@ public class GameState {
 		while(enIter.hasNext()){
 			en = enIter.next();
 			if(!en.isActive){
-				en.onDespawn(this);
+				en.onDespawn();
 				boolean removed = en.currNode.enemies.remove(en);
 				if(!removed)
 					System.out.println("failed to fully remove enemy!");
@@ -377,10 +376,10 @@ public class GameState {
 		while(tIter.hasNext()){
 			t = tIter.next();
 			if(!t.isActive){
-				t.onDespawn(this);
-				Node n = nodeAt((int)t.xLoc,(int)t.yLoc);
+				t.onDespawn();
+				Node n = nodeAt((int)t.loc.x,(int)t.loc.y);
 				if(n.tower == t) //this check here so as not to accidentally kill a moving tower that overwrote another.
-					nodeAt((int)t.xLoc,(int)t.yLoc).tower = null;
+					nodeAt((int)t.loc.x,(int)t.loc.y).tower = null;
 				tIter.remove();
 			}
 			else if(t.isGhost){
@@ -406,7 +405,7 @@ public class GameState {
 		while(pIter.hasNext()){
 			p = pIter.next();
 			if(!p.isActive){
-				p.onDespawn(this);
+				p.onDespawn();
 				pIter.remove();
 			}
 		}
@@ -416,7 +415,7 @@ public class GameState {
 		while(eIter.hasNext()){
 			e = eIter.next();
 			if(!e.isActive){
-				e.onDespawn(this);
+				e.onDespawn();
 				eIter.remove();
 			}
 		}
@@ -451,28 +450,28 @@ public class GameState {
 		frameNumber++;
 	}
 	
-	public Set<Node> getNodesInRange(double xLoc, double yLoc, double range){
+	public Set<Node> getNodesInRange(Point2d loc, double range){
 		Set<Node> result = new HashSet<Node>();
 		
-		int xMin = (int) (xLoc - range);
+		int xMin = (int) (loc.x - range);
 		if(xMin <= 0)
 			xMin = 1;
 		
-		int xMax = (int) (xLoc + range);
+		int xMax = (int) (loc.x + range);
 		if(xMax > xNodes)
 			xMax = xNodes;
 		
-		int yMin = (int) (yLoc - range);
+		int yMin = (int) (loc.y - range);
 		if(yMin <= 0)
 			yMin = 1;
 		
-		int yMax = (int) (yLoc + range);
+		int yMax = (int) (loc.y + range);
 		if(yMax > yNodes)
 			yMax = yNodes;
 		
 		for(int x=xMin; x<=xMax; x++){
 			for(int y=yMin; y<=yMax; y++){
-				if(GeometryUtils.dist(x,y,xLoc,yLoc) <= range){
+				if(GeometryUtils.dist(x,y,loc.x,loc.y) <= range){
 					result.add(nodes[x][y]);
 				}
 			}
@@ -522,10 +521,10 @@ public class GameState {
 	}*/
 	
 	//much simpler (but also slower) version of getEnemiesInRange()
-	public Set<Enemy> getEnemiesInRange(double xLoc, double yLoc, double range){
+	public Set<Enemy> getEnemiesInRange(Point2d loc, double range){
 		Set<Enemy> result = new HashSet<Enemy>();
 		for(Enemy en : enemies){
-			if(GeometryUtils.dist(en.xLoc, en.yLoc, xLoc, yLoc) <= range)
+			if(en.loc.distanceTo(loc) <= range)
 				result.add(en);
 		}
 		return result;
@@ -542,10 +541,10 @@ public class GameState {
 	 * @param range range around the point to search
 	 * @return a list of all projectiles within range of (xLoc,yLoc)
 	 */
-	public Set<Projectile> getProjectilesInRange(double xLoc, double yLoc, double range){
+	public Set<Projectile> getProjectilesInRange(Point2d loc, double range){
 		Set<Projectile> result = new HashSet<Projectile>();
 		for(Projectile p : projectiles){
-			if(GeometryUtils.dist(p.xLoc, p.yLoc, xLoc, yLoc) <= range)
+			if(p.loc.distanceTo(loc) <= range)
 				result.add(p);
 		}
 		return result;
@@ -596,35 +595,35 @@ public class GameState {
 	
 	//much simpler (but also slower) version of getTowersInRange()
 	//this version also DOES NOT see ghost towers
-	public Set<Tower> getTowersInEdgeRange(double xLoc, double yLoc, double range){
+	public Set<Tower> getTowersInEdgeRange(Point2d loc, double range){
 		Set<Tower> result = new HashSet<Tower>();
 		for(Tower t : towers){
-			if(!t.isGhost && GeometryUtils.distFromTowerEdge(t.xLoc, t.yLoc, xLoc, yLoc) <= range)
+			if(!t.isGhost && GeometryUtils.distFromTowerEdge(t.loc.x, t.loc.y, loc.x, loc.y) <= range)
 				result.add(t);
 		}
 		return result;
 	}
 	
-	public Set<Tower> getTowersInCenterRange(double xLoc, double yLoc, double range){
+	public Set<Tower> getTowersInCenterRange(Point2d loc, double range){
 		Set<Tower> result = new HashSet<Tower>();
 		for(Tower t : towers){
-			if(!t.isGhost && GeometryUtils.dist(t.xLoc, t.yLoc, xLoc, yLoc) <= range)
+			if(!t.isGhost && t.loc.distanceTo(loc) <= range)
 				result.add(t);
 		}
 		return result;
 	}
 	
-	public boolean isPrismInRange(double xLoc, double yLoc, double range){
-		return (range >= xLoc);
+	public boolean isPrismInRange(Point2d loc, double range){
+		return (range >= loc.x);
 	}
 	
-	public Set<Entity> getTowersAndPrismInRange(double xLoc, double yLoc, double range){
+	public Set<Entity> getTowersAndPrismInRange(Point2d loc, double range){
 		Set<Entity> result = new HashSet<Entity>();
 		for(Tower t : towers){
-			if(!t.isGhost && GeometryUtils.distFromTowerEdge(t.xLoc, t.yLoc, xLoc, yLoc) <= range)
+			if(!t.isGhost && GeometryUtils.distFromTowerEdge(t.loc, loc) <= range)
 				result.add(t);
 		}
-		if(isPrismInRange(xLoc, yLoc, range))
+		if(isPrismInRange(loc, range))
 			result.add(prism);
 		
 		return result;
@@ -633,6 +632,7 @@ public class GameState {
 	public void spawnEnemy(Enemy waveEnemies){
 		int spawnX = xNodes-1;
 		int spawnY = (int) (Math.random()*yNodes);
-		addEnemy(spawnX, spawnY, waveEnemies.generateCopy(nodeAt(spawnX, spawnY), spawnX, spawnY, frameNumber));
+		addEnemy(spawnX, spawnY, waveEnemies.generateCopy(new Point2d(spawnX, spawnY), 
+				                                          nodeAt(spawnX, spawnY), frameNumber));
 	}
 }

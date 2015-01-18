@@ -3,6 +3,7 @@ package backEnd;
 import java.util.Set;
 
 import util.PaintableShapes;
+import util.Point2d;
 
 public class TowerRGB extends SimpleTower{
 
@@ -23,41 +24,14 @@ public class TowerRGB extends SimpleTower{
 	public static final double HEALTH_REGEN_BUFF_STRENGTH = Tower.BASE_HEALTH_REGEN * 4; // ^ ^ ^ 
 	public static final int BUFF_PERIOD = 10;
 	
-	public TowerRGB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(xLoc, yLoc));
+	public TowerRGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerRGB can't attack
 	}
 	
-	@Override
-	protected Tower generateRedUpgrade(){
-		return null;
-	}
-	
-	@Override
-	protected Tower generateGreenUpgrade(){
-		return null;
-	}
-	
-	@Override
-	protected Tower generateBlueUpgrade(){
-		return null;
-	}
-	
-	@Override
-	public void preStep(GameState gameState){
-		super.preStep(gameState);
-		if(specialAction.canAct() && passiveAction.canAct()){ //should aura be in both these categories?
-			if((gameState.frameNumber - spawnFrame) % BUFF_PERIOD == 1){ //only updates aura every several frames
-				Set<Tower> towers = gameState.getTowersInEdgeRange(xLoc, yLoc, AURA_RANGE);
-				for(Tower tower : towers)
-					tower.addBuff(new TowerRGBBuff(), gameState);
-			}
-		}
-	}
-	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	private static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		int nPoints1 = 3;
 		double[] xPoints1 = {0, 0.35, -0.35};
@@ -78,22 +52,50 @@ public class TowerRGB extends SimpleTower{
 		
 		return result;
 	}
+	
+	@Override
+	protected Tower generateRedUpgrade(){
+		return null;
+	}
+	
+	@Override
+	protected Tower generateGreenUpgrade(){
+		return null;
+	}
+	
+	@Override
+	protected Tower generateBlueUpgrade(){
+		return null;
+	}
+	
+	@Override
+	public void preStep(){
+		super.preStep();
+		if(specialAction.canAct() && passiveAction.canAct()){ //should aura be in both these categories?
+			if((gameState.frameNumber - spawnFrame) % BUFF_PERIOD == 1){ //only updates aura every several frames
+				Set<Tower> towers = gameState.getTowersInEdgeRange(loc, AURA_RANGE);
+				for(Tower tower : towers)
+					tower.addBuff(new TowerRGBBuff(gameState));
+			}
+		}
+	}
 }
 
 class TowerRGBBuff extends TimedBuff {
 
-	public TowerRGBBuff() {
-		super(TowerRGB.TOWER_RGB_BUFF_ID, "Inspired", "This tower has bonus attack speed and health regeneration",
+	public TowerRGBBuff(GameState gameState) {
+		super(gameState, TowerRGB.TOWER_RGB_BUFF_ID, "Boosted",
+			  "This tower has bonus attack speed and health regeneration",
 			  true, true, TowerRGB.BUFF_PERIOD*2);
 	}
 
 	@Override
-	public void handleDuplicate(Buff b, GameState gameState) {
+	public void handleDuplicate(Buff b) {
 		//no overwrite TODO: may need to change this wrt other buffing towers?
 	}
 
 	@Override
-	public void apply(Entity e, GameState gameState) {
+	public void apply(Entity e) {
 		Tower t = (Tower) e;
 		t.attackDelay.multBonuses.add(TowerRGB.ATTACK_DELAY_BUFF_STRENGTH);
 		t.attackDelay.update();
@@ -102,7 +104,7 @@ class TowerRGBBuff extends TimedBuff {
 	}
 
 	@Override
-	public void remove(Entity e, GameState gameState) {
+	public void remove(Entity e) {
 		Tower t = (Tower) e;
 		t.attackDelay.multBonuses.remove(TowerRGB.ATTACK_DELAY_BUFF_STRENGTH);
 		t.attackDelay.update();

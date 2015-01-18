@@ -6,6 +6,7 @@ import java.util.Set;
 import util.Animation;
 import util.GeometryUtils;
 import util.PaintableShapes;
+import util.Point2d;
 import util.Vector2d;
 
 /**
@@ -27,11 +28,11 @@ public abstract class SimpleTower extends Tower{
 	
 	protected double facing;
 	
-	public SimpleTower(Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, int tier,
+	public SimpleTower(GameState gameState, Point2d loc, Node currNode, double priority, int spawnFrame, int tier,
 			 double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			 double attackAOE, boolean canAOE, boolean appliesDebuff, double projectileSpeed, double shotOriginDistance,
 			 boolean usesProjectile, boolean tracksTarget, PaintableShapes shapes){
-		super(currNode, xLoc, yLoc, priority, spawnFrame, tier, maxHealth, healthRegen,
+		super(gameState, loc, currNode, priority, spawnFrame, tier, maxHealth, healthRegen,
 			  attackDamage, attackDelay, attackRange, attackAOE, canAOE, shapes);
 		this.projectileSpeed = projectileSpeed;
 		this.shotOriginDistance = shotOriginDistance;
@@ -42,17 +43,17 @@ public abstract class SimpleTower extends Tower{
 	}
 	
 	@Override
-	public void actionStep(GameState gameState){
-		super.actionStep(gameState);
+	public void actionStep(){
+		super.actionStep();
 		if(attackAction.canAct()){
 			//acquire a new target
 			if(target == null || !target.isActive){
 				//System.out.println("Turret spawned on frame " + spawnFrame + " attempting to acquire target..."); //TODO:
-				target = acquireTarget(gameState);
+				target = acquireTarget();
 			}
 			//lose an acquired target
 			if((target != null) &&
-			   (GeometryUtils.dist(xLoc, yLoc, target.xLoc, target.yLoc) > attackRange.modifiedValue || !target.isActive)){
+			   (loc.distanceTo(target.loc) > attackRange.modifiedValue || !target.isActive)){
 				//System.out.println("Turret spawned on frame " + spawnFrame + " lost acquired target..."); //TODO:
 				target = null;
 			}
@@ -65,17 +66,17 @@ public abstract class SimpleTower extends Tower{
 				if(attackTimer == -1){
 					//System.out.println("Turret spawned on frame " + spawnFrame + " attacking target..."); //TODO:
 					if(usesProjectile)
-						projectileAttack(gameState);
+						projectileAttack();
 					else
-						instantAttack(gameState);
+						instantAttack();
 					attackTimer = 0;
 				}
 			}
 		}
 	}
 	
-	protected Enemy acquireTarget(GameState gameState){
-		Set<Enemy> enemiesInRange = gameState.getEnemiesInRange(xLoc, yLoc, attackRange.modifiedValue);
+	protected Enemy acquireTarget(){
+		Set<Enemy> enemiesInRange = gameState.getEnemiesInRange(loc, attackRange.modifiedValue);
 		//TODO: remove debugging code
 		//System.out.println(enemiesInRange.size() + " enemies detected in firing range (" + attackRange.modifiedValue + ")");
 		
@@ -105,46 +106,44 @@ public abstract class SimpleTower extends Tower{
 	}
 	
 	protected void trackTarget(){
-		Vector2d vec = new Vector2d(target.xLoc - xLoc, target.yLoc - yLoc);
-		double attackAngle = vec.angle();
+		Vector2d vec = new Vector2d(loc, target.loc);
+		double attackAngle = vec.getAngle();
 		shapes.setAngle(attackAngle);
 		facing = attackAngle;
 	}
 	
-	protected void projectileAttack(GameState gameState){
-		Vector2d offset = new Vector2d();
-		offset.setAngleAndMagnitude(facing, shotOriginDistance);
-		double shotOriginX = xLoc + offset.x;
-		double shotOriginY = yLoc + offset.y;
+	protected void projectileAttack(){
+		Vector2d offset = Vector2d.vectorFromAngleAndMagnitude(facing, shotOriginDistance);
+		Point2d shotOrigin = loc.afterTranslate(offset);
 		
-		Projectile proj = generateProjectile(gameState, shotOriginX, shotOriginY);
+		Projectile proj = generateProjectile(shotOrigin);
 		if(proj instanceof SimpleProjectile)
-			((SimpleProjectile) proj).playedAnimation = generateAttackAnimation(gameState);
+			((SimpleProjectile) proj).playedAnimation = generateAttackAnimation();
 		gameState.projectiles.add(proj);
 	}
 	
-	protected void instantAttack(GameState gameState){
+	protected void instantAttack(){
 		if(canAOE){
-			Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(target.xLoc, target.yLoc, attackAOE.modifiedValue);
+			Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(target.loc, attackAOE.modifiedValue);
 			if(appliesDebuff){
 				for(Enemy e : enemiesInBlast){
-					e.harm(attackDamage.modifiedValue, this);
-					e.addBuff(generateAttackDebuff(), gameState);
+					e.harm(attackDamage.modifiedValue, true, this);
+					e.addBuff(generateAttackDebuff());
 				}
 			}
 			else{
 				for(Enemy e : enemiesInBlast)
-					e.harm(attackDamage.modifiedValue, this);
+					e.harm(attackDamage.modifiedValue, true, this);
 			}
 		}
 		else{
-			target.harm(attackDamage.modifiedValue, this);
+			target.harm(attackDamage.modifiedValue, true, this);
 			if(appliesDebuff)
-				target.addBuff(generateAttackDebuff(), gameState);
+				target.addBuff(generateAttackDebuff());
 		}
-		Animation a = generateAttackAnimation(gameState);
+		Animation a = generateAttackAnimation();
 		if(a != null){
-			a.setLocation(xLoc, yLoc);
+			a.setLocation(loc);
 			gameState.playAnimation(a);
 		}
 	}
@@ -153,18 +152,18 @@ public abstract class SimpleTower extends Tower{
 		return null;
 	}
 	
-	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc){
+	protected PaintableShapes generateProjectileShapes(Point2d projLoc){
 		return null;
 	}
 	
-	protected Animation generateAttackAnimation(GameState gameState){
+	protected Animation generateAttackAnimation(){
 		return null;
 	}
 	
-	protected Projectile generateProjectile(GameState gameState, double xLoc, double yLoc){
-		return new SimpleProjectile(this, xLoc, yLoc, target, projectileSpeed, attackDamage.modifiedValue,
+	protected Projectile generateProjectile(Point2d projLoc){
+		return new SimpleProjectile(gameState, projLoc, this, target, projectileSpeed, attackDamage.modifiedValue,
 				                    attackAOE.modifiedValue, canAOE, generateAttackDebuff(),
-				                    generateProjectileShapes(xLoc, yLoc));
+				                    generateProjectileShapes(projLoc));
 	}           
 }
 

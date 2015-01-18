@@ -4,7 +4,7 @@ import java.awt.Graphics2D;
 
 public abstract class Animation {
 
-	public double xLoc, yLoc;
+	public Point2d loc;
 	
 	public boolean isActive;
 	
@@ -12,15 +12,14 @@ public abstract class Animation {
 		isActive = true;
 	}
 	
-	public void setLocation(double xLoc, double yLoc){
-		this.xLoc = xLoc;
-		this.yLoc = yLoc;
+	public void setLocation(Point2d loc){
+		this.loc = loc;
 	}
 	
 	public abstract void step();
 	
 	public void paintAnimation(Graphics2D g2d, int cornerX, int cornerY, int tileSize){
-		paintAnimationFromCenter(g2d, (int)(cornerX + tileSize*xLoc), (int)(cornerY + tileSize*yLoc), tileSize);
+		paintAnimationFromCenter(g2d, (int)(cornerX + tileSize*loc.x), (int)(cornerY + tileSize*loc.y), tileSize);
 	}
 	
 	public abstract void paintAnimationFromCenter(Graphics2D g2d, int centerX, int centerY, int tileSize);

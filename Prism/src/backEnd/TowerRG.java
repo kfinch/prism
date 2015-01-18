@@ -4,6 +4,7 @@ import java.util.Set;
 
 import util.Animation;
 import util.PaintableShapes;
+import util.Point2d;
 import util.SimpleCircleAnimation;
 
 public class TowerRG extends SimpleTower{
@@ -19,45 +20,14 @@ public class TowerRG extends SimpleTower{
 	public static final double PROJECTILE_SPEED = 0;
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
-	public TowerRG(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+	public TowerRG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, false,
-		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(xLoc, yLoc));
+		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 	}
 	
-	protected Tower generateRedUpgrade(){
-		return new TowerRRG(currNode, xLoc, yLoc, spawnFrame);
-	}
-	
-	protected Tower generateGreenUpgrade(){
-		return new TowerRGG(currNode, xLoc, yLoc, spawnFrame);
-	}
-	
-	protected Tower generateBlueUpgrade(){
-		return new TowerRGB(currNode, xLoc, yLoc, spawnFrame);
-	}
-	
-	@Override
-	protected Enemy acquireTarget(GameState gameState){
-		attackRange.modifiedValue = attackAOE.modifiedValue;
-		return super.acquireTarget(gameState);
-	}
-	
-	@Override
-	protected void instantAttack(GameState gameState){
-		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, attackAOE.modifiedValue);
-		for(Enemy e : enemiesInBlast)
-			e.harm(attackDamage.modifiedValue, this);
-		
-		Animation a = generateAttackAnimation(gameState);
-		if(a != null){
-			a.setLocation(xLoc, yLoc);
-			gameState.playAnimation(a);
-		}
-	}
-	
-	private static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	private static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		result.addFixedCircle(0, 0, 0.65, GameState.TOWER_GREEN);
 		
@@ -71,8 +41,39 @@ public class TowerRG extends SimpleTower{
 		return result;
 	}
 	
+	protected Tower generateRedUpgrade(){
+		return new TowerRRG(gameState, loc, currNode, spawnFrame);
+	}
+	
+	protected Tower generateGreenUpgrade(){
+		return new TowerRGG(gameState, loc, currNode, spawnFrame);
+	}
+	
+	protected Tower generateBlueUpgrade(){
+		return new TowerRGB(gameState, loc, currNode, spawnFrame);
+	}
+	
 	@Override
-	protected Animation generateAttackAnimation(GameState gameState){
+	protected Enemy acquireTarget(){
+		attackRange.modifiedValue = attackAOE.modifiedValue;
+		return super.acquireTarget();
+	}
+	
+	@Override
+	protected void instantAttack(){
+		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(loc, attackAOE.modifiedValue);
+		for(Enemy e : enemiesInBlast)
+			e.harm(attackDamage.modifiedValue, true, this);
+		
+		Animation a = generateAttackAnimation();
+		if(a != null){
+			a.setLocation(loc);
+			gameState.playAnimation(a);
+		}
+	}
+	
+	@Override
+	protected Animation generateAttackAnimation(){
 		return new SimpleCircleAnimation(20, attackAOE.modifiedValue*2, attackAOE.modifiedValue*2, 0.6f, 0.0f,
 				                         GameState.PROJECTILE_REDGREEN);
 	}

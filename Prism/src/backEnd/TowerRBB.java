@@ -26,29 +26,13 @@ public class TowerRBB extends SimpleTower{
 	
 	public static final double RAIL_WIDTH = 0.2; //rail width not counted as an AOE (so can't be modified by buffs)
 	
-	public TowerRBB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, true, generateShapes(xLoc, yLoc));
+	public TowerRBB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, true, generateShapes(loc));
 	}
 	
-	@Override
-	protected Tower generateRedUpgrade(){
-		return null;
-	}
-	
-	@Override
-	protected Tower generateGreenUpgrade(){
-		return null;
-	}
-	
-	@Override
-	protected Tower generateBlueUpgrade(){
-		return null;
-	}
-	
-	//TODO: update
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	private static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		int nPoints1 = 3;
 		double[] xPoints1 = {-0.6, 0.2, 0.2};
@@ -67,27 +51,39 @@ public class TowerRBB extends SimpleTower{
 		
 		return result;
 	}
+	
+	@Override
+	protected Tower generateRedUpgrade(){
+		return null;
+	}
+	
+	@Override
+	protected Tower generateGreenUpgrade(){
+		return null;
+	}
+	
+	@Override
+	protected Tower generateBlueUpgrade(){
+		return null;
+	}
 
 	@Override
-	protected void instantAttack(GameState gameState){
-		Vector2d attackVec = new Vector2d(target.xLoc-xLoc, target.yLoc-yLoc);
-		attackVec.setMagnitude(attackRange.modifiedValue);
-		double endX = xLoc + attackVec.x;
-		double endY = yLoc + attackVec.y;
+	protected void instantAttack(){
+		Vector2d attackVec = new Vector2d(loc, target.loc);
+		attackVec = Vector2d.vectorFromAngleAndMagnitude(attackVec.getAngle(), attackRange.modifiedValue);
+		Point2d end = loc.afterTranslate(attackVec);
 		
-		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(xLoc, yLoc, attackRange.modifiedValue);
+		Set<Enemy> enemiesInBlast = gameState.getEnemiesInRange(loc, attackRange.modifiedValue);
 		for(Enemy e : enemiesInBlast){
-			if(GeometryUtils.distPointToLine(e.xLoc, e.yLoc, xLoc, yLoc, endX, endY) <= RAIL_WIDTH)
-				e.harm(attackDamage.modifiedValue, this);
+			if(GeometryUtils.distPointToLine(e.loc, loc, end) <= RAIL_WIDTH)
+				e.harm(attackDamage.modifiedValue, true, this);
 		}
 		
-		//could be width RAIL_WIDTH*2, but drawing smaller than actual AoE, because actual AoE checks only vs center of enemy
-		Animation attackAnim = new SimpleRayAnimation(7, new Point2d(xLoc, yLoc),
-				                                      new Point2d(xLoc + attackVec.x, yLoc + attackVec.y),
-				                                      RAIL_WIDTH, 0.8f, 0.3f, GameState.PROJECTILE_BLUE);
-		attackAnim.setLocation(xLoc, yLoc);
+		//could be width RAIL_WIDTH*2, but drawing smaller than actual AoE,
+		//because actual AoE checks only vs center of enemy
+		Animation attackAnim = new SimpleRayAnimation(7, loc, end, RAIL_WIDTH, 0.8f, 0.3f, GameState.PROJECTILE_BLUE);
+		attackAnim.setLocation(loc);
 		gameState.playAnimation(attackAnim);
-		//gameState.playAnimation(new RailAnimation(this, attackVec, RAIL_WIDTH));
 	}
 	
 }

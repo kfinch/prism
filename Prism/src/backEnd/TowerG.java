@@ -1,6 +1,7 @@
 package backEnd;
 
 import util.PaintableShapes;
+import util.Point2d;
 
 public class TowerG extends SimpleTower{
 
@@ -14,26 +15,26 @@ public class TowerG extends SimpleTower{
 	public static final double PROJECTILE_SPEED = 0;
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
-	public TowerG(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(xLoc, yLoc));
+	public TowerG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerG can't attack
 	}
 	
 	protected Tower generateRedUpgrade(){
-		return new TowerRG(currNode, xLoc, yLoc, spawnFrame);
+		return new TowerRG(gameState, loc, currNode, spawnFrame);
 	}
 	
 	protected Tower generateGreenUpgrade(){
-		return new TowerGG(currNode, xLoc, yLoc, spawnFrame);
+		return new TowerGG(gameState, loc, currNode, spawnFrame);
 	}
 	
 	protected Tower generateBlueUpgrade(){
-		return new TowerGB(currNode, xLoc, yLoc, spawnFrame);
+		return new TowerGB(gameState, loc, currNode, spawnFrame);
 	}
 	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	public static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		result.addFixedCircle(0, 0, 0.5, GameState.TOWER_GREEN);
 		

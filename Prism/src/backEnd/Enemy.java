@@ -3,6 +3,7 @@ package backEnd;
 import util.Animation;
 import util.CombatTextAnimation;
 import util.PaintableShapes;
+import util.Point2d;
 
 /**
  * Abstract class representing an enemy unit in Prism.
@@ -31,10 +32,10 @@ public abstract class Enemy extends Entity {
 	public int attackTimer; //tracks when enemy can next attack
 	public Stat moveSpeed; //enemy's move stat
 	
-	public Enemy(int tier, Node currNode, double xLoc, double yLoc, double priority, int spawnFrame, double maxHealth,
-			     double healthRegen, double attackDamage, double attackDelay, double attackRange,
+	public Enemy(GameState gameState, Point2d loc, int tier, Node currNode, double priority, int spawnFrame,
+			     double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			     double moveSpeed, PaintableShapes shapes){
-		super(xLoc, yLoc, maxHealth * Math.pow(1+TIER_STAT_MULTIPLIER, tier), healthRegen, shapes);
+		super(gameState, loc, maxHealth * Math.pow(1+TIER_STAT_MULTIPLIER, tier), healthRegen, shapes);
 		
 		this.tier = tier;
 		
@@ -62,24 +63,24 @@ public abstract class Enemy extends Entity {
 	
 	public abstract double getKillReward();
 	
-	public abstract Enemy generateCopy(Node currNode, double xLoc, double yLoc, int spawnFrame);
+	public abstract Enemy generateCopy(Point2d loc, Node currNode, int spawnFrame);
 	
 	@Override
-	public void die(GameState gameState){
-		super.die(gameState);
+	public void die(){
+		super.die();
 		gameState.redResources += getKillReward();
 		gameState.greenResources += getKillReward();
 		gameState.blueResources += getKillReward();
 		
 		Animation killRewardCombatText = new CombatTextAnimation("+" + (int)(getKillReward()), 0.5,
 				                                                 GameState.UI_GOLD, 0.5, 30);
-		killRewardCombatText.setLocation(xLoc, yLoc);
+		killRewardCombatText.setLocation(loc);
 		gameState.playAnimation(killRewardCombatText);
 	}
 	
 	@Override
-	public void preStep(GameState gameState){
-		super.preStep(gameState);
+	public void preStep(){
+		super.preStep();
 		if(passiveAction.canAct()){
 			if(attackTimer >= 0)
 				attackTimer++;

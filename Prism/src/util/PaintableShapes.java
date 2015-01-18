@@ -7,29 +7,28 @@ import java.util.List;
 
 public class PaintableShapes {
 	
-	public double xLoc, yLoc;
+	public Point2d loc;
 	private List<Object> shapes;
 	
-	public PaintableShapes(double xLoc, double yLoc){
-		this.xLoc = xLoc;
-		this.yLoc = yLoc;
+	public PaintableShapes(Point2d loc){
+		this.loc = loc;
 		shapes = new ArrayList<Object>();
 	}
 	
-	public void addFixedCircle(double xLoc, double yLoc, double radius, Color color){
-		shapes.add(new Circle(xLoc, yLoc, radius, color, false));
+	public void addFixedCircle(double relativeXLoc, double relativeYLoc, double radius, Color color){
+		shapes.add(new Circle(relativeXLoc, relativeYLoc, radius, color, false));
 	}
 	
-	public void addRotatableCircle(double xLoc, double yLoc, double radius, Color color){
-		shapes.add(new Circle(xLoc, yLoc, radius, color, true));
+	public void addRotatableCircle(double relativeXLoc, double relativeYLoc, double radius, Color color){
+		shapes.add(new Circle(relativeXLoc, relativeYLoc, radius, color, true));
 	}
 	
-	public void addFixedPolygon(int nPoints, double[] xPoints, double[] yPoints, Color color){
-		shapes.add(new Polygon(nPoints, xPoints, yPoints, color, false));
+	public void addFixedPolygon(int nPoints, double[] relativeXPoints, double[] relativeYPoints, Color color){
+		shapes.add(new Polygon(nPoints, relativeXPoints, relativeYPoints, color, false));
 	}
 	
-	public void addRotatablePolygon(int nPoints, double[] xPoints, double[] yPoints, Color color){
-		shapes.add(new Polygon(nPoints, xPoints, yPoints, color, true));
+	public void addRotatablePolygon(int nPoints, double[] relativeXPoints, double[] relativeYPoints, Color color){
+		shapes.add(new Polygon(nPoints, relativeXPoints, relativeYPoints, color, true));
 	}
 	
 	public void addFixedRectangle(double x1, double y1, double x2, double y2, Color color){
@@ -47,7 +46,7 @@ public class PaintableShapes {
 			if(o instanceof Circle && ((Circle) o).rotatable){
 				Circle c = (Circle) o;
 				Vector2d vec = new Vector2d(c.xLoc, c.yLoc);
-				vec.setAngle(vec.angle() + radians);
+				vec = Vector2d.vectorFromAngleAndMagnitude(vec.getAngle() + radians, vec.getMagnitude());
 				c.xLoc = vec.x;
 				c.yLoc = vec.y;
 			}
@@ -56,7 +55,7 @@ public class PaintableShapes {
 				Vector2d vec;
 				for(int i=0; i<p.nPoints; i++){
 					vec = new Vector2d(p.xPoints[i], p.yPoints[i]);
-					vec.setAngle(vec.angle() + radians);
+					vec = Vector2d.vectorFromAngleAndMagnitude(vec.getAngle() + radians, vec.getMagnitude());
 					p.xPoints[i] = vec.x;
 					p.yPoints[i] = vec.y;
 				}
@@ -69,7 +68,7 @@ public class PaintableShapes {
 			if(o instanceof Circle && ((Circle) o).rotatable){
 				Circle c = (Circle) o;
 				Vector2d vec = new Vector2d(c.origXLoc, c.origYLoc);
-				vec.setAngle(vec.angle() + radians);
+				vec = Vector2d.vectorFromAngleAndMagnitude(vec.getAngle() + radians, vec.getMagnitude());
 				c.xLoc = vec.x;
 				c.yLoc = vec.y;
 			}
@@ -78,7 +77,7 @@ public class PaintableShapes {
 				Vector2d vec;
 				for(int i=0; i<p.nPoints; i++){
 					vec = new Vector2d(p.origXPoints[i], p.origYPoints[i]);
-					vec.setAngle(vec.angle() + radians);
+					vec = Vector2d.vectorFromAngleAndMagnitude(vec.getAngle() + radians, vec.getMagnitude());
 					p.xPoints[i] = vec.x;
 					p.yPoints[i] = vec.y;
 				}

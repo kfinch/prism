@@ -12,8 +12,9 @@ public class SlowingTowerDebuff extends TimedBuff {
 	
 	SlowingDebuffAnimation animation;
 	
-	public SlowingTowerDebuff(int duration, double strength) {
-		super("moveslowtower", "Slowed", "This enemy's movement and attacks are slowed.", false, true, duration);
+	public SlowingTowerDebuff(GameState gameState, int duration, double strength) {
+		super(gameState, "moveslowtower", "Slowed",
+			  "This enemy's movement and attacks are slowed.", false, true, duration);
 		this.strength = strength;
 	}
 
@@ -25,7 +26,7 @@ public class SlowingTowerDebuff extends TimedBuff {
 	 * Refreshes duration of equal strength duplicate debuffs.
 	 */
 	@Override
-	public void handleDuplicate(Buff b, GameState gameState) {
+	public void handleDuplicate(Buff b) {
 		SlowingTowerDebuff other = (SlowingTowerDebuff) b;
 		if(other.strength < strength){
 			other.strength = strength;
@@ -37,7 +38,7 @@ public class SlowingTowerDebuff extends TimedBuff {
 	}
 
 	@Override
-	public void apply(Entity e, GameState gameState) {
+	public void apply(Entity e) {
 		Enemy en = (Enemy) e;
 		
 		en.moveSpeed.multPenalties.add(strength);
@@ -50,7 +51,7 @@ public class SlowingTowerDebuff extends TimedBuff {
 	}
 
 	@Override
-	public void remove(Entity e, GameState gameState) {
+	public void remove(Entity e) {
 		Enemy en = (Enemy) e;
 		
 		en.moveSpeed.multPenalties.remove(strength);
@@ -73,7 +74,7 @@ class SlowingDebuffAnimation extends AttachedAnimation {
 	public SlowingDebuffAnimation(Entity anchor) {
 		super(anchor, true);
 		
-		shapes = new PaintableShapes(xLoc, yLoc);
+		shapes = new PaintableShapes(loc);
 		int nPoints = 8;
 		double[] xPoints = {0, 0.15, 0.4, 0.15, 0, -0.15, -0.4, -0.15};
 		double[] yPoints = {-0.4, -0.15, 0, 0.15, 0.4, 0.15, 0, -0.15};
@@ -85,8 +86,6 @@ class SlowingDebuffAnimation extends AttachedAnimation {
 	@Override
 	public void step(){
 		super.step();
-		shapes.xLoc = xLoc;
-		shapes.yLoc = yLoc;
 		shapes.rotate(ROTATE_SPEED);
 	}
 	

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.swing.Timer;
 
+import util.Point2d;
 import frontEnd.GamePanel;
 import frontEnd.PrismFrontEnd;
 
@@ -83,7 +84,7 @@ public class GameRunner implements ActionListener {
 	public void step(){
 		if(gameState.frameNumber % (WAVE_DURATION + WAVE_DOWNTIME) == 0){
 			currentTier++;
-			waveEnemies = new EnemyNibbler(currentTier, null, 0, 0, 0);
+			waveEnemies = new EnemyNibbler(gameState, new Point2d(0,0), currentTier, null, 0);
 			spawnDelay = WAVE_DURATION / waveEnemies.getWaveSize();
 		}
 		
@@ -128,27 +129,27 @@ public class GameRunner implements ActionListener {
 		frontEnd.swapToMenuPanel();
 	}
 	
-	public void boardMouseOver(double xLoc, double yLoc){
-		if(xLoc < 0 || xLoc > gameState.xNodes || yLoc < 0 || yLoc > gameState.yNodes){
+	public void boardMouseOver(Point2d loc){
+		if(loc.x < 0 || loc.x > gameState.xNodes || loc.y < 0 || loc.y > gameState.yNodes){
 			towerMouseOver = null;
 			nodeMouseOver = null;
 			return;
 		}
 		
-		int x = (int) Math.round(xLoc);
-		int y = (int) Math.round(yLoc);
+		int x = (int) Math.round(loc.x);
+		int y = (int) Math.round(loc.y);
 		towerMouseOver = null;
 		nodeMouseOver = gameState.nodeAt(x, y);
 		
-		Set<Tower> towersMouseOver = gameState.getTowersInEdgeRange(xLoc, yLoc, 0);
+		Set<Tower> towersMouseOver = gameState.getTowersInEdgeRange(loc, 0);
 		if(!towersMouseOver.isEmpty()){
 			towerMouseOver = towersMouseOver.iterator().next();
 			nodeMouseOver = towerMouseOver.currNode;
 		}
 	}
 	
-	public void boardClicked(double xLoc, double yLoc){
-		boardMouseOver(xLoc, yLoc);
+	public void boardClicked(Point2d loc){
+		boardMouseOver(loc);
 		
 		switch(actionSelected){
 		case NO_ACTION: break;
@@ -181,7 +182,7 @@ public class GameRunner implements ActionListener {
 			break;
 		case SELL_TOWER_ACTION:
 			if(towerMouseOver != null){
-				towerMouseOver.sellTower(gameState);
+				towerMouseOver.sellTower();
 			}
 			break;
 		default: throw new IllegalArgumentException("Invalid action type: " + actionSelected);
@@ -196,7 +197,7 @@ public class GameRunner implements ActionListener {
 			return BUILD_ERROR_BLOCKED;
 		
 		gameState.redResources -= TOWER_COST_MULTIPLIER;
-		Tower tower = new TowerR(n, n.xLoc, n.yLoc, gameState.frameNumber);
+		Tower tower = new TowerR(gameState, new Point2d(n.xLoc, n.yLoc), n, gameState.frameNumber);
 		gameState.addTower(n.xLoc, n.yLoc, tower);
 		return null;
 	}
@@ -208,7 +209,7 @@ public class GameRunner implements ActionListener {
 			return BUILD_ERROR_BLOCKED;
 		
 		gameState.greenResources -= TOWER_COST_MULTIPLIER;
-		Tower tower = new TowerG(n, n.xLoc, n.yLoc, gameState.frameNumber);
+		Tower tower = new TowerG(gameState, new Point2d(n.xLoc, n.yLoc), n, gameState.frameNumber);
 		gameState.addTower(n.xLoc, n.yLoc, tower);
 		return null;
 	}
@@ -220,7 +221,7 @@ public class GameRunner implements ActionListener {
 			return BUILD_ERROR_BLOCKED;
 		
 		gameState.blueResources -= TOWER_COST_MULTIPLIER;
-		Tower tower = new TowerB(n, n.xLoc, n.yLoc, gameState.frameNumber);
+		Tower tower = new TowerB(gameState, new Point2d(n.xLoc, n.yLoc), n, gameState.frameNumber);
 		gameState.addTower(n.xLoc, n.yLoc, tower);
 		return null;
 	}
@@ -232,7 +233,7 @@ public class GameRunner implements ActionListener {
 			return BUILD_ERROR_BLOCKED;
 		
 		gameState.fluxResources -= CONDUIT_TOWER_COST;
-		Tower tower = new TowerConduit(n, n.xLoc, n.yLoc, gameState.frameNumber);
+		Tower tower = new TowerConduit(gameState, new Point2d(n.xLoc, n.yLoc), n, gameState.frameNumber);
 		gameState.addTower(n.xLoc, n.yLoc, tower);
 		return null;
 	}
@@ -241,7 +242,7 @@ public class GameRunner implements ActionListener {
 		double cost = TOWER_COST_MULTIPLIER * Math.pow(2, t.tier);
 		if(gameState.redResources < cost)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
-		String message = t.addRed(gameState);
+		String message = t.addRed();
 		if(message == null)
 			gameState.redResources -= cost;
 		return message;
@@ -251,7 +252,7 @@ public class GameRunner implements ActionListener {
 		double cost = TOWER_COST_MULTIPLIER * Math.pow(2, t.tier);
 		if(gameState.greenResources < cost)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
-		String message = t.addGreen(gameState);
+		String message = t.addGreen();
 		if(message == null)
 			gameState.greenResources -= cost;
 		return message;
@@ -261,7 +262,7 @@ public class GameRunner implements ActionListener {
 		double cost = TOWER_COST_MULTIPLIER * Math.pow(2, t.tier);
 		if(gameState.blueResources < cost)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
-		String message = t.addBlue(gameState);
+		String message = t.addBlue();
 		if(message == null)
 			gameState.blueResources -= cost;
 		return message;
@@ -280,7 +281,7 @@ public class GameRunner implements ActionListener {
 		if(gameState.fluxResources < TELEPORT_COST)
 			return BUILD_ERROR_INSUFFICIENT_RESOURCES;
 		if(gameState.isValidTowerLocation(dst.xLoc, dst.yLoc)){
-			towerToTeleport.teleportTower(gameState, dst);
+			towerToTeleport.teleportTower(dst);
 			towerToTeleport = null;
 			actionSelected = NO_ACTION;
 			gameState.fluxResources -= TELEPORT_COST;

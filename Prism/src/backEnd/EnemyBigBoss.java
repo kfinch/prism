@@ -2,6 +2,7 @@ package backEnd;
 
 import java.util.Set;
 
+import util.Point2d;
 import util.PaintableShapes;
 
 public class EnemyBigBoss extends SimpleEnemy {
@@ -27,20 +28,21 @@ public class EnemyBigBoss extends SimpleEnemy {
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	public static final boolean APPLIES_DEBUFF = false;
 	
-	public EnemyBigBoss(int tier, Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(tier, WAVE_SIZE, BASE_KILL_REWARD, currNode, xLoc, yLoc, PRIORITY, spawnFrame, MAX_HEALTH, HEALTH_REGEN,
-				ATTACK_DAMAGE, ATTACK_DELAY, ATTACK_RANGE, MOVE_SPEED, TOWER_AFFINITY,
-				FIRE_ON_THE_MOVE, MOVE_PRIORITIES, USES_PROJECTILE,
-				PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, APPLIES_DEBUFF, generateShapes(xLoc, yLoc));
+	public EnemyBigBoss(GameState gameState, Point2d loc, int tier, Node currNode, int spawnFrame) {
+		super(gameState, loc, tier, WAVE_SIZE, BASE_KILL_REWARD, currNode, PRIORITY, spawnFrame,
+				MAX_HEALTH, HEALTH_REGEN,
+				ATTACK_DAMAGE, ATTACK_DELAY, ATTACK_RANGE, MOVE_SPEED,
+				TOWER_AFFINITY, FIRE_ON_THE_MOVE, MOVE_PRIORITIES, USES_PROJECTILE,
+				PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, APPLIES_DEBUFF, generateShapes(loc));
 	}
 	
 	@Override
-	public Enemy generateCopy(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		return new EnemyBigBoss(tier, currNode, xLoc, yLoc, spawnFrame);
+	public Enemy generateCopy(Point2d loc, Node currNode, int spawnFrame) {
+		return new EnemyBigBoss(gameState, loc, tier, currNode, spawnFrame);
 	}
 	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = new PaintableShapes(yLoc, yLoc);
+	public static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = new PaintableShapes(loc);
 		
 		int nPoints = 9;
 		double[] xPoints = {-0.4,-0.2,0.4,0.4,0.1,0.1,0.4,0.4,-0.2};

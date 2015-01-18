@@ -1,6 +1,7 @@
 package backEnd;
 
 import util.PaintableShapes;
+import util.Point2d;
 
 public class TowerRRR extends SimpleTower{
 
@@ -14,26 +15,13 @@ public class TowerRRR extends SimpleTower{
 	public static final double PROJECTILE_SPEED = TowerR.PROJECTILE_SPEED;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.85;
 	
-	public TowerRRR(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, true, true, generateShapes(xLoc, yLoc));
+	public TowerRRR(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, true, true, generateShapes(loc));
 	}
 	
-	//TODO: update
-	protected Tower generateRedUpgrade(){
-		return null;
-	}
-	
-	protected Tower generateGreenUpgrade(){
-		return null;
-	}
-	
-	protected Tower generateBlueUpgrade(){
-		return null;
-	}
-	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	private static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		int nPoints1 = 4;
 		double[] xPoints1 = {0, 0.55, 0, -0.55};
@@ -52,10 +40,23 @@ public class TowerRRR extends SimpleTower{
 		
 		return result;
 	}
+	
+	//TODO: update
+	protected Tower generateRedUpgrade(){
+		return null;
+	}
+	
+	protected Tower generateGreenUpgrade(){
+		return null;
+	}
+	
+	protected Tower generateBlueUpgrade(){
+		return null;
+	}
 
 	@Override
-	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
-		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
+	protected PaintableShapes generateProjectileShapes(Point2d loc) {
+		PaintableShapes result = new PaintableShapes(loc);
 		
 		result.addFixedCircle(0, 0, 0.19, GameState.PROJECTILE_RED);
 		

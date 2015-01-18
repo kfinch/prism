@@ -2,6 +2,7 @@ package backEnd;
 
 import util.Animation;
 import util.PaintableShapes;
+import util.Point2d;
 import util.SimpleCircleAnimation;
 
 public class TowerB extends SimpleTower {
@@ -17,14 +18,14 @@ public class TowerB extends SimpleTower {
 	public static final double SHOT_ORIGIN_DISTANCE = 0.6;
 	public static final double ATTACK_AOE = 0.4;
 	
-	public TowerB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+	public TowerB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
-		      true, true, generateShapes(xLoc, yLoc));
+		      true, true, generateShapes(loc));
 	}
 	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	public static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		int nPoints1 = 12;
 		double[] xPoints1 = {-0.4, -0.2, -0.2, 0.2, 0.2, 0.6, 0.6, 0.2, 0.2, -0.2, -0.2, -0.4};
@@ -35,20 +36,20 @@ public class TowerB extends SimpleTower {
 	}
 	
 	protected Tower generateRedUpgrade(){
-		return new TowerRB(currNode, xLoc, yLoc, spawnFrame);
+		return new TowerRB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	protected Tower generateGreenUpgrade(){
-		return new TowerGB(currNode, xLoc, yLoc, spawnFrame);
+		return new TowerGB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	protected Tower generateBlueUpgrade(){
-		return new TowerBB(currNode, xLoc, yLoc, spawnFrame);
+		return new TowerBB(gameState, loc, currNode, spawnFrame);
 	}
 
 	@Override
-	protected PaintableShapes generateProjectileShapes(double xLoc, double yLoc) {
-		PaintableShapes result = new PaintableShapes(xLoc, yLoc);
+	protected PaintableShapes generateProjectileShapes(Point2d loc) {
+		PaintableShapes result = new PaintableShapes(loc);
 		
 		int nPoints1 = 5;
 		double[] xPoints1 = {-0.2, 0.12, 0.2, 0.12, -0.2};
@@ -59,7 +60,7 @@ public class TowerB extends SimpleTower {
 	}
 	
 	@Override
-	protected Animation generateAttackAnimation(GameState gameState){
+	protected Animation generateAttackAnimation(){
 		return new SimpleCircleAnimation(10, 0.2, attackAOE.modifiedValue*2, 0.6f, 0.3f, GameState.PROJECTILE_BLUE);
 	}
 }

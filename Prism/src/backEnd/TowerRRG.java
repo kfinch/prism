@@ -27,38 +27,14 @@ public class TowerRRG extends SimpleTower{
 	
 	public static final double LIFESTEAL_PERCENT = 0.1;
 	
-	public TowerRRG(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+	public TowerRRG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, false, false,
-		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, true, generateShapes(xLoc, yLoc));
+		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, true, generateShapes(loc));
 	}
 	
-	protected Tower generateRedUpgrade(){
-		return null;
-	}
-	
-	protected Tower generateGreenUpgrade(){
-		return null;
-	}
-	
-	protected Tower generateBlueUpgrade(){
-		return null;
-	}
-	
-	@Override
-	protected void instantAttack(GameState gameState){
-		super.instantAttack(gameState);
-		double healing = attackDamage.modifiedValue * LIFESTEAL_PERCENT;
-		Set<Tower> nearbyTowers = gameState.getTowersInCenterRange(xLoc, yLoc, attackAOE.modifiedValue);
-		for(Tower t : nearbyTowers)
-			t.heal(healing, this);
-		Animation healingAnimation = new SimpleCircleAnimation(15, 0.6, 2.2, 0.4f, 0.2f, GameState.PROJECTILE_GREEN);
-		healingAnimation.setLocation(xLoc, yLoc);
-		gameState.playAnimation(healingAnimation);
-	}
-	
-	private static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	private static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		int nPoints1 = 7;
 		double[] xPoints1 = {-0.4, -0.4, 0.2, 0.6, 0.2, -0.2, -0.2};
@@ -78,9 +54,32 @@ public class TowerRRG extends SimpleTower{
 		return result;
 	}
 	
+	protected Tower generateRedUpgrade(){
+		return null;
+	}
+	
+	protected Tower generateGreenUpgrade(){
+		return null;
+	}
+	
+	protected Tower generateBlueUpgrade(){
+		return null;
+	}
+	
 	@Override
-	protected Animation generateAttackAnimation(GameState gameState){
-		return new SimpleRayAnimation(10, new Point2d(xLoc, yLoc), new Point2d(target.xLoc, target.yLoc), 0.25,
-				                      0.7f, 0.1f, GameState.PROJECTILE_RED);
+	protected void instantAttack(){
+		super.instantAttack();
+		double healing = attackDamage.modifiedValue * LIFESTEAL_PERCENT;
+		Set<Tower> nearbyTowers = gameState.getTowersInCenterRange(loc, attackAOE.modifiedValue);
+		for(Tower t : nearbyTowers)
+			t.heal(healing, true, this);
+		Animation healingAnimation = new SimpleCircleAnimation(15, 0.6, 2.2, 0.4f, 0.2f, GameState.PROJECTILE_GREEN);
+		healingAnimation.setLocation(loc);
+		gameState.playAnimation(healingAnimation);
+	}
+	
+	@Override
+	protected Animation generateAttackAnimation(){
+		return new SimpleRayAnimation(10, loc, target.loc, 0.25, 0.7f, 0.1f, GameState.PROJECTILE_RED);
 	}
 }

@@ -1,6 +1,7 @@
 package backEnd;
 
 import util.PaintableShapes;
+import util.Point2d;
 
 public class EnemyTrash extends SimpleEnemy {
 
@@ -25,20 +26,21 @@ public class EnemyTrash extends SimpleEnemy {
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	public static final boolean APPLIES_DEBUFF = false;
 	
-	public EnemyTrash(int tier, Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(tier, WAVE_SIZE, BASE_KILL_REWARD, currNode, xLoc, yLoc, PRIORITY, spawnFrame, MAX_HEALTH, HEALTH_REGEN,
-			  ATTACK_DAMAGE, ATTACK_DELAY, ATTACK_RANGE, MOVE_SPEED, TOWER_AFFINITY,
-			  FIRE_ON_THE_MOVE, MOVE_PRIORITIES, USES_PROJECTILE,
-			  PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, APPLIES_DEBUFF, generateShapes(xLoc, yLoc));
+	public EnemyTrash(GameState gameState, Point2d loc, int tier, Node currNode, int spawnFrame) {
+		super(gameState, loc, tier, WAVE_SIZE, BASE_KILL_REWARD, currNode, PRIORITY, spawnFrame,
+			  MAX_HEALTH, HEALTH_REGEN,
+			  ATTACK_DAMAGE, ATTACK_DELAY, ATTACK_RANGE, MOVE_SPEED,
+			  TOWER_AFFINITY, FIRE_ON_THE_MOVE, MOVE_PRIORITIES, USES_PROJECTILE,
+			  PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, APPLIES_DEBUFF, generateShapes(loc));
 	}
 	
 	@Override
-	public Enemy generateCopy(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		return new EnemyTrash(tier, currNode, xLoc, yLoc, spawnFrame);
+	public Enemy generateCopy(Point2d loc, Node currNode, int spawnFrame) {
+		return new EnemyTrash(gameState, loc, tier, currNode, spawnFrame);
 	}
 	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = new PaintableShapes(yLoc, yLoc);
+	public static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = new PaintableShapes(loc);
 		
 		result.addFixedCircle(0, 0, 0.3, GameState.ENEMY_DRAB_GREEN);
 		
@@ -46,9 +48,11 @@ public class EnemyTrash extends SimpleEnemy {
 	}
 
 	@Override
-	protected void instantAttack(GameState gameState, Entity target){
-		super.instantAttack(gameState, target);
+	protected void instantAttack(Entity target){
+		super.instantAttack(target);
 		isActive = false; //suicide attacker
 	}
+	
+	//TODO: make an attack animation
 	
 }

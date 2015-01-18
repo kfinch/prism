@@ -183,8 +183,8 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 			g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
 			g2d.setColor(GameState.UI_GOLD);
 			double range = game.towerMouseOver.attackRange.modifiedValue;
-			int x = xBoardLocToScreenLoc(game.towerMouseOver.xLoc - range);
-			int y = yBoardLocToScreenLoc(game.towerMouseOver.yLoc - range);
+			int x = xBoardLocToScreenLoc(game.towerMouseOver.loc.x - range);
+			int y = yBoardLocToScreenLoc(game.towerMouseOver.loc.y - range);
 			int diameter = (int) (range * 2 * tileSize);
 			if(diameter != 0)
 				g2d.drawOval(x, y, diameter, diameter);
@@ -193,8 +193,8 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		//highlight tower to teleport
 		if(game.actionSelected == GameRunner.TELEPORT_TOWER_DST_ACTION){
 			g2d.setColor(GameState.UI_GOLD);
-			g2d.drawRect(xBoardLocToScreenLoc(game.towerToTeleport.xLoc - tileSize),
-					     yBoardLocToScreenLoc(game.towerToTeleport.yLoc - tileSize),
+			g2d.drawRect(xBoardLocToScreenLoc(game.towerToTeleport.loc.x - tileSize),
+					     yBoardLocToScreenLoc(game.towerToTeleport.loc.y - tileSize),
 					     tileSize*2, tileSize*2);
 		}
 		
@@ -336,7 +336,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		double boardX = xScreenLocToBoardLoc(mouseX);
 		double boardY = yScreenLocToBoardLoc(mouseY);
 		if(boardX > 0 && boardX <= xNodes && boardY > 0 && boardY <= yNodes)
-			game.boardClicked(boardX, boardY);
+			game.boardClicked(new Point2d(boardX, boardY));
 	}
 
 	@Override
@@ -353,7 +353,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		double boardX = xScreenLocToBoardLoc(mouseX);
 		double boardY = yScreenLocToBoardLoc(mouseY);
 		
-		game.boardMouseOver(boardX, boardY);
+		game.boardMouseOver(new Point2d(boardX, boardY));
 		
 		repaint();
 	}

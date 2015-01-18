@@ -21,47 +21,15 @@ public class TowerGGB extends SimpleTower implements AttractSource {
 	public static final double ATTRACT_STRENGTH = 15; //TODO make more reasonable numbers after testing
 	public static final double ATTRACT_FALLOFF = 1;
 	
-	public TowerGGB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+	public TowerGGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
-		      false, false, generateShapes(xLoc, yLoc));
+		      false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerGGB cannot attack
 	}
 	
-	@Override
-	protected Tower generateRedUpgrade(){
-		return null;
-	}
-	
-	@Override
-	protected Tower generateGreenUpgrade(){
-		return null;
-	}
-	
-	@Override
-	protected Tower generateBlueUpgrade(){
-		return null;
-	}
-	
-	@Override
-	public void harm(double damage, Entity source){
-		super.harm(damage, source);
-		if(source != null && specialAction.canAct())
-			source.harm(attackDamage.modifiedValue, this); //TODO: tag as not direct attack so no infinite loop
-	}
-	
-	@Override
-	public void onSpawn(GameState gameState){
-		gameState.attractSources.add(this);
-	}
-	
-	@Override
-	public void onDespawn(GameState gameState){
-		gameState.attractSources.remove(this);
-	}
-	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	private static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		result.addFixedCircle(0, 0, 0.8, GameState.TOWER_GREEN);
 		
@@ -82,18 +50,49 @@ public class TowerGGB extends SimpleTower implements AttractSource {
 		
 		return result;
 	}
+	
+	@Override
+	protected Tower generateRedUpgrade(){
+		return null;
+	}
+	
+	@Override
+	protected Tower generateGreenUpgrade(){
+		return null;
+	}
+	
+	@Override
+	protected Tower generateBlueUpgrade(){
+		return null;
+	}
+	
+	@Override
+	public void harm(double damage, boolean isDirectAttack, Entity source){
+		super.harm(damage, isDirectAttack, source);
+		if(isDirectAttack && source != null && specialAction.canAct())
+			source.harm(attackDamage.modifiedValue, false, this);
+	}
+	
+	@Override
+	public void onSpawn(){
+		gameState.attractSources.add(this);
+	}
+	
+	@Override
+	public void onDespawn(){
+		gameState.attractSources.remove(this);
+	}
 
 	@Override
 	public Vector2d getAttractionVectorFromPoint(Point2d point) {
 		if(!passiveAction.canAct() || !specialAction.canAct())
 			return new Vector2d(0,0);
-		double strength = ATTRACT_STRENGTH - GeometryUtils.dist(xLoc, yLoc, point.x, point.y)*ATTRACT_FALLOFF;
+		double strength = ATTRACT_STRENGTH - GeometryUtils.dist(loc, point)*ATTRACT_FALLOFF;
 		if(strength <= 0)
 			return new Vector2d(0,0);
 		
-		Vector2d attractVector = new Vector2d(xLoc - point.x, yLoc - point.y);
-		attractVector.setMagnitude(strength);
-		return attractVector;
+		Vector2d attractVector = new Vector2d(point, loc);
+		return Vector2d.vectorFromAngleAndMagnitude(attractVector.getAngle(), strength);
 	}
 
 

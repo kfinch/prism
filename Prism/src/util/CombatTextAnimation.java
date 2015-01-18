@@ -27,7 +27,7 @@ public class CombatTextAnimation extends Animation {
 	
 	@Override
 	public void step() {
-		yLoc -= riseStep;
+		setLocation(new Point2d(loc.x, loc.y - riseStep));
 		alpha -= alphaStep;
 		remainingDuration--;
 		

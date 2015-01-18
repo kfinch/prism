@@ -27,35 +27,13 @@ public class TowerRRB extends SimpleTower implements AttractSource {
 	public static final int SHOT_BOUNCES = 2;
 	public static final double BOUNCE_RANGE = 2.5;
 	
-	public TowerRRB(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, true, generateShapes(xLoc, yLoc));
+	public TowerRRB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, true, generateShapes(loc));
 	}
 	
-	protected Tower generateRedUpgrade(){
-		return null;
-	}
-	
-	protected Tower generateGreenUpgrade(){
-		return null;
-	}
-	
-	protected Tower generateBlueUpgrade(){
-		return null;
-	}
-	
-	@Override
-	public void onSpawn(GameState gameState){
-		gameState.attractSources.add(this);
-	}
-	
-	@Override
-	public void onDespawn(GameState gameState){
-		gameState.attractSources.remove(this);
-	}
-	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
+	private static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
 		int nPoints1 = 6;
 		double[] xPoints1 = {0.8, 0.2, 0.2, 0.5, 0.2, 0.2};
@@ -75,21 +53,42 @@ public class TowerRRB extends SimpleTower implements AttractSource {
 		return result;
 	}
 	
+	protected Tower generateRedUpgrade(){
+		return null;
+	}
+	
+	protected Tower generateGreenUpgrade(){
+		return null;
+	}
+	
+	protected Tower generateBlueUpgrade(){
+		return null;
+	}
+	
 	@Override
-	protected void instantAttack(GameState gameState){
+	public void onSpawn(){
+		gameState.attractSources.add(this);
+	}
+	
+	@Override
+	public void onDespawn(){
+		gameState.attractSources.remove(this);
+	}
+	
+	@Override
+	protected void instantAttack(){
 		Set<Entity> hitTargets = new HashSet<Entity>();
 		Entity src = this;
 		Entity currTarget = target;
 		double currDamage = attackDamage.modifiedValue;
 		for(int i=0; i<=SHOT_BOUNCES; i++){
-			gameState.playAnimation(new SimpleRayAnimation(5, new Point2d(src.xLoc, src.yLoc),
-					                                       new Point2d(currTarget.xLoc, currTarget.yLoc),
-					                                       0.22, 0.8f, 0.2f, GameState.PROJECTILE_REDBLUE));
-			currTarget.harm(currDamage, this);
+			gameState.playAnimation(new SimpleRayAnimation(5, src.loc, currTarget.loc, 0.22, 0.8f, 0.2f,
+					                                       GameState.PROJECTILE_REDBLUE));
+			currTarget.harm(currDamage, true, this);
 			currDamage /= 2;
 			
 			hitTargets.add(currTarget);
-			Set<Enemy> targetsInBounceRange = gameState.getEnemiesInRange(currTarget.xLoc, currTarget.yLoc, BOUNCE_RANGE);
+			Set<Enemy> targetsInBounceRange = gameState.getEnemiesInRange(currTarget.loc, BOUNCE_RANGE);
 			boolean foundTarget = false;
 			for(Enemy nextTarget : targetsInBounceRange){
 				if(hitTargets.contains(nextTarget))
@@ -108,13 +107,12 @@ public class TowerRRB extends SimpleTower implements AttractSource {
 	public Vector2d getAttractionVectorFromPoint(Point2d point) {
 		if(!passiveAction.canAct() || !specialAction.canAct())
 			return new Vector2d(0,0);
-		double strength = REPULSE_STRENGTH - GeometryUtils.dist(xLoc, yLoc, point.x, point.y)*REPULSE_FALLOFF;
+		double strength = REPULSE_STRENGTH - GeometryUtils.dist(loc, point)*REPULSE_FALLOFF;
 		if(strength <= 0)
 			return new Vector2d(0,0);
 		
-		Vector2d repulseVector = new Vector2d(point.x - xLoc, point.y - yLoc); //reversed so repels instead of attracts
-		repulseVector.setMagnitude(strength);
-		return repulseVector;
+		Vector2d repulseVector = new Vector2d(loc, point); //reversed so repels instead of attracts
+		return Vector2d.vectorFromAngleAndMagnitude(repulseVector.getAngle(), strength);
 	}
 
 }

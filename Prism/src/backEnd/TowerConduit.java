@@ -22,11 +22,19 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	
 	public double currentLightRadius;
 	
-	public TowerConduit(Node currNode, double xLoc, double yLoc, int spawnFrame) {
-		super(currNode, xLoc, yLoc, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
-			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(xLoc, yLoc));
+	public TowerConduit(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerConduit can't attack
 		currentLightRadius = 0;
+	}
+	
+	public static PaintableShapes generateShapes(Point2d loc){
+		PaintableShapes result = Tower.generateBaseShapes(loc);
+		
+		result.addFixedCircle(0, 0, 0.7, Color.lightGray);
+		
+		return result;
 	}
 	
 	@Override
@@ -39,24 +47,24 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	
 	@Override
 	public Point2d getLocation(){
-		return new Point2d(xLoc, yLoc);
+		return loc;
 	}
 	
 	@Override
-	public void onSpawn(GameState gameState){
-		super.onSpawn(gameState);
+	public void onSpawn(){
+		super.onSpawn();
 		gameState.lightSources.add(this);
 	}
 	
 	@Override
-	public void onDespawn(GameState gameState){
-		super.onDespawn(gameState);
+	public void onDespawn(){
+		super.onDespawn();
 		gameState.lightSources.remove(this);
 	}
 	
 	@Override
-	public void preStep(GameState gameState){
-		super.preStep(gameState);
+	public void preStep(){
+		super.preStep();
 		if(passiveAction.canAct() && currentLightRadius != RADIANCE){
 			double lightIncrease = (RADIANCE - currentLightRadius) * LIGHT_INCREASE_RATE;
 			if(lightIncrease < MIN_LIGHT_INCREASE)
@@ -65,13 +73,5 @@ public class TowerConduit extends SimpleTower implements LightSource {
 			if(currentLightRadius > RADIANCE)
 				currentLightRadius = RADIANCE;
 		}
-	}
-	
-	public static PaintableShapes generateShapes(double xLoc, double yLoc){
-		PaintableShapes result = Tower.generateBaseShapes(xLoc, yLoc);
-		
-		result.addFixedCircle(0, 0, 0.7, Color.lightGray);
-		
-		return result;
 	}
 }
