@@ -27,4 +27,9 @@ public final class Point2d {
 		Point2d p = (Point2d)o;
 		return ((x == p.x) && (y == p.y));
 	}
+	
+	@Override
+	public String toString(){
+		return "(" + x + "," + y + ")";
+	}
 }

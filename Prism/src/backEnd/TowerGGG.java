@@ -44,6 +44,6 @@ public class TowerGGG extends SimpleTower{
 	
 	@Override
 	protected Tower generateBlueUpgrade(){
-		return null;
+		return new TowerGGGB(gameState, loc, currNode, spawnFrame);
 	}
 }

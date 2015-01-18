@@ -4,12 +4,13 @@ import backEnd.Entity;
 
 public abstract class AttachedAnimation extends Animation {
 
-	Entity anchor;
-	boolean removeFromInactive;
+	protected Entity anchor;
+	protected boolean removeFromInactive;
 	
 	public AttachedAnimation(Entity anchor, boolean removeFromInactive){
 		super();
 		this.anchor = anchor;
+		this.loc = anchor.loc;
 		this.removeFromInactive = removeFromInactive;
 	}
 	
@@ -17,7 +18,7 @@ public abstract class AttachedAnimation extends Animation {
 	public void step(){
 		if(anchor.isActive)
 			setLocation(anchor.loc);
-		else
+		else if(removeFromInactive)
 			this.isActive = false;
 	}
 	

@@ -9,6 +9,7 @@ public abstract class Animation {
 	public boolean isActive;
 	
 	public Animation(){
+		this.loc = new Point2d(0,0);
 		isActive = true;
 	}
 	

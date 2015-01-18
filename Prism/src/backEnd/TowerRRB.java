@@ -62,7 +62,7 @@ public class TowerRRB extends SimpleTower implements AttractSource {
 	}
 	
 	protected Tower generateBlueUpgrade(){
-		return null;
+		return new TowerRRBB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override

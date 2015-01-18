@@ -18,7 +18,7 @@ public class TowerGGB extends SimpleTower implements AttractSource {
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	public static final double ATTACK_AOE = 0;
 	
-	public static final double ATTRACT_STRENGTH = 15; //TODO make more reasonable numbers after testing
+	public static final double ATTRACT_STRENGTH = 13; //TODO make more reasonable numbers after testing
 	public static final double ATTRACT_FALLOFF = 1;
 	
 	public TowerGGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
@@ -58,7 +58,7 @@ public class TowerGGB extends SimpleTower implements AttractSource {
 	
 	@Override
 	protected Tower generateGreenUpgrade(){
-		return null;
+		return new TowerGGGB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override
