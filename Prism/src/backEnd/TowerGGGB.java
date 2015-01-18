@@ -120,13 +120,6 @@ class TowerGGGBBuff extends TimedBuff {
 	}
 
 	@Override
-	public void handleDuplicate(Buff b) {
-		TowerGGGBBuff gggbb = (TowerGGGBBuff) b;
-		if(gggbb.timer < timer)
-			gggbb.timer = timer;
-	}
-
-	@Override
 	public void apply(Entity e) {
 		e.moveAction.startDisable();
 		e.attackAction.startDisable();

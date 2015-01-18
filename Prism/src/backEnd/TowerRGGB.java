@@ -112,9 +112,6 @@ class TowerRGGBBuff extends TimedBuff {
 	}
 
 	@Override
-	public void handleDuplicate(Buff b) {}
-
-	@Override
 	public void apply(Entity e) {
 		Tower t = (Tower) e;
 		t.healthRegen.addBonuses.add(TowerRGGB.HEALTH_REGEN_BUFF);

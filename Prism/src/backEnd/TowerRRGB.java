@@ -93,9 +93,6 @@ class TowerRRGBBuff extends TimedBuff {
 	}
 
 	@Override
-	public void handleDuplicate(Buff b) {}
-
-	@Override
 	public void apply(Entity e) {
 		Tower t = (Tower) e;
 		t.attackDamage.multBonuses.add(TowerRRGB.ATTACK_DAMAGE_BUFF);

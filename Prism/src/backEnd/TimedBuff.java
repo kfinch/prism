@@ -13,6 +13,13 @@ public abstract class TimedBuff extends Buff {
 	}
 	
 	@Override
+	public void handleDuplicate(Buff b){
+		TimedBuff tb = (TimedBuff) b;
+		if(tb.timer < timer)
+			tb.timer = timer;
+	}
+	
+	@Override
 	public void step(Entity e){
 		timer--;
 		if(timer <= 0)

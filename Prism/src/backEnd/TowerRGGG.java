@@ -7,20 +7,20 @@ import util.PaintableShapes;
 import util.Point2d;
 import util.SimpleCircleAnimation;
 
-public class TowerRGG extends SimpleTower{
+public class TowerRGGG extends SimpleTower{
 
 	public static final double PRIORITY = 0;
-	public static final int TIER = 3;
-	public static final double MAX_HEALTH = Tower.T3G2_HEALTH;
+	public static final int TIER = 4;
+	public static final double MAX_HEALTH = Tower.T4G3_HEALTH;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
-	public static final double ATTACK_DAMAGE = 100;
+	public static final double ATTACK_DAMAGE = 200;
 	public static final double ATTACK_DELAY = TowerRG.ATTACK_DELAY;
 	public static final double ATTACK_RANGE = 0;
-	public static final double ATTACK_AOE = 2.3;
+	public static final double ATTACK_AOE = 2.6;
 	public static final double PROJECTILE_SPEED = 0;
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
-	public TowerRGG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+	public TowerRGGG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
 		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, false,
 		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
@@ -29,15 +29,21 @@ public class TowerRGG extends SimpleTower{
 	private static PaintableShapes generateShapes(Point2d loc){
 		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
-		result.addFixedCircle(0, 0, 0.8, GameState.TOWER_GREEN);
+		result.addFixedCircle(0, 0, 0.85, GameState.TOWER_GREEN);
 		
 		result.addFixedCircle(0, 0, 0.55, GameState.TOWER_BASE);
 		
-		result.addFixedRectangle(-0.9, -0.15, 0.9, 0.15, GameState.TOWER_BASE);
+		result.addRotatableRectangle(-0.15, -0.9, 0.15, 0, GameState.TOWER_BASE);
+		result.rotate(Math.PI*2/3);
+		
+		result.addRotatableRectangle(-0.15, -0.9, 0.15, 0, GameState.TOWER_BASE);
+		result.rotate(Math.PI*2/3);
+		
+		result.addRotatableRectangle(-0.15, -0.9, 0.15, 0, GameState.TOWER_BASE);
 		
 		int nPoints1 = 4;
-		double[] xPoints1 = {0, 0.4, 0, -0.4};
-		double[] yPoints1 = {-0.4, 0, 0.4, 0};
+		double[] xPoints1 = {0, 0.45, 0, -0.45};
+		double[] yPoints1 = {-0.45, 0, 0.45, 0};
 		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_RED);
 		
 		return result;
@@ -50,12 +56,12 @@ public class TowerRGG extends SimpleTower{
 	
 	@Override
 	protected Tower generateGreenUpgrade(){
-		return new TowerRGGG(gameState, loc, currNode, spawnFrame);
+		return null;
 	}
 	
 	@Override
 	protected Tower generateBlueUpgrade(){
-		return new TowerRGGB(gameState, loc, currNode, spawnFrame);
+		return null;
 	}
 	
 	@Override

@@ -34,7 +34,7 @@ public abstract class Enemy extends EntityWithAttack {
 			     double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			     double moveSpeed, PaintableShapes shapes){
 		super(gameState, loc, maxHealth * Math.pow(1+TIER_STAT_MULTIPLIER, tier), healthRegen,
-			  attackDamage, attackDelay, attackRange, shapes);
+				attackDamage * Math.pow(1+TIER_STAT_MULTIPLIER, tier), attackDelay, attackRange, shapes);
 		
 		this.tier = tier;
 		

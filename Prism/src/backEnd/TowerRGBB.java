@@ -93,9 +93,6 @@ class TowerRGBBBuff extends TimedBuff {
 	}
 
 	@Override
-	public void handleDuplicate(Buff b) {}
-
-	@Override
 	public void apply(Entity e) {
 		Tower t = (Tower) e;
 		t.attackAOE.multBonuses.add(TowerRGBB.AOE_BUFF);
