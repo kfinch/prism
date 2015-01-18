@@ -12,7 +12,7 @@ import util.Point2d;
  * 
  * @author Kelton Finch
  */
-public abstract class Enemy extends Entity {
+public abstract class Enemy extends EntityWithAttack {
 	
 	protected static final double HEALTH_BAR_OFFSET = -0.3;
 	protected static final double HEALTH_BAR_WIDTH = 0.6;
@@ -28,14 +28,13 @@ public abstract class Enemy extends Entity {
 	public double priority; //attack priority of this enemy
 	public int spawnFrame; //frame this enemy spawned on
 	
-	public Stat attackDamage, attackDelay, attackRange; //enemy's attack stats
-	public int attackTimer; //tracks when enemy can next attack
 	public Stat moveSpeed; //enemy's move stat
 	
 	public Enemy(GameState gameState, Point2d loc, int tier, Node currNode, double priority, int spawnFrame,
 			     double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			     double moveSpeed, PaintableShapes shapes){
-		super(gameState, loc, maxHealth * Math.pow(1+TIER_STAT_MULTIPLIER, tier), healthRegen, shapes);
+		super(gameState, loc, maxHealth * Math.pow(1+TIER_STAT_MULTIPLIER, tier), healthRegen,
+			  attackDamage, attackDelay, attackRange, shapes);
 		
 		this.tier = tier;
 		
@@ -45,11 +44,6 @@ public abstract class Enemy extends Entity {
 		
 		this.priority = priority;
 		this.spawnFrame = spawnFrame;
-		
-		this.attackDamage = new BasicStat(attackDamage * Math.pow(1+TIER_STAT_MULTIPLIER, tier));
-		this.attackDelay = new ReverseMultStat(attackDelay);
-		this.attackRange = new BasicStat(attackRange);
-		this.attackTimer = -1;
 		
 		this.moveSpeed = new BasicStat(moveSpeed);
 		
@@ -78,14 +72,4 @@ public abstract class Enemy extends Entity {
 		gameState.playAnimation(killRewardCombatText);
 	}
 	
-	@Override
-	public void preStep(){
-		super.preStep();
-		if(passiveAction.canAct()){
-			if(attackTimer >= 0)
-				attackTimer++;
-			if(attackTimer >= attackDelay.modifiedValue)
-				attackTimer = -1;
-		}
-	}
 }

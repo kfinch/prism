@@ -14,7 +14,7 @@ import util.Point2d;
  * 
  * @author Kelton Finch
  */
-public abstract class Tower extends Entity {
+public abstract class Tower extends EntityWithAttack {
 	
 	protected static final int GHOST_DURATION = 2000; //TODO: look into ways of making ghost more harmfruu
 	
@@ -64,9 +64,8 @@ public abstract class Tower extends Entity {
 	public int spawnFrame;
 	public int tier;
 	
-	public Stat attackDamage, attackDelay, attackRange, attackAOE;
+	public Stat attackAOE;
 	public boolean canAOE;
-	public int attackTimer;
 	
 	public double facing;
 	
@@ -77,7 +76,7 @@ public abstract class Tower extends Entity {
 	public Tower(GameState gameState, Point2d loc, Node currNode, double priority, int spawnFrame, int tier,
 			     double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			     double attackAOE, boolean canAOE, PaintableShapes shapes){
-		super(gameState, loc, maxHealth, healthRegen, shapes);
+		super(gameState, loc, maxHealth, healthRegen, attackDamage, attackDelay, attackRange, shapes);
 		
 		this.currNode = currNode;
 		
@@ -87,12 +86,8 @@ public abstract class Tower extends Entity {
 		this.spawnFrame = spawnFrame;
 		this.tier = tier;
 		
-		this.attackDamage = new BasicStat(attackDamage);
-		this.attackDelay = new ReverseMultStat(attackDelay);
-		this.attackRange = new BasicStat(attackRange);
 		this.attackAOE = new BasicStat(attackAOE);
 		this.canAOE = canAOE;
-		this.attackTimer = -1;
 		
 		this.facing = 0;
 		
@@ -268,13 +263,6 @@ public abstract class Tower extends Entity {
 			passiveAction.endSuppress();
 			changeAction.endSuppress();
 			isLit = true;
-		}
-		
-		if(passiveAction.canAct()){
-			if(attackTimer >= 0)
-				attackTimer++;
-			if(attackTimer >= attackDelay.modifiedValue)
-				attackTimer = -1;
 		}
 	}
 	
