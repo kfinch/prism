@@ -44,7 +44,7 @@ public class TowerGBB extends SimpleTower {
 	
 	@Override
 	protected Tower generateRedUpgrade(){
-		return null;
+		return new TowerRGBB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override

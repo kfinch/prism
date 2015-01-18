@@ -20,8 +20,13 @@ public class TowerRGB extends SimpleTower{
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
 	public static final double AURA_RANGE = 2.5;
-	public static final double ATTACK_DELAY_BUFF_STRENGTH = 1.3; //TODO: is this too high?
-	public static final double HEALTH_REGEN_BUFF_STRENGTH = Tower.BASE_HEALTH_REGEN * 4; // ^ ^ ^ 
+	
+	public static final double T3_ATTACK_DELAY_BUFF = 1.3; //TODO: is this too high?
+	public static final double T3_HEALTH_REGEN_BUFF = Tower.BASE_HEALTH_REGEN * 4; // ^ ^ ^ 
+	
+	public static final double T4_ATTACK_DELAY_BUFF = 1.6;
+	public static final double T4_HEALTH_REGEN_BUFF = Tower.BASE_HEALTH_REGEN * 8;
+	
 	public static final int BUFF_PERIOD = 10;
 	
 	public TowerRGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
@@ -55,17 +60,17 @@ public class TowerRGB extends SimpleTower{
 	
 	@Override
 	protected Tower generateRedUpgrade(){
-		return null;
+		return new TowerRRGB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override
 	protected Tower generateGreenUpgrade(){
-		return null;
+		return new TowerRGGB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override
 	protected Tower generateBlueUpgrade(){
-		return null;
+		return new TowerRGBB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override
@@ -75,7 +80,8 @@ public class TowerRGB extends SimpleTower{
 			if((gameState.frameNumber - spawnFrame) % BUFF_PERIOD == 1){ //only updates aura every several frames
 				Set<Tower> towers = gameState.getTowersInEdgeRange(loc, AURA_RANGE);
 				for(Tower tower : towers)
-					tower.addBuff(new TowerRGBBuff(gameState));
+					tower.addBuff(new TowerRGBBuff(gameState, tier,
+							                       T3_ATTACK_DELAY_BUFF, T3_HEALTH_REGEN_BUFF));
 			}
 		}
 	}
@@ -83,32 +89,45 @@ public class TowerRGB extends SimpleTower{
 
 class TowerRGBBuff extends TimedBuff {
 
-	public TowerRGBBuff(GameState gameState) {
+	public int tier;
+	public double attackDelayBuff;
+	public double healthRegenBuff;
+	
+	public TowerRGBBuff(GameState gameState, int tier, double attackDelayBuff, double healthRegenBuff) {
 		super(gameState, TowerRGB.TOWER_RGB_BUFF_ID, "Boosted",
 			  "This tower has bonus attack speed and health regeneration",
 			  true, true, TowerRGB.BUFF_PERIOD*2);
+		this.tier = tier;
+		this.attackDelayBuff = attackDelayBuff;
+		this.healthRegenBuff = healthRegenBuff;
 	}
 
 	@Override
 	public void handleDuplicate(Buff b) {
-		//no overwrite TODO: may need to change this wrt other buffing towers?
+		TowerRGBBuff rgb = (TowerRGBBuff) b;
+		if(rgb.tier > tier){
+			rgb.timer = timer;
+			rgb.tier = tier;
+			rgb.attackDelayBuff = attackDelayBuff;
+			rgb.healthRegenBuff = healthRegenBuff;
+		}
 	}
 
 	@Override
 	public void apply(Entity e) {
 		Tower t = (Tower) e;
-		t.attackDelay.multBonuses.add(TowerRGB.ATTACK_DELAY_BUFF_STRENGTH);
+		t.attackDelay.multBonuses.add(attackDelayBuff);
 		t.attackDelay.update();
-		t.healthRegen.addBonuses.add(TowerRGB.HEALTH_REGEN_BUFF_STRENGTH);
+		t.healthRegen.addBonuses.add(healthRegenBuff);
 		t.healthRegen.update();
 	}
 
 	@Override
 	public void remove(Entity e) {
 		Tower t = (Tower) e;
-		t.attackDelay.multBonuses.remove(TowerRGB.ATTACK_DELAY_BUFF_STRENGTH);
+		t.attackDelay.multBonuses.remove(attackDelayBuff);
 		t.attackDelay.update();
-		t.healthRegen.addBonuses.remove(TowerRGB.HEALTH_REGEN_BUFF_STRENGTH);
+		t.healthRegen.addBonuses.remove(healthRegenBuff);
 		t.healthRegen.update();
 	}
 

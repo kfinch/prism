@@ -63,7 +63,7 @@ public class TowerRRG extends SimpleTower{
 	}
 	
 	protected Tower generateBlueUpgrade(){
-		return null;
+		return new TowerRRGB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override

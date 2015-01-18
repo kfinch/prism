@@ -66,6 +66,6 @@ public class TowerBB extends SimpleTower {
 	
 	@Override
 	protected Animation generateAttackAnimation(){
-		return new SimpleCircleAnimation(10, 0.22, attackAOE.modifiedValue*2, 0.6f, 0.3f, GameState.PROJECTILE_BLUE);
+		return new SimpleCircleAnimation(10, 0.24, attackAOE.modifiedValue*2, 0.6f, 0.3f, GameState.PROJECTILE_BLUE);
 	}
 }

@@ -53,7 +53,7 @@ public class TowerGGB extends SimpleTower implements AttractSource {
 	
 	@Override
 	protected Tower generateRedUpgrade(){
-		return null;
+		return new TowerRGGB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override
