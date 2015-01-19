@@ -26,7 +26,7 @@ public class GameRunner implements ActionListener {
 	public static final double COLOR_GAIN_RATE = 0.02;
 	public static final double FLUX_GAIN_RATE = 0.1;
 	
-	public static final double TOWER_COST_MULTIPLIER = 100; //100
+	public static final double TOWER_COST_MULTIPLIER = 10; //100
 	public static final double CONDUIT_TOWER_COST = 100; //100
 	public static final double TELEPORT_COST = 40;
 	
