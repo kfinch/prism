@@ -11,6 +11,11 @@ import util.Vector2d;
 
 public class TowerRBB extends SimpleTower{
 
+	public static final String ID = "TowerRBB";
+	public static final String NAME = "Rail Tower";
+	public static final String DESCRIPTION = "Upgrade to TowerRB" +
+			"Periodically rails targets, doing high damage at long range to all enemies in a line";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 3;
 	public static final double MAX_HEALTH = Tower.T3G0_HEALTH;
@@ -24,7 +29,8 @@ public class TowerRBB extends SimpleTower{
 	public static final double RAIL_WIDTH = 0.2; //rail width not counted as an AOE (so can't be modified by buffs)
 	
 	public TowerRBB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, true, generateShapes(loc));
 	}
 	

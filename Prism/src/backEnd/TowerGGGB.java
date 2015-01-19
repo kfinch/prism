@@ -11,6 +11,12 @@ import util.Vector2d;
 
 public class TowerGGGB extends SimpleTower implements AttractSource {
 	
+	public static String ID = "TowerGGGB";
+	public static String NAME = "Honeypot Tower II";
+	public static String DESCRIPTION = "Upgrade to TowerGGB. " + 
+			"Attracts nearby enemies, making them more likely to move towards this tower. " +
+			"In addition, enemies harm themselves and are briefly paralyzed when attacking this tower.";
+	
 	public static final String TOWER_GGGB_DEBUFF_ID = "towergggbdebuff";
 	
 	public static final double PRIORITY = 0;
@@ -30,7 +36,8 @@ public class TowerGGGB extends SimpleTower implements AttractSource {
 	public static final int PARALYZE_DEBUFF_DURATION = 20; //TODO make more reasonable numbers after testing
 	
 	public TowerGGGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
 		      false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerGGGB cannot attack

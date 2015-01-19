@@ -111,8 +111,12 @@ public abstract class Entity {
 	}
 	
 	public void addBuff(Buff buff){
-		if(buffs.containsKey(buff.id))
-			buff.handleDuplicate(buffs.get(buff.id));
+		if(buffs.containsKey(buff.id)){
+			Buff duplicate = buffs.get(buff.id);
+			duplicate.remove(this);
+			buff.handleDuplicate(duplicate);
+			duplicate.apply(this);
+		}
 		else{
 			buffs.put(buff.id, buff);
 			buff.apply(this);

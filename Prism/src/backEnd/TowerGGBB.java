@@ -5,28 +5,28 @@ import util.PaintableShapes;
 import util.Point2d;
 import util.SimpleCircleAnimation;
 
-public class TowerGBB extends SimpleTower {
+public class TowerGGBB extends SimpleTower {
 	
-	public static String ID = "TowerGBB";
-	public static String NAME = "Freezing Tower";
-	public static String DESCRIPTION = "Upgrade to TowerGB. " + 
-			"Attacks with frost, slowing the movement and attack speeds of afflicted enemies in a moderate area.";
+	public static String ID = "TowerGGBB";
+	public static String NAME = "Crippling Tower";
+	public static String DESCRIPTION = "Upgrade to TowerGBB. " + 
+			"Attacks with frost, crippling the movement and attack speeds of afflicted enemies in a large area.";
 	
 	public static final double PRIORITY = 0;
-	public static final int TIER = 3;
-	public static final double MAX_HEALTH = Tower.T3G1_HEALTH;
+	public static final int TIER = 4;
+	public static final double MAX_HEALTH = Tower.T4G2_HEALTH;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
-	public static final double ATTACK_DAMAGE = 40;
+	public static final double ATTACK_DAMAGE = 80;
 	public static final double ATTACK_DELAY = 25;
-	public static final double ATTACK_RANGE = 6;
+	public static final double ATTACK_RANGE = 8;
 	public static final double PROJECTILE_SPEED = TowerGB.PROJECTILE_SPEED;
-	public static final double SHOT_ORIGIN_DISTANCE = 0.85;
-	public static final double ATTACK_AOE = 0.6;
+	public static final double SHOT_ORIGIN_DISTANCE = 0.85; //TODO: update
+	public static final double ATTACK_AOE = 1.0;
 	
 	public static final int SLOW_DURATION = 60;
-	public static final double SLOW_STRENGTH = 1.8;
+	public static final double SLOW_STRENGTH = 2.2;
 	
-	public TowerGBB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
+	public TowerGGBB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
 		super(ID, NAME, DESCRIPTION,
 		      gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, true, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
@@ -36,13 +36,17 @@ public class TowerGBB extends SimpleTower {
 	private static PaintableShapes generateShapes(Point2d loc){
 		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
-		result.addRotatableRectangle(0.3, -0.32, 0.85, 0.32, GameState.TOWER_BLUE);
+		result.addRotatableRectangle(0.3, -0.35, 0.90, 0.35, GameState.TOWER_BLUE);
 		
-		result.addFixedCircle(0, 0, 0.6, GameState.TOWER_GREEN);
+		result.addFixedCircle(0, 0, 0.70, GameState.TOWER_GREEN);
+		
+		result.addFixedCircle(0, 0, 0.55, GameState.TOWER_BASE);
+		
+		result.addFixedCircle(0, 0, 0.45, GameState.TOWER_GREEN);
 		
 		int nPoints1 = 8;
-		double[] xPoints1 = {0, 0.1, 0.3, 0.1, 0, -0.1, -0.3, -0.1};
-		double[] yPoints1 = {-0.3, -0.1, 0, 0.1, 0.3, 0.1, 0, -0.1};
+		double[] xPoints1 = {0, 0.11, 0.32, 0.11, 0, -0.11, -0.32, -0.11};
+		double[] yPoints1 = {-0.32, -0.11, 0, 0.11, 0.32, 0.11, 0, -0.11};
 		result.addFixedPolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BLUE);
 		
 		return result;
@@ -50,12 +54,12 @@ public class TowerGBB extends SimpleTower {
 	
 	@Override
 	protected Tower generateRedUpgrade(){
-		return new TowerRGBB(gameState, loc, currNode, spawnFrame);
+		return null;
 	}
 	
 	@Override
 	protected Tower generateGreenUpgrade(){
-		return new TowerGGBB(gameState, loc, currNode, spawnFrame);
+		return null;
 	}
 	
 	@Override
@@ -68,8 +72,8 @@ public class TowerGBB extends SimpleTower {
 		PaintableShapes result = new PaintableShapes(loc);
 		
 		int nPoints1 = 8;
-		double[] xPoints1 = {0, 0.09, 0.25, 0.09, 0, -0.09, -0.25, -0.09};
-		double[] yPoints1 = {-0.25, -0.09, 0, 0.09, 0.25, 0.09, 0, -0.09};
+		double[] xPoints1 = {0, 0.11, 0.28, 0.11, 0, -0.11, -0.28, -0.11};
+		double[] yPoints1 = {-0.28, -0.11, 0, 0.11, 0.28, 0.11, 0, -0.11};
 		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.PROJECTILE_GREENBLUE);
 		
 		return result;

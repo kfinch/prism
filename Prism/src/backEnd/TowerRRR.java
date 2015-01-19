@@ -5,6 +5,10 @@ import util.Point2d;
 
 public class TowerRRR extends SimpleTower{
 
+	public static String ID = "TowerRRR";
+	public static String NAME = "Pew Pew Pew Tower";
+	public static String DESCRIPTION = "Upgrade to TowerRR. Very rapidly attacks targets at medium range.";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 3;
 	public static final double MAX_HEALTH = Tower.T3G0_HEALTH;
@@ -16,7 +20,8 @@ public class TowerRRR extends SimpleTower{
 	public static final double SHOT_ORIGIN_DISTANCE = 0.85;
 	
 	public TowerRRR(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION, 
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, true, true, generateShapes(loc));
 	}
 	
@@ -51,7 +56,7 @@ public class TowerRRR extends SimpleTower{
 	}
 	
 	protected Tower generateBlueUpgrade(){
-		return null;
+		return new TowerRRRB(gameState, loc, currNode, spawnFrame);
 	}
 
 	@Override

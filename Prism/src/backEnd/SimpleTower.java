@@ -28,11 +28,12 @@ public abstract class SimpleTower extends Tower{
 	
 	protected double facing;
 	
-	public SimpleTower(GameState gameState, Point2d loc, Node currNode, double priority, int spawnFrame, int tier,
+	public SimpleTower(String id, String name, String description,
+			 GameState gameState, Point2d loc, Node currNode, double priority, int spawnFrame, int tier,
 			 double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			 double attackAOE, boolean canAOE, boolean appliesDebuff, double projectileSpeed, double shotOriginDistance,
 			 boolean usesProjectile, boolean tracksTarget, PaintableShapes shapes){
-		super(gameState, loc, currNode, priority, spawnFrame, tier, maxHealth, healthRegen,
+		super(id, name, description, gameState, loc, currNode, priority, spawnFrame, tier, maxHealth, healthRegen,
 			  attackDamage, attackDelay, attackRange, attackAOE, canAOE, shapes);
 		this.projectileSpeed = projectileSpeed;
 		this.shotOriginDistance = shotOriginDistance;

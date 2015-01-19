@@ -21,8 +21,6 @@ import backEnd.GameState;
 import backEnd.LightSource;
 
 public class GamePanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
-
-	private static final int EDGE_BUFFER_SIZE = 30;
 	
 	protected int panelWidth, panelHeight; //size of game panel in pixels
 	protected int tileSize; //size of game tiles, in pixels
@@ -271,6 +269,33 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		g2d.setColor(Color.lightGray);
 		g2d.fillRect(xLineCenter1, yLineBot, unitSize*5, panelHeight); //draws all the way to bottom of screen
 		
+		if(game.towerMouseOver != null){
+			fontSize = (int) (unitSize*0.3); //TODO: tweak this, obviously (maybe also make a global font size?)
+			g2d.setColor(Color.black);
+			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
+			
+			g2d.drawString(game.towerMouseOver.name,
+				           xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 2*subUnitSize);
+			g2d.drawString("Tower Tier: " + game.towerMouseOver.tier,
+					       xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 7*subUnitSize);
+			double healthRegenRate = 1000 / GameRunner.STEP_DURATION * game.towerMouseOver.healthRegen.modifiedValue;
+			g2d.drawString("Health: " + (int)game.towerMouseOver.currHealth + 
+					       " / " + (int)game.towerMouseOver.maxHealth.modifiedValue +
+					       " (+" + String.format("%.2f", healthRegenRate) + " /sec)",
+						   xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 12*subUnitSize);
+			g2d.drawString("Attack Damage: " + String.format("%.2f", game.towerMouseOver.attackDamage.modifiedValue),
+					       xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 17*subUnitSize);
+			double attackRate = 1000 / GameRunner.STEP_DURATION / game.towerMouseOver.attackDelay.modifiedValue;
+			g2d.drawString("Attack Rate: " + String.format("%.2f", attackRate),
+					       xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 22*subUnitSize);
+			g2d.drawString("Attack Range: " + String.format("%.2f", game.towerMouseOver.attackRange.modifiedValue),
+					       xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 27*subUnitSize);
+			if(game.towerMouseOver.canAOE){
+				g2d.drawString("Attack AOE: " + String.format("%.2f", game.towerMouseOver.attackAOE.modifiedValue),
+						        xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 32*subUnitSize);
+			}
+		}
+		
 		//draw wave info panel
 		g2d.setColor(Color.lightGray);
 		g2d.fillRect(xLineRight1, yLineBot, unitSize*8, panelHeight); //draws all the way to bottom of screen
@@ -337,6 +362,10 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		double boardY = yScreenLocToBoardLoc(mouseY);
 		if(boardX > 0 && boardX <= xNodes && boardY > 0 && boardY <= yNodes)
 			game.boardClicked(new Point2d(boardX, boardY));
+		
+		game.boardMouseOver(new Point2d(boardX, boardY));
+		
+		repaint(); //paints the UI results of this, even if paused
 	}
 
 	@Override
@@ -355,7 +384,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		
 		game.boardMouseOver(new Point2d(boardX, boardY));
 		
-		repaint();
+		repaint(); //paints the UI results of this, even if paused
 	}
 
 	

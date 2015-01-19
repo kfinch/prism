@@ -1,12 +1,21 @@
 package backEnd;
 
+import java.awt.Color;
 import java.util.Set;
 
+import util.Animation;
 import util.PaintableShapes;
 import util.Point2d;
+import util.SimpleCircleAnimation;
+import util.SimpleShapeAnimation;
 
 public class TowerRGB extends SimpleTower{
-
+	
+	public static final String ID = "TowerRGB";
+	public static final String NAME = "Booster Tower";
+	public static final String DESCRIPTION =
+			"Has no attack, but boosts adjacent towers, granting them bonus attack speed and health regen.";
+	
 	public static final String TOWER_RGB_BUFF_ID = "towerrgbbuff";
 	
 	public static final double PRIORITY = 0;
@@ -19,7 +28,7 @@ public class TowerRGB extends SimpleTower{
 	public static final double PROJECTILE_SPEED = 0;
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
-	public static final double AURA_RANGE = 2.5;
+	public static final double AURA_RANGE = 1.5;
 	
 	public static final double T3_ATTACK_DELAY_BUFF = 1.3; //TODO: is this too high?
 	public static final double T3_HEALTH_REGEN_BUFF = Tower.BASE_HEALTH_REGEN * 4; // ^ ^ ^ 
@@ -27,10 +36,11 @@ public class TowerRGB extends SimpleTower{
 	public static final double T4_ATTACK_DELAY_BUFF = 1.6;
 	public static final double T4_HEALTH_REGEN_BUFF = Tower.BASE_HEALTH_REGEN * 8;
 	
-	public static final int BUFF_PERIOD = 10;
+	public static final int BUFF_PERIOD = 40;
 	
 	public TowerRGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerRGB can't attack
 	}
@@ -78,10 +88,20 @@ public class TowerRGB extends SimpleTower{
 		super.preStep();
 		if(specialAction.canAct() && passiveAction.canAct()){ //should aura be in both these categories?
 			if((gameState.frameNumber - spawnFrame) % BUFF_PERIOD == 1){ //only updates aura every several frames
+				Animation pingAnim = new SimpleCircleAnimation(15, 0.2, 2.5, 0.4f, 0.2f, Color.lightGray);
+				pingAnim.setLocation(loc);
+				gameState.playAnimation(pingAnim);
+				
 				Set<Tower> towers = gameState.getTowersInEdgeRange(loc, AURA_RANGE);
-				for(Tower tower : towers)
+				for(Tower tower : towers){
 					tower.addBuff(new TowerRGBBuff(gameState, tier,
 							                       T3_ATTACK_DELAY_BUFF, T3_HEALTH_REGEN_BUFF));
+					PaintableShapes flashShape = new PaintableShapes(tower.loc);
+					flashShape.addFixedRectangle(-1, -1, 1, 1, Color.white);
+					Animation flashAnim = new SimpleShapeAnimation(15, flashShape, 0.2f, 0.1f, Color.lightGray);
+					flashAnim.setLocation(tower.loc);
+					gameState.playAnimation(flashAnim);
+				}
 			}
 		}
 	}

@@ -7,6 +7,12 @@ import util.Vector2d;
 
 public class TowerGGB extends SimpleTower implements AttractSource {
 	
+	public static final String ID = "TowerGGB";
+	public static final String NAME = "Honeypot Tower";
+	public static final String DESCRIPTION =
+			"Attracts nearby enemies, making them more likely to move towards this tower. " +
+			"In addition, enemies harm themselves when attacking this tower.";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 3;
 	public static final double MAX_HEALTH = Tower.T3G2_HEALTH;
@@ -22,7 +28,8 @@ public class TowerGGB extends SimpleTower implements AttractSource {
 	public static final double ATTRACT_FALLOFF = 1;
 	
 	public TowerGGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
 		      false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerGGB cannot attack
@@ -63,7 +70,7 @@ public class TowerGGB extends SimpleTower implements AttractSource {
 	
 	@Override
 	protected Tower generateBlueUpgrade(){
-		return null;
+		return new TowerGGBB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override

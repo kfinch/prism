@@ -5,6 +5,10 @@ import util.Point2d;
 
 public class TowerGGGG extends SimpleTower{
 
+	public static String ID = "TowerGGGG";
+	public static String NAME = "Bunker Tower IV";
+	public static String DESCRIPTION = "Upgrade to TowerGGG. Very Tough tower with incredible health regen but no attack.";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 4;
 	public static final double MAX_HEALTH = Tower.T4G4_HEALTH;
@@ -16,7 +20,8 @@ public class TowerGGGG extends SimpleTower{
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
 	public TowerGGGG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerGGGG can't attack
 	}

@@ -7,6 +7,10 @@ import util.SimpleCircleAnimation;
 
 public class TowerB extends SimpleTower {
 	
+	public static final String ID = "TowerB";
+	public static final String NAME = "Rocket Tower";
+	public static final String DESCRIPTION = "Shoots medium range AoE rockets.";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 1;
 	public static final double MAX_HEALTH = Tower.T1G0_HEALTH;
@@ -19,7 +23,8 @@ public class TowerB extends SimpleTower {
 	public static final double ATTACK_AOE = 0.4;
 	
 	public TowerB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
 		      true, true, generateShapes(loc));
 	}

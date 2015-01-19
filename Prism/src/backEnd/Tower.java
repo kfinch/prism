@@ -55,6 +55,10 @@ public abstract class Tower extends EntityWithAttack {
 	
 	protected static final double BASE_HEALTH_REGEN = 0.02;
 	
+	public final String id;
+	public final String name;
+	public final String description;
+	
 	public Node currNode;
 	
 	public boolean isGhost;
@@ -73,10 +77,15 @@ public abstract class Tower extends EntityWithAttack {
 	
 	public PaintableShapes shapes;
 	
-	public Tower(GameState gameState, Point2d loc, Node currNode, double priority, int spawnFrame, int tier,
+	public Tower(String id, String name, String description,
+			     GameState gameState, Point2d loc, Node currNode, double priority, int spawnFrame, int tier,
 			     double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			     double attackAOE, boolean canAOE, PaintableShapes shapes){
 		super(gameState, loc, maxHealth, healthRegen, attackDamage, attackDelay, attackRange, shapes);
+		
+		this.id = id;
+		this.name = name;
+		this.description = description;
 		
 		this.currNode = currNode;
 		

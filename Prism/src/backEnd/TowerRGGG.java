@@ -9,6 +9,11 @@ import util.SimpleCircleAnimation;
 
 public class TowerRGGG extends SimpleTower{
 
+	public static String ID = "TowerRGG";
+	public static String NAME = "Thumper Tower III";
+	public static String DESCRIPTION = "Upgrade to TowerRGG. " +
+			"Tough tower that periodically thumps the ground, damaging nearby enemies.";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 4;
 	public static final double MAX_HEALTH = Tower.T4G3_HEALTH;
@@ -21,7 +26,8 @@ public class TowerRGGG extends SimpleTower{
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
 	public TowerRGGG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION, 
+		      gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, false,
 		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 	}

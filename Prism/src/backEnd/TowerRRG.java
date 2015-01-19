@@ -14,6 +14,11 @@ import util.Vector2d;
 
 public class TowerRRG extends SimpleTower{
 
+	public static String ID = "TowerRRG";
+	public static String NAME = "Vamp Tower";
+	public static String DESCRIPTION =
+			"Drains targeted enemies, healing itself and nearby towers for a percentage of the damage done.";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 3;
 	public static final double MAX_HEALTH = Tower.T3G1_HEALTH;
@@ -28,7 +33,8 @@ public class TowerRRG extends SimpleTower{
 	public static final double LIFESTEAL_PERCENT = 0.1;
 	
 	public TowerRRG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION, 
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, false, false,
 		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, true, generateShapes(loc));
 	}

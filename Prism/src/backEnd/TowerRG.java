@@ -9,6 +9,10 @@ import util.SimpleCircleAnimation;
 
 public class TowerRG extends SimpleTower{
 
+	public static String ID = "TowerRG";
+	public static String NAME = "Thumper Tower";
+	public static String DESCRIPTION = "Periodically thumps the ground, damaging nearby enemies.";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 2;
 	public static final double MAX_HEALTH = Tower.T2G1_HEALTH;
@@ -21,7 +25,8 @@ public class TowerRG extends SimpleTower{
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
 	public TowerRG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION, 
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, false,
 		      PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 	}

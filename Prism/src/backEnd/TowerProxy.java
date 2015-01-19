@@ -13,10 +13,15 @@ import util.Point2d;
  */
 public class TowerProxy extends Tower {
 
+	public static String ID = "";
+	public static String NAME = "";
+	public static String DESCRIPTION = "";
+	
 	Tower proxied;
 	
 	public TowerProxy(GameState gameState, Point2d loc, Tower proxied, Node currNode) {
-		super(gameState, loc, currNode, proxied.priority, proxied.spawnFrame, proxied.tier,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, proxied.priority, proxied.spawnFrame, proxied.tier,
 		      proxied.maxHealth.modifiedValue, 0, 0, 0, 0, 0, false, null);
 		this.proxied = proxied;
 	}

@@ -6,6 +6,10 @@ import util.Point2d;
 
 public class TowerConduit extends SimpleTower implements LightSource {
 	
+	public static String ID = "TowerConduit";
+	public static String NAME = "Conduit Tower";
+	public static String DESCRIPTION = "Projects light around it, allowing towers and other conduits to be built.";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 1;
 	public static final double MAX_HEALTH = 200;
@@ -23,7 +27,8 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	public double currentLightRadius;
 	
 	public TowerConduit(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerConduit can't attack
 		currentLightRadius = 0;

@@ -7,6 +7,10 @@ import util.SimpleCircleAnimation;
 
 public class TowerGB extends SimpleTower {
 	
+	public static String ID = "TowerGB";
+	public static String NAME = "Chilling Tower";
+	public static String DESCRIPTION = "Attacks with frost, slowing the movement and attack speeds of afflicted enemies.";
+	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 2;
 	public static final double MAX_HEALTH = Tower.T2G1_HEALTH;
@@ -22,7 +26,8 @@ public class TowerGB extends SimpleTower {
 	public static final double SLOW_STRENGTH = 1.4;
 	
 	public TowerGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 		      ATTACK_RANGE, ATTACK_AOE, true, true, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE,
 		      true, true, generateShapes(loc));
 	}

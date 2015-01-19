@@ -1,12 +1,22 @@
 package backEnd;
 
+import java.awt.Color;
 import java.util.Set;
 
+import util.Animation;
 import util.PaintableShapes;
 import util.Point2d;
+import util.SimpleCircleAnimation;
+import util.SimpleShapeAnimation;
 
 public class TowerRGGB extends SimpleTower{
 
+	public static final String ID = "TowerRGGB";
+	public static final String NAME = "Emerald Booster Tower";
+	public static final String DESCRIPTION = "Upgrade to TowerRGB. " + 
+			"Has no attack, but boosts adjacent towers, granting a large bonus to attack speed and " +
+			" a very large bonus to health regen. Also periodically cleanses harmful effects from adjacent towers.";
+	
 	public static final String TOWER_RGGB_BUFF_ID = "towerrggbbuff";
 	
 	public static final double PRIORITY = 0;
@@ -24,7 +34,8 @@ public class TowerRGGB extends SimpleTower{
 	public static final double CLEANSE_PERIOD = 80;
 	
 	public TowerRGGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
-		super(gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
+		super(ID, NAME, DESCRIPTION,
+			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 		attackAction.startSuppress(); //TowerRGGB can't attack
 	}
@@ -74,11 +85,20 @@ public class TowerRGGB extends SimpleTower{
 		super.preStep();
 		if(specialAction.canAct() && passiveAction.canAct()){ //should aura be in both these categories?
 			if((gameState.frameNumber - spawnFrame) % TowerRGB.BUFF_PERIOD == 1){ //only updates aura every several frames
+				Animation pingAnim = new SimpleCircleAnimation(15, 0.2, 2.5, 0.4f, 0.2f, GameState.PROJECTILE_GREEN);
+				pingAnim.setLocation(loc);
+				gameState.playAnimation(pingAnim);
+				
 				Set<Tower> towers = gameState.getTowersInEdgeRange(loc, TowerRGB.AURA_RANGE);
 				for(Tower tower : towers){
 					tower.addBuff(new TowerRGBBuff(gameState, tier,
 		                       TowerRGB.T4_ATTACK_DELAY_BUFF, TowerRGB.T4_HEALTH_REGEN_BUFF));
 					tower.addBuff(new TowerRGGBBuff(gameState));
+					PaintableShapes flashShape = new PaintableShapes(tower.loc);
+					flashShape.addFixedRectangle(-1, -1, 1, 1, Color.white);
+					Animation flashAnim = new SimpleShapeAnimation(15, flashShape, 0.2f, 0.1f, GameState.PROJECTILE_GREEN);
+					flashAnim.setLocation(tower.loc);
+					gameState.playAnimation(flashAnim);
 				}
 			}
 			//now apply cleanse //TODO: make sure this is actually working as intended (test it)
