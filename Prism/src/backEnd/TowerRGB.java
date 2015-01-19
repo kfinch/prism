@@ -36,7 +36,7 @@ public class TowerRGB extends SimpleTower{
 	public static final double T4_ATTACK_DELAY_BUFF = 1.6;
 	public static final double T4_HEALTH_REGEN_BUFF = Tower.BASE_HEALTH_REGEN * 8;
 	
-	public static final int BUFF_PERIOD = 40;
+	public static final int BUFF_PERIOD = 60;
 	
 	public TowerRGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
 		super(ID, NAME, DESCRIPTION,
@@ -98,7 +98,7 @@ public class TowerRGB extends SimpleTower{
 							                       T3_ATTACK_DELAY_BUFF, T3_HEALTH_REGEN_BUFF));
 					PaintableShapes flashShape = new PaintableShapes(tower.loc);
 					flashShape.addFixedRectangle(-1, -1, 1, 1, Color.white);
-					Animation flashAnim = new SimpleShapeAnimation(15, flashShape, 0.2f, 0.1f, Color.lightGray);
+					Animation flashAnim = new SimpleShapeAnimation(15, flashShape, 0.15f, 0f, Color.lightGray);
 					flashAnim.setLocation(tower.loc);
 					gameState.playAnimation(flashAnim);
 				}

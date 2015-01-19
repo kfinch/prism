@@ -96,7 +96,7 @@ public class TowerRGGB extends SimpleTower{
 					tower.addBuff(new TowerRGGBBuff(gameState));
 					PaintableShapes flashShape = new PaintableShapes(tower.loc);
 					flashShape.addFixedRectangle(-1, -1, 1, 1, Color.white);
-					Animation flashAnim = new SimpleShapeAnimation(15, flashShape, 0.2f, 0.1f, GameState.PROJECTILE_GREEN);
+					Animation flashAnim = new SimpleShapeAnimation(15, flashShape, 0.15f, 0f, GameState.PROJECTILE_GREEN);
 					flashAnim.setLocation(tower.loc);
 					gameState.playAnimation(flashAnim);
 				}
