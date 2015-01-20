@@ -84,7 +84,7 @@ public class TowerRRGB extends SimpleTower{
 		if(specialAction.canAct() && passiveAction.canAct()){ //should aura be in both these categories?
 			if((gameState.frameNumber - spawnFrame) % TowerRGB.BUFF_PERIOD == 1){ //only updates aura every several frames
 				Animation pingAnim = new SimpleCircleAnimation(15, 0.2, 2.5, 0.4f, 0.2f, GameState.PROJECTILE_RED);
-				pingAnim.setLocation(loc);
+				pingAnim.loc = loc;
 				gameState.playAnimation(pingAnim);
 				
 				Set<Tower> towers = gameState.getTowersInEdgeRange(loc, TowerRGB.AURA_RANGE);
@@ -95,7 +95,7 @@ public class TowerRRGB extends SimpleTower{
 					PaintableShapes flashShape = new PaintableShapes(tower.loc);
 					flashShape.addFixedRectangle(-1, -1, 1, 1, Color.white);
 					Animation flashAnim = new SimpleShapeAnimation(15, flashShape, 0.15f, 0f, GameState.PROJECTILE_RED);
-					flashAnim.setLocation(tower.loc);
+					flashAnim.loc = tower.loc;
 					gameState.playAnimation(flashAnim);
 				}
 			}

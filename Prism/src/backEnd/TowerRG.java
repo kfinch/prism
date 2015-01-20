@@ -72,7 +72,7 @@ public class TowerRG extends SimpleTower{
 		
 		Animation a = generateAttackAnimation();
 		if(a != null){
-			a.setLocation(loc);
+			a.loc = loc;
 			gameState.playAnimation(a);
 		}
 	}

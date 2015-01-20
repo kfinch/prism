@@ -78,7 +78,7 @@ public class TowerRRGG extends SimpleTower{
 		for(Tower t : nearbyTowers)
 			t.heal(healing, true, this);
 		Animation healingAnimation = new SimpleCircleAnimation(15, 0.6, 2.2, 0.5f, 0.3f, GameState.PROJECTILE_GREEN);
-		healingAnimation.setLocation(loc);
+		healingAnimation.loc = loc;
 		gameState.playAnimation(healingAnimation);
 	}
 	

@@ -15,7 +15,7 @@ public class TowerBBBB extends SimpleTower {
 	public static final int TIER = 4;
 	public static final double MAX_HEALTH = Tower.T4G0_HEALTH;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
-	public static final double ATTACK_DAMAGE = 360;
+	public static final double ATTACK_DAMAGE = 340;
 	public static final double ATTACK_DELAY = TowerB.ATTACK_DELAY;
 	public static final double ATTACK_RANGE = 12;
 	public static final double PROJECTILE_SPEED = TowerB.PROJECTILE_SPEED;
@@ -32,16 +32,9 @@ public class TowerBBBB extends SimpleTower {
 	private static PaintableShapes generateShapes(Point2d loc){
 		PaintableShapes result = Tower.generateBaseShapes(loc);
 		
-		//int nPoints1 = 11;
-		//double[] xPoints1 = {-0.65, -0.2, -0.2, 0.2, 0.2, -0.2, 0.2, 0.2, -0.2, -0.2, -0.65};
-		//double[] yPoints1 = {0.3, 0.3, 0.50, 0.50, 0.25, 0.0, -0.25, -0.50, -0.50, -0.3, -0.3};
-		//result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BLUE);
-		
-		//result.addRotatableRectangle(-0.9, -0.08, 0.9, 0.08, GameState.TOWER_BASE);
-		
 		int nPoints1 = 5;
 		double[] xPoints1 = {0.40, 0.88, 0.88, 0.40, 0.00};
-		double[] yPoints1 = {-0.28, -0.28, 0.28, 0.30, 0.00};
+		double[] yPoints1 = {-0.28, -0.28, 0.28, 0.28, 0.00};
 		result.addRotatablePolygon(nPoints1, xPoints1, yPoints1, GameState.TOWER_BLUE);
 		
 		int nPoints2 = 4;

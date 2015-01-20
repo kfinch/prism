@@ -144,7 +144,7 @@ public abstract class SimpleTower extends Tower{
 		}
 		Animation a = generateAttackAnimation();
 		if(a != null){
-			a.setLocation(loc);
+			a.loc = loc;
 			gameState.playAnimation(a);
 		}
 	}

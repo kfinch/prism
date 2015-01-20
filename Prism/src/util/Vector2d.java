@@ -83,6 +83,15 @@ public final class Vector2d implements Serializable {
 	}
 	
 	/**
+	 * Generates the result of scalar dividing this vector
+	 * @param divide the amount to scalar divide this vector by
+	 * @return the result of this / divide
+	 */
+	public Vector2d afterDivide(double divide){
+		return new Vector2d(x/divide, y/divide);
+	}
+	
+	/**
 	 * Computes the dot product of this vector with a supplied vector
 	 * @param v The other vector to use in the dot product
 	 * @return The dot product of this vector with v

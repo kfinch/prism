@@ -49,7 +49,7 @@ public class TowerBBB extends SimpleTower {
 	
 	@Override
 	protected Tower generateRedUpgrade(){
-		return null;
+		return new TowerRBBB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override

@@ -6,7 +6,7 @@ import util.Point2d;
 
 public class EnemyNibbler extends SimpleEnemy {
 
-	public static final int WAVE_SIZE = 45; //35
+	public static final int WAVE_SIZE = 45; //45
 	public static final double BASE_KILL_REWARD = 2;
 	
 	public static final double PRIORITY = 0;

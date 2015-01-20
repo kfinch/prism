@@ -55,7 +55,7 @@ public class SimpleProjectile extends Projectile {
 				target.addBuff(appliedDebuff);
 		}
 		if(playedAnimation != null){
-			playedAnimation.setLocation(target.loc);
+			playedAnimation.loc = target.loc;
 			gameState.playAnimation(playedAnimation);
 		}
 	}

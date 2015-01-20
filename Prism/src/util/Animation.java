@@ -13,10 +13,6 @@ public abstract class Animation {
 		isActive = true;
 	}
 	
-	public void setLocation(Point2d loc){
-		this.loc = loc;
-	}
-	
 	public abstract void step();
 	
 	public void paintAnimation(Graphics2D g2d, int cornerX, int cornerY, int tileSize){

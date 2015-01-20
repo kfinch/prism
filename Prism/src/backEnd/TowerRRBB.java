@@ -90,7 +90,7 @@ public class TowerRRBB extends SimpleTower{
 		//could be width RAIL_WIDTH*2, but drawing smaller than actual AoE,
 		//because actual AoE checks only vs center of enemy
 		Animation attackAnim = new SimpleRayAnimation(7, loc, end, RAIL_WIDTH, 0.8f, 0.3f, GameState.PROJECTILE_BLUE);
-		attackAnim.setLocation(loc);
+		attackAnim.loc = loc;
 		gameState.playAnimation(attackAnim);
 	}
 	

@@ -9,7 +9,7 @@ import util.SimpleCircleAnimation;
 
 public class TowerRGGG extends SimpleTower{
 
-	public static String ID = "TowerRGG";
+	public static String ID = "TowerRGGG";
 	public static String NAME = "Thumper Tower III";
 	public static String DESCRIPTION = "Upgrade to TowerRGG. " +
 			"Tough tower that periodically thumps the ground, damaging nearby enemies.";
@@ -84,7 +84,7 @@ public class TowerRGGG extends SimpleTower{
 		
 		Animation a = generateAttackAnimation();
 		if(a != null){
-			a.setLocation(loc);
+			a.loc = loc;
 			gameState.playAnimation(a);
 		}
 	}

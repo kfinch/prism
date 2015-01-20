@@ -11,7 +11,7 @@ public class TowerGBBB extends SimpleTower{
 	public static String NAME = "Conducting Tower";
 	public static String DESCRIPTION =
 			"Conducts health between itself and adjacent towers in an effort to equalize health percentages. " +
-			"Additionally, tower teleports to or from spots adjacent to this tower proceed at increased speed.";
+			"Additionally, tower teleports to or from spots adjacent to this tower proceed at triple speed.";
 	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 4;
@@ -90,10 +90,10 @@ public class TowerGBBB extends SimpleTower{
 					t.heal(tHealthTransferRate, false, this);
 				}
 				
-				//teleport speed-up //TODO: sloppy UI wise, do something about it?
+				//teleport speed-up (3x speed up)
 				TeleportingDebuff teleportBuff = (TeleportingDebuff) t.getBuff(TELEPORT_DEBUFF_ID);
-				if(teleportBuff != null && (double)teleportBuff.timer / (double)teleportBuff.initialDuration <= 0.5)
-					t.removeBuff(teleportBuff);
+				if(teleportBuff != null)
+					teleportBuff.timer-=2;
 			}
 		}
 	}

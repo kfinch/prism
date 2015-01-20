@@ -68,7 +68,7 @@ public abstract class Enemy extends EntityWithAttack {
 		
 		Animation killRewardCombatText = new CombatTextAnimation("+" + (int)(getKillReward()), 0.5,
 				                                                 GameState.UI_GOLD, 0.5, 30);
-		killRewardCombatText.setLocation(loc);
+		killRewardCombatText.loc = loc;
 		gameState.playAnimation(killRewardCombatText);
 	}
 	
