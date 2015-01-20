@@ -316,7 +316,7 @@ public abstract class Tower extends EntityWithAttack {
 			TimedBuff tb = (TimedBuff) buffs.get(TELEPORT_DEBUFF_ID);
 			double percentComplete = ((double)tb.initialDuration - (double)tb.timer) / ((double)tb.initialDuration);
 			super.paintStatusBar(g2d, centerX, centerY, tileSize, 0, 0, 1.8, 0.6, percentComplete,
-					             Color.black, Color.white);
+					             Color.black, GameState.UI_GOLD);
 		}
 		
 		if(isGhost)

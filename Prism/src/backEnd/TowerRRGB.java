@@ -101,6 +101,13 @@ public class TowerRRGB extends SimpleTower{
 			}
 		}
 	}
+	
+	@Override
+	public void moveStep(){
+		if(passiveAction.canAct()){
+			shapes.rotate(TowerRGB.COSMETIC_ROTATE_SPEED);
+		}
+	}
 }
 
 class TowerRRGBBuff extends TimedBuff {

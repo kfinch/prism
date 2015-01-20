@@ -46,13 +46,12 @@ public class TowerRRR extends SimpleTower{
 		return result;
 	}
 	
-	//TODO: update
 	protected Tower generateRedUpgrade(){
 		return new TowerRRRR(gameState, loc, currNode, spawnFrame);
 	}
 	
 	protected Tower generateGreenUpgrade(){
-		return null;
+		return new TowerRRRG(gameState, loc, currNode, spawnFrame);
 	}
 	
 	protected Tower generateBlueUpgrade(){

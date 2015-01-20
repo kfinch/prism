@@ -54,7 +54,7 @@ public class TowerBBB extends SimpleTower {
 	
 	@Override
 	protected Tower generateGreenUpgrade(){
-		return null;
+		return new TowerGBBB(gameState, loc, currNode, spawnFrame);
 	}
 	
 	@Override

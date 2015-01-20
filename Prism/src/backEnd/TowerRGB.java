@@ -38,6 +38,8 @@ public class TowerRGB extends SimpleTower{
 	
 	public static final int BUFF_PERIOD = 60;
 	
+	public static final double COSMETIC_ROTATE_SPEED = 0.01;
+	
 	public TowerRGB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
 		super(ID, NAME, DESCRIPTION,
 			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
@@ -103,6 +105,13 @@ public class TowerRGB extends SimpleTower{
 					gameState.playAnimation(flashAnim);
 				}
 			}
+		}
+	}
+	
+	@Override
+	public void moveStep(){
+		if(passiveAction.canAct()){
+			shapes.rotate(COSMETIC_ROTATE_SPEED);
 		}
 	}
 }
