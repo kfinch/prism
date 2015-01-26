@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 
 import util.Animation;
 import util.Point2d;
+import backEnd.Enemy;
+import backEnd.EnemyWave;
 import backEnd.Entity;
 import backEnd.GameRunner;
 import backEnd.GameState;
@@ -300,23 +302,25 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		g2d.setColor(Color.lightGray);
 		g2d.fillRect(xLineRight1, yLineBot, unitSize*8, panelHeight); //draws all the way to bottom of screen
 		
-		if(game.waveEnemies != null){
+		if(!game.waveGenerator.getIncomingWaves().isEmpty()){
 			fontSize = (int) (unitSize*0.3); //TODO: tweak this, obviously (maybe also make a global font size?)
 			g2d.setColor(Color.black);
 			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
 			
-			g2d.drawString("Wave Tier: " + game.waveEnemies.tier,
+			EnemyWave incomingWave = game.waveGenerator.getIncomingWaves().getFirst();
+			
+			g2d.drawString("Wave Tier: " + incomingWave.enemy.tier,
 					       xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 2*subUnitSize);
-			g2d.drawString("Wave Size: " + game.waveEnemies.getWaveSize(),
+			g2d.drawString("Wave Size: " + incomingWave.enemy.getBaseWaveSize(),
 					       xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 7*subUnitSize);
-			g2d.drawString("Health: " + String.format("%.2f", game.waveEnemies.maxHealth.modifiedValue),
+			g2d.drawString("Health: " + String.format("%.2f", incomingWave.enemy.maxHealth.modifiedValue),
 				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 12*subUnitSize);
-			g2d.drawString("Attack Damage: " + String.format("%.2f", game.waveEnemies.attackDamage.modifiedValue),
+			g2d.drawString("Attack Damage: " + String.format("%.2f", incomingWave.enemy.attackDamage.modifiedValue),
 				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 17*subUnitSize);
-			double attackRate = 1000 / GameRunner.STEP_DURATION / game.waveEnemies.attackDelay.modifiedValue;
+			double attackRate = 1000 / GameRunner.STEP_DURATION / incomingWave.enemy.attackDelay.modifiedValue;
 			g2d.drawString("Attack Rate: " + String.format("%.2f", attackRate),
 				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 22*subUnitSize);
-			g2d.drawString("Movement Speed: " + String.format("%.2f", game.waveEnemies.moveSpeed.modifiedValue),
+			g2d.drawString("Movement Speed: " + String.format("%.2f", incomingWave.enemy.moveSpeed.modifiedValue),
 				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 27*subUnitSize);
 		}
 		

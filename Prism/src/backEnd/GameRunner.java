@@ -2,6 +2,7 @@ package backEnd;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.Timer;
@@ -16,7 +17,7 @@ public class GameRunner implements ActionListener {
 	public static final String BUILD_ERROR_INSUFFICIENT_RESOURCES = "You have insufficient resources";
 	
 	public static final double STARTING_COLOR = 500; //500
-	public static final double STARTING_FLUX = 100;
+	public static final double STARTING_FLUX = 50;
 	public static final double MAXIMUM_FLUX = 200;
 	public static final double COLOR_GAIN_RATE = 0.02;
 	public static final double FLUX_GAIN_RATE = 0.1;
@@ -48,12 +49,10 @@ public class GameRunner implements ActionListener {
 	public int boardHeight;
 	
 	public GameState gameState;
+	public EnemyWaveGenerator waveGenerator;
+	
 	public GamePanel display;
 	public PrismFrontEnd frontEnd;
-	
-	public int currentTier;
-	public Enemy waveEnemies;
-	public int spawnDelay;
 	
 	private Timer gameClock;
 	
@@ -77,16 +76,9 @@ public class GameRunner implements ActionListener {
 	}
 	
 	public void step(){
-		if(gameState.frameNumber % (WAVE_DURATION + WAVE_DOWNTIME) == 0){
-			currentTier++;
-			waveEnemies = new EnemyNibbler(gameState, new Point2d(0,0), currentTier, null, 0);
-			spawnDelay = WAVE_DURATION / waveEnemies.getWaveSize();
-		}
-		
-		if(gameState.frameNumber % (WAVE_DURATION + WAVE_DOWNTIME) <= WAVE_DURATION &&
-		   gameState.frameNumber % spawnDelay == 0){ //TODO: do something about this, this is super awkward
-			gameState.spawnEnemy(waveEnemies);
-		}
+		List<Enemy> enemiesToAdd = waveGenerator.stepAndSpawn();
+		for(Enemy e : enemiesToAdd)
+			gameState.spawnEnemy(e);
 		
 		if(gameState.playerLose){ //game over, player loses
 			System.out.println("PLAYER LOSE");
@@ -104,7 +96,7 @@ public class GameRunner implements ActionListener {
 
 	public void newGame(){
 		gameState = new GameState(boardWidth, boardHeight);
-		currentTier = 0; //this will need change as I implement different difficulties
+		waveGenerator = new EnemyWaveGeneratorTest(); //TODO: remove / change testing here
 		pause();
 	}
 	

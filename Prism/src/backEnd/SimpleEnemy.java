@@ -64,7 +64,7 @@ public abstract class SimpleEnemy extends Enemy {
 	
 	protected boolean shouldMove;
 	
-	public SimpleEnemy(GameState gameState, Point2d loc, int tier, int waveSize, double baseKillReward, Node currNode,
+	public SimpleEnemy(GameState gameState, Point2d loc, double tier, int waveSize, double baseKillReward, Node currNode,
 			           double priority, int spawnFrame, double maxHealth, double healthRegen,
 			           double attackDamage, double attackDelay, double attackRange, double moveSpeed,
 			           double towerAffinity, boolean fireOnTheMove, double[][] movePriorities,
@@ -87,7 +87,7 @@ public abstract class SimpleEnemy extends Enemy {
 	}
 	
 	@Override
-	public int getWaveSize(){
+	public int getBaseWaveSize(){
 		return waveSize;
 	}
 	

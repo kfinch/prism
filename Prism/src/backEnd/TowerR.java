@@ -5,9 +5,9 @@ import util.Point2d;
 
 public class TowerR extends SimpleTower{
 
-	public static String ID = "TowerR";
-	public static String NAME = "Pew Tower";
-	public static String DESCRIPTION = "Attacks targets at medium range.";
+	public static final String ID = "TowerR";
+	public static final String NAME = "Pew Tower";
+	public static final String DESCRIPTION = "Attacks targets at medium range.";
 	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 1;

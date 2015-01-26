@@ -14,8 +14,8 @@ public class TowerRGGB extends SimpleTower{
 	public static final String ID = "TowerRGGB";
 	public static final String NAME = "Emerald Booster Tower";
 	public static final String DESCRIPTION = "Upgrade to TowerRGB. " + 
-			"Has no attack, but boosts adjacent towers, granting a large bonus to attack speed and " +
-			" a very large bonus to health regen. Also periodically cleanses harmful effects from adjacent towers.";
+			"Has no attack, but boosts adjacent towers, granting a large bonus to attack speed and health regen." +
+			"Also grants affected towers damage reduction and periodically cleanses harmful effects from them.";
 	
 	public static final String TOWER_RGGB_BUFF_ID = "towerrggbbuff";
 	
@@ -29,7 +29,7 @@ public class TowerRGGB extends SimpleTower{
 	public static final double PROJECTILE_SPEED = 0;
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
-	public static final double HEALTH_REGEN_BUFF = Tower.BASE_HEALTH_REGEN * 8;
+	public static final double DAMAGE_REDUCTION_BUFF = 1.3; //TODO playtest this number
 	
 	public static final double CLEANSE_PERIOD = 80;
 	
@@ -133,7 +133,7 @@ class TowerRGGBBuff extends TimedBuff {
 	
 	public TowerRGGBBuff(GameState gameState) {
 		super(gameState, TowerRRGB.TOWER_RRGB_BUFF_ID, "Emerald Boosted",
-			  "This tower has additional bonus health regeneration " +
+			  "This tower is taking reduced damage " +
 		      "and will also periodically dispel negative effects on itself.",
 			  true, true, TowerRGB.BUFF_PERIOD*2);
 	}
@@ -141,15 +141,15 @@ class TowerRGGBBuff extends TimedBuff {
 	@Override
 	public void apply(Entity e) {
 		Tower t = (Tower) e;
-		t.healthRegen.addBonuses.add(TowerRGGB.HEALTH_REGEN_BUFF);
-		t.healthRegen.update();
+		t.receivedDamageModifier.multPenalties.add(TowerRGGB.DAMAGE_REDUCTION_BUFF);
+		t.receivedDamageModifier.update();
 	}
 
 	@Override
 	public void remove(Entity e) {
 		Tower t = (Tower) e;
-		t.healthRegen.addBonuses.remove(TowerRGGB.HEALTH_REGEN_BUFF);
-		t.healthRegen.update();
+		t.receivedDamageModifier.multPenalties.add(TowerRGGB.DAMAGE_REDUCTION_BUFF);
+		t.receivedDamageModifier.update();
 	}
 	
 }

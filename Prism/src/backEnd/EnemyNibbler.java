@@ -27,16 +27,20 @@ public class EnemyNibbler extends SimpleEnemy {
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	public static final boolean APPLIES_DEBUFF = false;
 	
-	public EnemyNibbler(GameState gameState, Point2d loc, int tier, Node currNode, int spawnFrame) {
+	public EnemyNibbler(GameState gameState, Point2d loc, double tier, Node currNode, int spawnFrame) {
 		super(gameState, loc, tier, WAVE_SIZE, BASE_KILL_REWARD, currNode, PRIORITY, spawnFrame, MAX_HEALTH, HEALTH_REGEN,
 				ATTACK_DAMAGE, ATTACK_DELAY, ATTACK_RANGE, MOVE_SPEED, TOWER_AFFINITY,
 				FIRE_ON_THE_MOVE, MOVE_PRIORITIES, USES_PROJECTILE,
 				PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, APPLIES_DEBUFF, generateShapes(loc));
 	}
 	
+	public EnemyNibbler(double tier){
+		this(null, null, tier, null, 0);
+	}
+	
 	@Override
-	public Enemy generateCopy(Point2d loc, Node currNode, int spawnFrame) {
-		return new EnemyNibbler(gameState, loc, tier, currNode, spawnFrame);
+	public Enemy generateCopy(double tier) {
+		return new EnemyNibbler(null, null, tier, null, 0);
 	}
 	
 	public static PaintableShapes generateShapes(Point2d loc){

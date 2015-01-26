@@ -20,7 +20,7 @@ public abstract class Enemy extends EntityWithAttack {
 	
 	protected static final double TIER_STAT_MULTIPLIER = 0.15;
 	
-	public int tier; //enemy's tier. Unlike for towers, this isn't fixed, enemy's stats should scale with their tier.
+	public double tier; //enemy's tier. Unlike for towers, this isn't fixed, enemy's stats should scale with their tier.
 	
 	public Node currNode, nextNode; //node this enemy is on, and node it's headed to.
 	public boolean toNextNode; //true if this enemy has reached it's next node.
@@ -30,7 +30,7 @@ public abstract class Enemy extends EntityWithAttack {
 	
 	public Stat moveSpeed; //enemy's move stat
 	
-	public Enemy(GameState gameState, Point2d loc, int tier, Node currNode, double priority, int spawnFrame,
+	public Enemy(GameState gameState, Point2d loc, double tier, Node currNode, double priority, int spawnFrame,
 			     double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			     double moveSpeed, PaintableShapes shapes){
 		super(gameState, loc, maxHealth * Math.pow(1+TIER_STAT_MULTIPLIER, tier), healthRegen,
@@ -53,11 +53,11 @@ public abstract class Enemy extends EntityWithAttack {
 		this.healthBarHeight = HEALTH_BAR_HEIGHT;
 	}
 	
-	public abstract int getWaveSize();
+	public abstract int getBaseWaveSize();
 	
 	public abstract double getKillReward();
 	
-	public abstract Enemy generateCopy(Point2d loc, Node currNode, int spawnFrame);
+	public abstract Enemy generateCopy(double tier);
 	
 	@Override
 	public void die(){

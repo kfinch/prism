@@ -290,10 +290,25 @@ public class GameState {
 		//                   " to dst @ " + dst.xLoc + " " + dst.yLoc + " " + dst.tower);
 	}
 	
-	public void addEnemy(int x, int y, Enemy enemy){
-		nodeAt(x,y).enemies.add(enemy);
+	public void addEnemy(Node addPoint, Enemy enemy){
+		enemy.loc = new Point2d(addPoint.xLoc, addPoint.yLoc);
+		enemy.shapes.loc = enemy.loc;
+		enemy.currNode = addPoint;
+		enemy.gameState = this;
+		enemy.spawnFrame = frameNumber;
+		
+		addPoint.enemies.add(enemy);
 		enemies.add(enemy);
 		enemy.onSpawn();
+	}
+	
+	/*
+	 * Spawns the given enemy on a random row on the far right column. (The default spawning area for enemies)
+	 */
+	public void spawnEnemy(Enemy enemy){
+		int spawnX = xNodes - 1;
+		int spawnY = (int) (Math.random() * (yNodes - 1));
+		addEnemy(nodeAt(spawnX, spawnY), enemy);
 	}
 	
 	public void addMiscEntity(Entity entity){
@@ -627,12 +642,5 @@ public class GameState {
 			result.add(prism);
 		
 		return result;
-	}
-	
-	public void spawnEnemy(Enemy waveEnemies){
-		int spawnX = xNodes-1;
-		int spawnY = (int) (Math.random()*yNodes);
-		addEnemy(spawnX, spawnY, waveEnemies.generateCopy(new Point2d(spawnX, spawnY), 
-				                                          nodeAt(spawnX, spawnY), frameNumber));
 	}
 }

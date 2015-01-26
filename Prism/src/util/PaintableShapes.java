@@ -41,6 +41,35 @@ public class PaintableShapes {
 		addRotatablePolygon(4, xPoints, yPoints, color);
 	}
 	
+	//rescales shapes about the origin
+	public void rescale(double scale){
+		for(Object o : shapes){
+			if(o instanceof Circle){
+				Circle c = (Circle) o;
+				c.xLoc *= scale;
+				c.yLoc *= scale;
+				c.radius *= scale;
+			}
+			else if(o instanceof Polygon){
+				Polygon p = (Polygon) o;
+				for(int i=0; i<p.nPoints; i++){
+					p.xPoints[i] *= scale;
+					p.origXPoints[i] *= scale;
+					p.yPoints[i] *= scale;
+					p.origYPoints[i] *= scale;
+				}
+			}
+			else if(o instanceof Rectangle){
+				Rectangle r = (Rectangle) o;
+				r.x1 *= scale;
+				r.y1 *= scale;
+				r.x2 *= scale;
+				r.y2 *= scale;
+			}
+		}
+	}
+	
+	//rotates (only the rotatable) shapes about the origin
 	public void rotate(double radians){
 		for(Object o : shapes){
 			if(o instanceof Circle && ((Circle) o).rotatable){
