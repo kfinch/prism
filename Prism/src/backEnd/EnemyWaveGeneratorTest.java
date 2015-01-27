@@ -5,14 +5,12 @@ public class EnemyWaveGeneratorTest extends EnemyWaveGenerator {
 	public static final double DEFAULT_STARTING_TIER = 1;
 	public static final double DEFAULT_TIER_STEP = 1;
 	
-	public final double startingTier;
-	public final double tierStep;
+	private double tierStep;
 	
 	private double currentTier;
 	
 	public EnemyWaveGeneratorTest(double startingTier, double tierStep){
-		this.startingTier = startingTier;
-		this.currentTier = startingTier;
+		this.currentTier = startingTier - tierStep;
 		this.tierStep = tierStep;
 	}
 	

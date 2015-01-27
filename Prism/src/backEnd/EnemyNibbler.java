@@ -40,7 +40,7 @@ public class EnemyNibbler extends SimpleEnemy {
 	
 	@Override
 	public Enemy generateCopy(double tier) {
-		return new EnemyNibbler(null, null, tier, null, 0);
+		return new EnemyNibbler(tier);
 	}
 	
 	public static PaintableShapes generateShapes(Point2d loc){

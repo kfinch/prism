@@ -6,6 +6,8 @@ import java.util.List;
 
 public abstract class EnemyWaveGenerator {
 
+	public static final int DEFAULT_GENERATED_WAVE_BUFFER = 5;
+	
 	public static final int DEFAULT_WAVE_DURATION = 1200;
 	public static final int DEFAULT_WAVE_DOWNTIME = 400;
 	
@@ -15,7 +17,7 @@ public abstract class EnemyWaveGenerator {
 	
 	public static final double DEFAULT_ELITE_TIER_BONUS = 6;
 	public static final double DEFAULT_ELITE_NUMBER_REDUCTION = 0.5;
-	public static final double DEFAULT_ELITE_VISUAL_SIZE_INCREASE = 1.4;
+	public static final double DEFAULT_ELITE_VISUAL_SIZE_INCREASE = 1.25;
 	
 	public final int waveDuration;
 	public final int waveDowntime;
@@ -52,8 +54,6 @@ public abstract class EnemyWaveGenerator {
 		
 		currWaveStartFrame = -1;
 		nextWaveStartFrame = 1;
-		for(int i=0; i<5; i++)
-			incomingWaves.addLast(generateNewWave());
 	}
 	
 	public EnemyWaveGenerator(){
@@ -90,7 +90,7 @@ public abstract class EnemyWaveGenerator {
 		spawnedThisWave = 0;
 		spawnPeriod = waveLength / totalToSpawn;
 		
-		//TODO: remove debugging prings
+		//TODO: remove debugging prints
 		System.out.println("Curr Wave: " + currWave.enemy + " (tier=" + currWave.enemy.tier + ") " + currWave.modifier);
 		System.out.println("curr start frame = " + currWaveStartFrame + "  next start frame = " + nextWaveStartFrame);
 		System.out.println("spawn period = " + spawnPeriod + "  total to spawn = " + totalToSpawn);
@@ -98,12 +98,16 @@ public abstract class EnemyWaveGenerator {
 	
 	public List<Enemy> stepAndSpawn() {
 		frameNumber++;
-		if(frameNumber >= nextWaveStartFrame){
+		
+		while(incomingWaves.size() < DEFAULT_GENERATED_WAVE_BUFFER)
 			incomingWaves.addLast(generateNewWave());
+			
+		if(frameNumber >= nextWaveStartFrame){
 			prepareCurrentWave();
 			incomingWaves.removeFirst();
 		}
 		
+		// TODO: improve handling of elites (make their stats show up properly)
 		List<Enemy> result = new ArrayList<Enemy>();
 		if(spawnedThisWave < totalToSpawn && frameNumber % spawnPeriod == 0){
 			spawnedThisWave++;
