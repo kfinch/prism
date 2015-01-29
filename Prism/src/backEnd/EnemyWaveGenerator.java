@@ -13,7 +13,7 @@ public abstract class EnemyWaveGenerator {
 	
 	public static final double DEFAULT_HORDE_DURATION_EXTENSION = 1.5;
 	
-	public static final double DEFAULT_PACK_DURATION_REDUCTION = 0.6;
+	public static final double DEFAULT_PACK_DURATION_REDUCTION = 0.75;
 	
 	public static final double DEFAULT_ELITE_TIER_BONUS = 6;
 	public static final double DEFAULT_ELITE_NUMBER_REDUCTION = 0.5;
@@ -103,8 +103,8 @@ public abstract class EnemyWaveGenerator {
 			incomingWaves.addLast(generateNewWave());
 			
 		if(frameNumber >= nextWaveStartFrame){
-			prepareCurrentWave();
 			incomingWaves.removeFirst();
+			prepareCurrentWave();
 		}
 		
 		// TODO: improve handling of elites (make their stats show up properly)

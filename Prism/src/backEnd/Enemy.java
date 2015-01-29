@@ -20,6 +20,8 @@ public abstract class Enemy extends EntityWithAttack {
 	
 	protected static final double TIER_STAT_MULTIPLIER = 0.15;
 	
+	public String id, name, description;
+	
 	public double tier; //enemy's tier. Unlike for towers, this isn't fixed, enemy's stats should scale with their tier.
 	
 	public Node currNode, nextNode; //node this enemy is on, and node it's headed to.
@@ -30,11 +32,16 @@ public abstract class Enemy extends EntityWithAttack {
 	
 	public Stat moveSpeed; //enemy's move stat
 	
-	public Enemy(GameState gameState, Point2d loc, double tier, Node currNode, double priority, int spawnFrame,
+	public Enemy(String id, String name, String description,
+				 GameState gameState, Point2d loc, double tier, Node currNode, double priority, int spawnFrame,
 			     double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
 			     double moveSpeed, PaintableShapes shapes){
 		super(gameState, loc, maxHealth * Math.pow(1+TIER_STAT_MULTIPLIER, tier), healthRegen,
 				attackDamage * Math.pow(1+TIER_STAT_MULTIPLIER, tier), attackDelay, attackRange, shapes);
+		
+		this.id = id;
+		this.name = name;
+		this.description = description;
 		
 		this.tier = tier;
 		

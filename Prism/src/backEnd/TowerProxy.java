@@ -27,13 +27,13 @@ public class TowerProxy extends Tower {
 	}
 
 	@Override
-	public void harm(double damage, boolean isDirectAttack, Entity source){
-		proxied.harm(damage, isDirectAttack, source);
+	public double harm(double damage, boolean isDirectAttack, Entity source){
+		return proxied.harm(damage, isDirectAttack, source);
 	}
 	
 	@Override
-	public void heal(double healing, boolean isDirectHeal, Entity source){
-		proxied.heal(healing, isDirectHeal, source);
+	public double heal(double healing, boolean isDirectHeal, Entity source){
+		return proxied.heal(healing, isDirectHeal, source);
 	}
 	
 	@Override

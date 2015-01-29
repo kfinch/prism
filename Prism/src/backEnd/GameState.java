@@ -30,18 +30,23 @@ public class GameState {
 	public static final Color TOWER_GREEN = Color.decode("#00aa00");
 	public static final Color TOWER_BLUE = Color.decode("#0000aa");
 	
-	public static final Color UI_GOLD = Color.decode("#ffe80f");
-	
-	public static final Color ENEMY_DRAB_GREEN = Color.decode("#556b2f");
-	public static final Color ENEMY_ORANGE = Color.decode("#ff8c00");
-	public static final Color ENEMY_PURPLE = Color.decode("#ff00bb");
-	
 	public static final Color PROJECTILE_RED = Color.decode("#cc0000");
 	public static final Color PROJECTILE_GREEN = Color.decode("#00cc00");
 	public static final Color PROJECTILE_BLUE = Color.decode("#0000cc");
 	public static final Color PROJECTILE_REDGREEN = Color.decode("#b8860b");
 	public static final Color PROJECTILE_GREENBLUE = Color.decode("#44cdaa");
 	public static final Color PROJECTILE_REDBLUE = Color.decode("#a020f0");
+	
+	public static final Color UI_GOLD = Color.decode("#ffe80f");
+	
+	public static final Color ENEMY_DRABGREEN = Color.decode("#758b4f");
+	public static final Color ENEMY_SKYBLUE = Color.decode("#009999");
+	public static final Color ENEMY_ORANGE = Color.decode("#ff8c00");
+	public static final Color ENEMY_PURPLE = Color.decode("#dd00bb");
+	
+	public static final Color ENEMY_PROJECTILE_DRABGREEN = Color.decode("#a0b060");
+	public static final Color ENEMY_PROJECTILE_ORANGERED = Color.decode("#fa5a00");
+	public static final Color ENEMY_PROJECTILE_PURPLE = Color.decode("#ff22cc");
 	
 	public int frameNumber;
 	
@@ -397,6 +402,7 @@ public class GameState {
 					nodeAt((int)t.loc.x,(int)t.loc.y).tower = null;
 				tIter.remove();
 			}
+			/*
 			else if(t.isGhost){
 				t.ghostTimer--;
 				if(t.ghostTimer <= 0){
@@ -413,6 +419,7 @@ public class GameState {
 						t.setGhost(false);
 				}
 			}
+			*/
 		}
 		
 		Iterator<Projectile> pIter = projectiles.iterator();

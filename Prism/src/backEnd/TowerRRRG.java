@@ -19,9 +19,9 @@ public class TowerRRRG extends SimpleTower {
 	public static final int TIER = 4;
 	public static final double MAX_HEALTH = Tower.T4G1_HEALTH;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
-	public static final double ATTACK_DAMAGE = 160;
-	public static final double ATTACK_DELAY = 30;
-	public static final double ATTACK_RANGE = 6;
+	public static final double ATTACK_DAMAGE = 90;
+	public static final double ATTACK_DELAY = 20;
+	public static final double ATTACK_RANGE = 7;
 	public static final double PROJECTILE_SPEED = 0.6;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.85;
 	

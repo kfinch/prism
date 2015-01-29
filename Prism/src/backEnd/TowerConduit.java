@@ -22,7 +22,7 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	
 	public static final double MIN_LIGHT_INCREASE = 0.003;
 	public static final double LIGHT_INCREASE_RATE = 0.005;
-	public static final double RADIANCE = 8.7;
+	public static final double RADIANCE = 9.7;
 	
 	public double currentLightRadius;
 	
@@ -65,6 +65,11 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	public void onDespawn(){
 		super.onDespawn();
 		gameState.lightSources.remove(this);
+	}
+	
+	@Override
+	public void die(){
+		isActive = false; //conduits just die, don't become ghosts
 	}
 	
 	@Override

@@ -16,6 +16,7 @@ public abstract class Buff {
 		this.gameState = gameState;
 		this.id = id;
 		this.isBeneficial = isBeneficial;
+		this.isDispellable = isDispellable;
 		this.isActive = true;
 	}
 	

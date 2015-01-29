@@ -2,10 +2,12 @@ package backEnd;
 
 public class EnemyWave {
 
+	public int waveNumber;
 	public Enemy enemy;
 	public WaveModifier modifier;
 	
-	public EnemyWave(Enemy enemy, WaveModifier modifer){
+	public EnemyWave(int waveNumber, Enemy enemy, WaveModifier modifer){
+		this.waveNumber = waveNumber;
 		this.enemy = enemy;
 		this.modifier = modifer;
 	}

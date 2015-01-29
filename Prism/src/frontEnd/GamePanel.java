@@ -309,7 +309,8 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 			
 			EnemyWave incomingWave = game.waveGenerator.getIncomingWaves().getFirst();
 			
-			g2d.drawString("Wave Tier: " + incomingWave.enemy.tier,
+			g2d.drawString("Wave #" + incomingWave.waveNumber + " : " + incomingWave.enemy.name +
+					       " [" + incomingWave.modifier + "]",
 					       xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 2*subUnitSize);
 			g2d.drawString("Wave Size: " + incomingWave.enemy.getBaseWaveSize(),
 					       xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 7*subUnitSize);

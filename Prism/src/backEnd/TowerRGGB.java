@@ -148,7 +148,7 @@ class TowerRGGBBuff extends TimedBuff {
 	@Override
 	public void remove(Entity e) {
 		Tower t = (Tower) e;
-		t.receivedDamageModifier.multPenalties.add(TowerRGGB.DAMAGE_REDUCTION_BUFF);
+		t.receivedDamageModifier.multPenalties.remove(TowerRGGB.DAMAGE_REDUCTION_BUFF);
 		t.receivedDamageModifier.update();
 	}
 	

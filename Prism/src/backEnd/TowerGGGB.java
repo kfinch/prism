@@ -84,12 +84,13 @@ public class TowerGGGB extends SimpleTower implements AttractSource {
 	}
 	
 	@Override
-	public void harm(double damage, boolean isDirectAttack, Entity source){
-		super.harm(damage, isDirectAttack, source);
+	public double harm(double damage, boolean isDirectAttack, Entity source){
+		double result = super.harm(damage, isDirectAttack, source);
 		if(isDirectAttack && source != null && specialAction.canAct()){
 			source.harm(attackDamage.modifiedValue, false, this);
 			source.addBuff(new TowerGGGBBuff(gameState));
 		}
+		return result;
 	}
 	
 	@Override

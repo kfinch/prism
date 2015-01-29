@@ -278,12 +278,24 @@ public abstract class Tower extends EntityWithAttack {
 	@Override
 	public void postStep(){
 		super.postStep();
-		//if(currNode.tower != this){ //TODO: remove debugging
-		//	System.out.println("Representation mismatch with " + this);
-		//	System.out.println("I'm @ " + xLoc + " " + yLoc +
-		//			           "  curr node = " + currNode + " @ " + currNode.xLoc + " " + currNode.yLoc);
-		//	System.out.println("My node's tower is " + currNode.tower);
-		//}
+		
+		if(isGhost){
+			ghostTimer--;
+			if(ghostTimer <= 0){
+				ghostTimer = 0;
+				boolean ressurect = true;
+				for(int xi=-1; xi<2; xi++){
+					for(int yi=-1; yi<2; yi++){
+						if(!gameState.nodeAt(currNode.xLoc+xi, currNode.yLoc+yi).enemies.isEmpty())
+							ressurect = false;
+					}
+				}
+				if(!isLit)
+					ressurect = false;
+				if(ressurect)
+					setGhost(false);
+			}
+		}
 	}
 	
 	@Override
@@ -293,13 +305,16 @@ public abstract class Tower extends EntityWithAttack {
 	
 	@Override
 	public void paintEntity(Graphics2D g2d, int cornerX, int cornerY, int tileSize){
+		
 		if(isGhost)
 			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
-		
 		super.paintEntity(g2d, cornerX, cornerY, tileSize);
+		if(isGhost)
+			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 		
 		int centerX = (int) (cornerX + loc.x*tileSize); //TODO: this basically repeated code =/ Solution?
 		int centerY = (int) (cornerY + loc.y*tileSize);
+		
 		if(hasBuff(UPGRADE_DEBUFF_ID)){
 			TimedBuff tb = (TimedBuff) buffs.get(UPGRADE_DEBUFF_ID);
 			double percentComplete = ((double)tb.initialDuration - (double)tb.timer) / ((double)tb.initialDuration);
@@ -318,9 +333,11 @@ public abstract class Tower extends EntityWithAttack {
 			super.paintStatusBar(g2d, centerX, centerY, tileSize, 0, 0, 1.8, 0.6, percentComplete,
 					             Color.black, GameState.UI_GOLD);
 		}
-		
-		if(isGhost)
-			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+		if(isGhost){
+			double percentComplete = 1 - ((double)ghostTimer/(double)GHOST_DURATION);
+			super.paintStatusBar(g2d, centerX, centerY, tileSize, 0, 0, 1.0, 0.3, percentComplete,
+					             Color.darkGray, Color.white);
+		}
 	}
 }
 

@@ -44,4 +44,11 @@ public abstract class Stat {
 	}
 	
 	public abstract void update();
+	
+	@Override
+	public String toString(){
+		String result = "base=" + baseValue + " add+=" + addBonuses.size() + " mult+=" + multBonuses.size() + 
+				        " add-=" + addPenalties.size() + " mult-=" + multPenalties.size();
+		return result;
+	}
 }

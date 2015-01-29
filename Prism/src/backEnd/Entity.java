@@ -76,24 +76,26 @@ public abstract class Entity {
 		showHealthBar = false;
 	}
 	
-	public void harm(double damage, boolean isDirectAttack, Entity source){
+	public double harm(double damage, boolean isDirectAttack, Entity source){
 		receivedDamageModifier.baseValue = damage;
 		receivedDamageModifier.update();
 		double modDamage = receivedDamageModifier.modifiedValue;
 		if(modDamage < 0)
 			modDamage = 0;
 		currHealth -= modDamage;
+		return modDamage;
 	}
 	
-	public void heal(double healing, boolean isDirectHeal, Entity source){
+	public double heal(double healing, boolean isDirectHeal, Entity source){
 		receivedHealingModifier.baseValue = healing;
 		receivedHealingModifier.update();
 		double modHealing = receivedHealingModifier.modifiedValue;
 		if(modHealing < 0)
 			modHealing = 0;
+		if(currHealth + modHealing > maxHealth.modifiedValue)
+			modHealing = maxHealth.modifiedValue - currHealth;
 		currHealth += modHealing;
-		if(currHealth > maxHealth.modifiedValue)
-			currHealth = maxHealth.modifiedValue;
+		return modHealing;
 	}
 	
 	public void die(){
