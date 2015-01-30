@@ -15,7 +15,7 @@ public class EnemyTurtle extends SimpleEnemy {
 	public static final double BASE_KILL_REWARD = 2.5;
 	
 	public static final double PRIORITY = 0;
-	public static final double MAX_HEALTH = 110;
+	public static final double MAX_HEALTH = 120;
 	public static final double HEALTH_REGEN = 0;
 	public static final double ATTACK_DAMAGE = 10;
 	public static final double ATTACK_DELAY = 70;
@@ -33,8 +33,8 @@ public class EnemyTurtle extends SimpleEnemy {
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	public static final boolean APPLIES_DEBUFF = false;
 	
-	public static final double BASE_DAMAGE_IGNORE = 3;
-	public static final double GROWTH_DAMAGE_IGNORE = 1.5;
+	public static final double BASE_DAMAGE_IGNORE = 2;
+	public static final double GROWTH_DAMAGE_IGNORE = 1;
 	
 	public EnemyTurtle(GameState gameState, Point2d loc, double tier, Node currNode, int spawnFrame) {
 		super(ID, NAME, DESCRIPTION, gameState, loc, tier, WAVE_SIZE, BASE_KILL_REWARD, currNode, PRIORITY, spawnFrame,

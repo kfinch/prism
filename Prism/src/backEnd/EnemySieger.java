@@ -17,7 +17,7 @@ public class EnemySieger extends SimpleEnemy {
 	public static final double BASE_KILL_REWARD = 8;
 	
 	public static final double PRIORITY = 0;
-	public static final double MAX_HEALTH = 130;
+	public static final double MAX_HEALTH = 120;
 	public static final double HEALTH_REGEN = 0;
 	public static final double ATTACK_DAMAGE = 4;
 	public static final double ATTACK_DELAY = 15;
@@ -35,7 +35,7 @@ public class EnemySieger extends SimpleEnemy {
 	public static final double SHOT_ORIGIN_DISTANCE = 0.25;
 	public static final boolean APPLIES_DEBUFF = false;
 	
-	public static final double ATTACK_AOE = 0.7;
+	public static final double ATTACK_AOE = 0.6;
 	public static final double ATTACK_INACCURACY = 1.5;
 	
 	public EnemySieger(GameState gameState, Point2d loc, double tier, Node currNode, int spawnFrame) {
