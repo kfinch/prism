@@ -16,6 +16,18 @@ public class ActionType {
 		return (suppressCount == 0) && ((disableCount == 0) || (immuneCount != 0));
 	}
 	
+	public boolean isSuppressed(){
+		return !(suppressCount == 0);
+	}
+	
+	public boolean isImmune(){
+		return !(immuneCount == 0);
+	}
+	
+	public boolean isDisabled(){
+		return !(disableCount == 0);
+	}
+	
 	public void startDisable(){
 		disableCount++;
 	}

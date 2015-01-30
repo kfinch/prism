@@ -29,6 +29,10 @@ public abstract class Projectile extends Entity {
 	
 	protected abstract void payload();
 	
+	protected Vector2d vectorToTarget(){
+		return new Vector2d(loc, target.loc);
+	}
+	
 	protected void move(Vector2d moveVec){
 		moveVec = Vector2d.vectorFromAngleAndMagnitude(moveVec.getAngle(), moveSpeed.modifiedValue);
 		super.moveBy(moveVec);
@@ -41,7 +45,7 @@ public abstract class Projectile extends Entity {
 	@Override
 	public void moveStep(){
 		if(moveAction.canAct()){
-			Vector2d moveVec = new Vector2d(loc, target.loc);
+			Vector2d moveVec = vectorToTarget();
 			if(moveVec.getMagnitude() <= moveSpeed.modifiedValue){
 				triggerPayload = true;
 			}

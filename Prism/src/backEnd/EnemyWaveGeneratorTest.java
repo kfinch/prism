@@ -26,6 +26,8 @@ public class EnemyWaveGeneratorTest extends EnemyWaveGenerator {
 		enemyTypes.add(new EnemyAstral(0));
 		enemyTypes.add(new EnemyBomber(0));
 		enemyTypes.add(new EnemyKamikaze(0));
+		enemyTypes.add(new EnemyTurtle(0));
+		enemyTypes.add(new EnemySieger(0));
 		
 		modifierTypes = new ArrayList<WaveModifier>();
 		modifierTypes.add(WaveModifier.PACK);
