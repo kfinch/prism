@@ -64,6 +64,39 @@ public abstract class EnemyWaveGenerator {
 			
 	public abstract EnemyWave generateNewWave();
 	
+	public int getEffectiveWaveDuration(EnemyWave wave){
+		int result = waveDuration;
+		if(wave.modifier == WaveModifier.HORDE)
+			result *= hordeDurationExtension;
+		else if(wave.modifier == WaveModifier.PACK)
+			result *= packDurationReduction;
+		return result;
+	}
+	
+	public int getEffectiveWaveDowntime(EnemyWave wave){
+		return waveDowntime;
+	}
+	
+	public double getEffectiveWaveTier(EnemyWave wave){
+		double result = wave.enemy.tier;
+		if(wave.modifier == WaveModifier.ELITE)
+			result += eliteTierBonus;
+		return result;
+	}
+	
+	public Enemy getEffectiveSpawnedEnemy(EnemyWave wave){
+		return wave.enemy.generateCopy(getEffectiveWaveTier(wave));
+	}
+	
+	public int getEffectiveWaveSize(EnemyWave wave){
+		int result = wave.enemy.getBaseWaveSize();
+		if(wave.modifier == WaveModifier.HORDE)
+			result *= hordeDurationExtension;
+		else if(wave.modifier == WaveModifier.ELITE)
+			result *= eliteNumberReduction;
+		return result;
+	}
+	
 	private void prepareCurrentWave(){
 		EnemyWave currWave = incomingWaves.getFirst();
 		currWaveStartFrame = nextWaveStartFrame;
@@ -129,6 +162,10 @@ public abstract class EnemyWaveGenerator {
 
 	public LinkedList<EnemyWave> getIncomingWaves() {
 		return incomingWaves;
+	}
+	
+	public int timeToNextWave(){
+		return nextWaveStartFrame - frameNumber;
 	}
 
 }

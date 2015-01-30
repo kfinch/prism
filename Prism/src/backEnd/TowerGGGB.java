@@ -12,7 +12,7 @@ import util.Vector2d;
 public class TowerGGGB extends SimpleTower implements AttractSource {
 	
 	public static String ID = "TowerGGGB";
-	public static String NAME = "Honeypot Tower II";
+	public static String NAME = "Honeydick Tower";
 	public static String DESCRIPTION = "Upgrade to TowerGGB. " + 
 			"Attracts nearby enemies, making them more likely to move towards this tower. " +
 			"In addition, enemies harm themselves and are briefly paralyzed when attacking this tower.";

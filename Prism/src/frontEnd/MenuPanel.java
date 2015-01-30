@@ -58,12 +58,14 @@ public class MenuPanel extends JPanel implements KeyListener {
 			parent.newGame();
 			break;
 		case KeyEvent.VK_P:
-			parent.swapToPrefsPanel();
+			//parent.swapToPrefsPanel(); TODO: implement these panels
 			break;
 		case KeyEvent.VK_H:
-			parent.swapToScoresPanel();
+			//parent.swapToScoresPanel(); TODO: implement these panels
+			break;
 		case KeyEvent.VK_Q: 
 			parent.quitGame();
+			break;
 		}
 	}
 

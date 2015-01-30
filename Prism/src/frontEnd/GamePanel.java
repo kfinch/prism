@@ -10,6 +10,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -21,6 +23,7 @@ import backEnd.Entity;
 import backEnd.GameRunner;
 import backEnd.GameState;
 import backEnd.LightSource;
+import backEnd.WaveModifier;
 
 public class GamePanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
 	
@@ -267,62 +270,74 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 
 		g2d.setStroke(new BasicStroke(1));
 		
-		//draw tower info panel
+		//draw tower info panel and wave info panel
 		g2d.setColor(Color.lightGray);
 		g2d.fillRect(xLineCenter1, yLineBot, unitSize*5, panelHeight); //draws all the way to bottom of screen
-		
-		if(game.towerMouseOver != null){
-			fontSize = (int) (unitSize*0.3); //TODO: tweak this, obviously (maybe also make a global font size?)
-			g2d.setColor(Color.black);
-			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
-			
-			g2d.drawString(game.towerMouseOver.name,
-				           xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 2*subUnitSize);
-			g2d.drawString("Tower Tier: " + game.towerMouseOver.tier,
-					       xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 7*subUnitSize);
-			double healthRegenRate = 1000 / GameRunner.STEP_DURATION * game.towerMouseOver.healthRegen.modifiedValue;
-			g2d.drawString("Health: " + (int)game.towerMouseOver.currHealth + 
-					       " / " + (int)game.towerMouseOver.maxHealth.modifiedValue +
-					       " (+" + String.format("%.2f", healthRegenRate) + " /sec)",
-						   xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 12*subUnitSize);
-			g2d.drawString("Attack Damage: " + String.format("%.2f", game.towerMouseOver.attackDamage.modifiedValue),
-					       xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 17*subUnitSize);
-			double attackRate = 1000 / GameRunner.STEP_DURATION / game.towerMouseOver.attackDelay.modifiedValue;
-			g2d.drawString("Attack Rate: " + String.format("%.2f", attackRate),
-					       xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 22*subUnitSize);
-			g2d.drawString("Attack Range: " + String.format("%.2f", game.towerMouseOver.attackRange.modifiedValue),
-					       xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 27*subUnitSize);
-			if(game.towerMouseOver.canAOE){
-				g2d.drawString("Attack AOE: " + String.format("%.2f", game.towerMouseOver.attackAOE.modifiedValue),
-						        xLineCenter1 + 3*subUnitSize, yLineBot + fontSize + 32*subUnitSize);
-			}
-		}
-		
-		//draw wave info panel
-		g2d.setColor(Color.lightGray);
 		g2d.fillRect(xLineRight1, yLineBot, unitSize*8, panelHeight); //draws all the way to bottom of screen
 		
+		Font panelFont = new Font(Font.SANS_SERIF, Font.BOLD, subUnitSize*3);
+		Color panelFontColor = Color.black;
+		
+		//if tower mouseover, fill tower info panel
+		if(game.towerMouseOver != null){
+			List<String> towerStats = new ArrayList<String>();
+			
+			towerStats.add(game.towerMouseOver.name + " [Tier " + game.towerMouseOver.tier + "]");
+			
+			double healthRegenRate = 1000 / GameRunner.STEP_DURATION * game.towerMouseOver.healthRegen.modifiedValue;
+			towerStats.add("Health: " + (int)game.towerMouseOver.currHealth + 
+				           " / " + (int)game.towerMouseOver.maxHealth.modifiedValue +
+				           " (+" + String.format("%.2f", healthRegenRate) + " /sec)");
+			
+			double attackDamage = game.towerMouseOver.attackDamage.modifiedValue;
+			towerStats.add("Attack Damage: " + String.format("%.1f", attackDamage));
+			
+			double attackRate = 1000 / GameRunner.STEP_DURATION / game.towerMouseOver.attackDelay.modifiedValue;
+			towerStats.add("Attack Rate: " + String.format("%.2f", attackRate));
+			
+			towerStats.add("DPS: " + String.format("%.1f", attackDamage * attackRate));
+			
+			towerStats.add("Attack Range: " + String.format("%.1f", game.towerMouseOver.attackRange.modifiedValue));
+			
+			if(game.towerMouseOver.canAOE)
+				towerStats.add("Attack AOE: " + String.format("%.1f", game.towerMouseOver.attackAOE.modifiedValue));
+			
+			drawStatsBox(g2d, xLineCenter1, yLineBot, panelFont, panelFontColor, 1*subUnitSize, 2*subUnitSize, towerStats);
+		}
+		
+		//if enemy wave incoming, fill enemy info panel
 		if(!game.waveGenerator.getIncomingWaves().isEmpty()){
-			fontSize = (int) (unitSize*0.3); //TODO: tweak this, obviously (maybe also make a global font size?)
-			g2d.setColor(Color.black);
-			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
+			List<String> enemyStats = new ArrayList<String>();
 			
 			EnemyWave incomingWave = game.waveGenerator.getIncomingWaves().getFirst();
+			Enemy effectiveEnemy = game.waveGenerator.getEffectiveSpawnedEnemy(incomingWave);
 			
-			g2d.drawString("Wave #" + incomingWave.waveNumber + " : " + incomingWave.enemy.name +
-					       " [" + incomingWave.modifier + "]",
-					       xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 2*subUnitSize);
-			g2d.drawString("Wave Size: " + incomingWave.enemy.getBaseWaveSize(),
-					       xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 7*subUnitSize);
-			g2d.drawString("Health: " + String.format("%.2f", incomingWave.enemy.maxHealth.modifiedValue),
-				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 12*subUnitSize);
-			g2d.drawString("Attack Damage: " + String.format("%.2f", incomingWave.enemy.attackDamage.modifiedValue),
-				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 17*subUnitSize);
-			double attackRate = 1000 / GameRunner.STEP_DURATION / incomingWave.enemy.attackDelay.modifiedValue;
-			g2d.drawString("Attack Rate: " + String.format("%.2f", attackRate),
-				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 22*subUnitSize);
-			g2d.drawString("Movement Speed: " + String.format("%.2f", incomingWave.enemy.moveSpeed.modifiedValue),
-				           xLineRight1 + 3*subUnitSize, yLineBot + fontSize + 27*subUnitSize);
+			String waveInfo = "Wave #" + incomingWave.waveNumber + " : " + incomingWave.enemy.name;
+			if(incomingWave.modifier != WaveModifier.NONE)
+				waveInfo += " *" + incomingWave.modifier + "*";
+			enemyStats.add(waveInfo);
+			
+			int waveDurationInSecs = game.waveGenerator.getEffectiveWaveDuration(incomingWave) /
+					                 (1000 / GameRunner.STEP_DURATION);
+			int waveSize = game.waveGenerator.getEffectiveWaveSize(incomingWave);
+			enemyStats.add("Wave: " + waveSize + " foes over " + waveDurationInSecs + " secs");
+			
+			enemyStats.add("Health: " + String.format("%.0f", effectiveEnemy.maxHealth.modifiedValue));
+			
+			double attackDamage = effectiveEnemy.attackDamage.modifiedValue;
+			enemyStats.add("Attack Damage: " + String.format("%.1f", attackDamage));
+			
+			double attackRate = 1000 / GameRunner.STEP_DURATION / effectiveEnemy.attackDelay.modifiedValue;
+			enemyStats.add("Attack Rate: " + String.format("%.2f", attackRate));
+			
+			enemyStats.add("DPS: " + String.format("%.1f", attackDamage * attackRate));
+			
+			enemyStats.add("Attack Range: " + String.format("%.1f", effectiveEnemy.attackRange.modifiedValue));
+			
+			double movementRate = 1000 / GameRunner.STEP_DURATION * effectiveEnemy.moveSpeed.modifiedValue;
+			enemyStats.add("Movement Speed: " + String.format("%.2f", movementRate) + " units/sec");
+			
+			drawStatsBox(g2d, xLineRight1, yLineBot, panelFont, panelFontColor, 1*subUnitSize, 2*subUnitSize, enemyStats);
 		}
 		
 		//draw pause state
@@ -347,6 +362,18 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 	
 	private int yBoardLocToScreenLoc(double boardY){
 		return (int) ((boardY * tileSize) + yLineTop + tileSize/2);
+	}
+	
+	private void drawStatsBox(Graphics2D g2d, int cornerX, int cornerY, Font font, Color fontColor, 
+			                  int lineSpacing, int leftMargin, List<String> stats){
+		int linePeriod = font.getSize() + lineSpacing;
+		g2d.setColor(fontColor);
+		g2d.setFont(font);
+		int i=1;
+		for(String s : stats){
+			g2d.drawString(s, cornerX + leftMargin, cornerY + linePeriod*i);
+			i++;
+		}
 	}
 
 	@Override
