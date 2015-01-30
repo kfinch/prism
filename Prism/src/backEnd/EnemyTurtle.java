@@ -11,11 +11,11 @@ public class EnemyTurtle extends SimpleEnemy {
 	public static final String DESCRIPTION =
 			"A tough but slow melee foe. Ignores a flat amount of damage from each attack.";
 	
-	public static final int WAVE_SIZE = 35;
+	public static final int WAVE_SIZE = 30;
 	public static final double BASE_KILL_REWARD = 2.5;
 	
 	public static final double PRIORITY = 0;
-	public static final double MAX_HEALTH = 120;
+	public static final double MAX_HEALTH = 110;
 	public static final double HEALTH_REGEN = 0;
 	public static final double ATTACK_DAMAGE = 10;
 	public static final double ATTACK_DELAY = 70;
