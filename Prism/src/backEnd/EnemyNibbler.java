@@ -14,10 +14,10 @@ public class EnemyNibbler extends SimpleEnemy {
 	public static final double BASE_KILL_REWARD = 2;
 	
 	public static final double PRIORITY = 0;
-	public static final double MAX_HEALTH = 60;
+	public static final double MAX_HEALTH = 65;
 	public static final double HEALTH_REGEN = 0;
 	public static final double ATTACK_DAMAGE = 8;
-	public static final double ATTACK_DELAY = 40;
+	public static final double ATTACK_DELAY = 35;
 	public static final double ATTACK_RANGE = 0.1;
 	public static final double MOVE_SPEED = 0.07;
 	
