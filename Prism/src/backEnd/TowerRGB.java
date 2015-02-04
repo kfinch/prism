@@ -33,7 +33,7 @@ public class TowerRGB extends SimpleTower{
 	public static final double T3_ATTACK_DELAY_BUFF = 1.3; //TODO: is this too high?
 	public static final double T3_HEALTH_REGEN_BUFF = Tower.BASE_HEALTH_REGEN * 4; // ^ ^ ^ 
 	
-	public static final double T4_ATTACK_DELAY_BUFF = 1.6;
+	public static final double T4_ATTACK_DELAY_BUFF = 1.5;
 	public static final double T4_HEALTH_REGEN_BUFF = Tower.BASE_HEALTH_REGEN * 8;
 	
 	public static final int BUFF_PERIOD = 60;

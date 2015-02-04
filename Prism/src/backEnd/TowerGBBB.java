@@ -2,24 +2,28 @@ package backEnd;
 
 import java.util.Set;
 
+import util.Animation;
 import util.PaintableShapes;
 import util.Point2d;
+import util.SimpleRayAnimation;
+import util.Vector2d;
 
 public class TowerGBBB extends SimpleTower{
 	
 	public static String ID = "TowerGBBB";
 	public static String NAME = "Conducting Tower";
 	public static String DESCRIPTION =
-			"Conducts health between itself and adjacent towers in an effort to equalize health percentages. " +
-			"Additionally, tower teleports to or from spots adjacent to this tower proceed at triple speed.";
+			"Fires electrical arcs that can shoot down incoming projectiles, or at enemies in a pinch. " +
+			"Also conducts health between itself and adjacent towers in an effort to equalize health percentages. " +
+			"Finally, tower teleports to or from spots adjacent to this tower proceed at triple speed.";
 	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 4;
 	public static final double MAX_HEALTH = Tower.T4G1_HEALTH;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
-	public static final double ATTACK_DAMAGE = 0;
-	public static final double ATTACK_DELAY = 1000;
-	public static final double ATTACK_RANGE = 0;
+	public static final double ATTACK_DAMAGE = 24;
+	public static final double ATTACK_DELAY = 12;
+	public static final double ATTACK_RANGE = 5;
 	public static final double PROJECTILE_SPEED = 0;
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
@@ -32,11 +36,18 @@ public class TowerGBBB extends SimpleTower{
 	//percent health difference required before transfer begins
 	public static final double HEALTH_TRANSFER_DIFFERENCE_CUTOFF = 0.02;
 	
+	private static final Vector2d ATK_SRC_1 = new Vector2d(0.6, 0);
+	private static final Vector2d ATK_SRC_2 = ATK_SRC_1.afterSetAngle(Math.PI*2/3);
+	private static final Vector2d ATK_SRC_3 = ATK_SRC_1.afterSetAngle(Math.PI*4/3);
+	public static final Vector2d[] ATK_SRC_OFFSETS = {ATK_SRC_1, ATK_SRC_2, ATK_SRC_3};
+	
+	private int attackNum;
+	
 	public TowerGBBB(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
 		super(ID, NAME, DESCRIPTION,
 			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
-		attackAction.startSuppress(); //TowerGBBB can't attack
+		attackNum = 0;
 	}
 	
 	private static PaintableShapes generateShapes(Point2d loc){
@@ -111,5 +122,28 @@ public class TowerGBBB extends SimpleTower{
 	@Override
 	protected Tower generateBlueUpgrade(){
 		return null;
+	}
+	
+	@Override //allows targeting of projectiles (will only target enemy projectiles)
+	protected Entity acquireTarget(){
+		Set<Projectile> projectilesInRange = gameState.getProjectilesInRange(loc, attackRange.modifiedValue);
+		for(Projectile proj : projectilesInRange){
+			if(proj.source instanceof Enemy)
+				return proj;
+		}
+		
+		return super.acquireTarget();
+	}
+	
+	protected void instantAttack(){
+		target.harm(attackDamage.modifiedValue, true, this);
+		Animation a = generateAttackAnimation(); //all so it doesn't set origin loc )=
+		gameState.playAnimation(a);
+	}
+	
+	protected Animation generateAttackAnimation(){
+		attackNum++;
+		return new SimpleRayAnimation(5, loc.afterTranslate(ATK_SRC_OFFSETS[attackNum%ATK_SRC_OFFSETS.length]),
+				                      target.loc, 0.1, 0.8f, 0.5f, GameState.PROJECTILE_GREENBLUE);
 	}
 }

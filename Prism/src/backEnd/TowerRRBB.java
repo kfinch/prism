@@ -20,9 +20,9 @@ public class TowerRRBB extends SimpleTower{
 	public static final int TIER = 4;
 	public static final double MAX_HEALTH = Tower.T4G0_HEALTH;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
-	public static final double ATTACK_DAMAGE = 400;
+	public static final double ATTACK_DAMAGE = 380;
 	public static final double ATTACK_DELAY = TowerRBB.ATTACK_DELAY;
-	public static final double ATTACK_RANGE = 13;
+	public static final double ATTACK_RANGE = 12;
 	public static final double PROJECTILE_SPEED = 0;
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	

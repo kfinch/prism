@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import util.Animation;
-import util.GeometryUtils;
 import util.PaintableShapes;
 import util.Point2d;
 import util.Vector2d;
@@ -18,7 +17,7 @@ import util.Vector2d;
  */
 public abstract class SimpleTower extends Tower{
 
-	protected Enemy target;
+	protected Entity target;
 	
 	protected double projectileSpeed;
 	protected double shotOriginDistance;
@@ -76,7 +75,7 @@ public abstract class SimpleTower extends Tower{
 		}
 	}
 	
-	protected Enemy acquireTarget(){
+	protected Entity acquireTarget(){
 		Set<Enemy> enemiesInRange = gameState.getEnemiesInRange(loc, attackRange.modifiedValue);
 		//TODO: remove debugging code
 		//System.out.println(enemiesInRange.size() + " enemies detected in firing range (" + attackRange.modifiedValue + ")");

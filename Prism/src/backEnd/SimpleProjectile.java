@@ -11,7 +11,6 @@ public class SimpleProjectile extends Projectile {
 	public static final double MAX_HEALTH = 1;
 	public static final double HEALTH_REGEN = 0;
 	
-	public Entity source;
 	public double damage;
 	public double aoe;
 	public boolean isAOE;
@@ -20,8 +19,7 @@ public class SimpleProjectile extends Projectile {
 	
 	public SimpleProjectile(GameState gameState, Point2d loc, Entity source, Entity target, double moveSpeed,
 			                double damage, double aoe, boolean isAOE, Buff appliedDebuff, PaintableShapes shapes) {
-		super(gameState, loc, MAX_HEALTH, HEALTH_REGEN, target, moveSpeed, shapes);
-		this.source = source;
+		super(gameState, loc, MAX_HEALTH, HEALTH_REGEN, source, target, moveSpeed, shapes);
 		this.damage = damage;
 		this.aoe = aoe;
 		this.isAOE = isAOE;

@@ -14,14 +14,16 @@ import util.Vector2d;
  */
 public abstract class Projectile extends Entity {
 
+	protected Entity source; //the source of this projectile
 	protected Entity target; //the target this projectile is heading for
 	private boolean triggerPayload; //flagged if projectile hits its target
 	
 	protected Stat moveSpeed;
 	
-	public Projectile(GameState gameState, Point2d loc, double maxHealth, double healthRegen,
+	public Projectile(GameState gameState, Point2d loc, double maxHealth, double healthRegen, Entity source,
 			          Entity target, double moveSpeed, PaintableShapes shapes) {
 		super(gameState, loc, maxHealth, healthRegen, shapes);
+		this.source = source;
 		this.target = target;
 		this.triggerPayload = false;
 		this.moveSpeed = new BasicStat(moveSpeed);

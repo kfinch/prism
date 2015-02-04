@@ -55,6 +55,14 @@ public final class Vector2d implements Serializable {
 		return new Vector2d(magnitude * Math.cos(angle), magnitude * Math.sin(angle));
 	}
 	
+	public Vector2d afterSetAngle(double angle){
+		return vectorFromAngleAndMagnitude(angle, getMagnitude());
+	}
+	
+	public Vector2d afterSetMagnitude(double magnitude){
+		return vectorFromAngleAndMagnitude(getAngle(), magnitude);
+	}
+	
 	/**
 	 * Generates the result of adding another vector to this vector
 	 * @param add the vector to add

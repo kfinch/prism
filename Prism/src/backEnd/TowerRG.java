@@ -59,7 +59,7 @@ public class TowerRG extends SimpleTower{
 	}
 	
 	@Override
-	protected Enemy acquireTarget(){
+	protected Entity acquireTarget(){
 		attackRange.modifiedValue = attackAOE.modifiedValue;
 		return super.acquireTarget();
 	}

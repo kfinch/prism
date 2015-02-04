@@ -21,12 +21,12 @@ public class TowerRRRG extends SimpleTower {
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
 	public static final double ATTACK_DAMAGE = 90;
 	public static final double ATTACK_DELAY = 20;
-	public static final double ATTACK_RANGE = 7;
+	public static final double ATTACK_RANGE = 6.5;
 	public static final double PROJECTILE_SPEED = 0.6;
 	public static final double SHOT_ORIGIN_DISTANCE = 0.85;
 	
 	public static final int SUNDER_DURATION = 120;
-	public static final double SUNDER_STACK_STRENGTH = 0.2;
+	public static final double SUNDER_STACK_STRENGTH = 0.15;
 	public static final int SUNDER_MAX_STACKS = 5;
 	
 	public TowerRRRG(GameState gameState, Point2d loc, Node currNode, int spawnFrame) {
