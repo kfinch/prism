@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -19,6 +20,7 @@ import util.Animation;
 import util.Point2d;
 import backEnd.Enemy;
 import backEnd.EnemyWave;
+import backEnd.EnemyWaveGenerator;
 import backEnd.Entity;
 import backEnd.GameRunner;
 import backEnd.GameState;
@@ -276,6 +278,7 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		Color panelFontColor = Color.black;
 		
 		//draw incoming waves bar
+		/*
 		g2d.setColor(Color.LIGHT_GRAY);
 		g2d.fillRect(xLineCenter1, yLineBot1, xLineRight2 - xLineCenter1, unitSize*1);
 		
@@ -292,7 +295,36 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 			if(wave.modifier != WaveModifier.NONE)
 				g2d.drawString("*" + wave.modifier + "*", currentX, modY);
 		}
+		*/
 		
+		int currentTimeX = xLineRight2 - 2*unitSize;
+		int futurePixels = 14*unitSize;
+		int futureFrames = (game.waveGenerator.waveDuration + game.waveGenerator.waveDowntime) *
+				           (EnemyWaveGenerator.DEFAULT_GENERATED_WAVE_BUFFER + 1);
+		double pixelsPerFrame = (double)futurePixels / (double)futureFrames;
+		
+		LinkedList<EnemyWave> incomingWaves = game.waveGenerator.getIncomingWaves();
+		if(!incomingWaves.isEmpty()){
+			g2d.setFont(panelFont);
+			int waveStartX = (int) (currentTimeX + game.waveGenerator.timeSinceWaveStart() * pixelsPerFrame);
+			int waveEndX;
+			for(EnemyWave wave : incomingWaves){
+				waveEndX = (int) (waveStartX - game.waveGenerator.getEffectiveWaveDuration(wave) * pixelsPerFrame);
+				g2d.setColor(Color.lightGray);
+				g2d.fillRect(waveEndX, yLineBot1, waveStartX-waveEndX, unitSize);
+				g2d.setColor(Color.black);
+				g2d.drawString(wave.enemy.name, waveEndX + subUnitSize, yLineBot1 + 4*subUnitSize);
+				if(wave.modifier != WaveModifier.NONE)
+					g2d.drawString("*" + wave.modifier + "*", waveEndX + subUnitSize, yLineBot1 + 9*subUnitSize);
+				waveStartX -= (game.waveGenerator.getEffectiveWaveDuration(wave) +
+						      game.waveGenerator.getEffectiveWaveDowntime(wave)) * pixelsPerFrame;
+			}
+		}
+		
+		g2d.setColor(GameState.UI_GOLD);
+		g2d.setStroke(new BasicStroke(4));
+		g2d.drawLine(currentTimeX, yLineBot1, currentTimeX, yLineBot1 + unitSize);
+		g2d.setStroke(new BasicStroke(1));
 		
 		//draw tower info panel and wave info panel
 		g2d.setColor(Color.lightGray);

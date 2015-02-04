@@ -164,8 +164,8 @@ public abstract class EnemyWaveGenerator {
 		return incomingWaves;
 	}
 	
-	public int timeToNextWave(){
-		return nextWaveStartFrame - frameNumber;
+	public int timeSinceWaveStart(){
+		return frameNumber - currWaveStartFrame;
 	}
 
 }
