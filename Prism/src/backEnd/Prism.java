@@ -13,6 +13,8 @@ public class Prism extends Entity implements LightSource {
 	
 	protected static final float COLOR_CYCLE_RATE = 0.002f;
 	
+	public static final double PERCENT_HEALTH_HARM = 0.02;
+	
 	public double radiance;
 	public double radianceSetBack;
 	
@@ -40,6 +42,17 @@ public class Prism extends Entity implements LightSource {
 		result.addFixedPolygon(nPoints1, xPoints1, yPoints1, GameState.UI_GOLD);
 		
 		return result;
+	}
+	
+	@Override
+	public double harm(double damage, boolean isDirectAttack, Entity source){
+		if(isDirectAttack){
+			double modDamage = maxHealth.modifiedValue * PERCENT_HEALTH_HARM;
+			return super.harm(modDamage, isDirectAttack, source);
+		}
+		else{
+			return super.harm(damage, isDirectAttack, source);
+		}
 	}
 
 	@Override

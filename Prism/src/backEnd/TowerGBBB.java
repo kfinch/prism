@@ -23,7 +23,7 @@ public class TowerGBBB extends SimpleTower{
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
 	public static final double ATTACK_DAMAGE = 24;
 	public static final double ATTACK_DELAY = 12;
-	public static final double ATTACK_RANGE = 5;
+	public static final double ATTACK_RANGE = 6;
 	public static final double PROJECTILE_SPEED = 0;
 	public static final double SHOT_ORIGIN_DISTANCE = 0;
 	
@@ -86,19 +86,20 @@ public class TowerGBBB extends SimpleTower{
 			double myHealthPercent = currHealth / maxHealth.modifiedValue;
 			double tHealthPercent;
 			double tHealthTransferRate;
+			double actualTransferAmount;
 			for(Tower t : adjacentTowers){
 				//health transfer
 				tHealthPercent = t.currHealth / t.maxHealth.modifiedValue;
 				tHealthTransferRate = Math.min(HEALTH_TRANSFER_RATE, t.maxHealth.modifiedValue * 0.01);
 				if(tHealthPercent > myHealthPercent && tHealthPercent > HEALTH_TRANSFER_LOWER_CUTOFF &&
 				   tHealthPercent - myHealthPercent >= HEALTH_TRANSFER_DIFFERENCE_CUTOFF){
-					t.harm(tHealthTransferRate, false, this);
-					this.heal(tHealthTransferRate, false, t);
+					actualTransferAmount = t.harm(tHealthTransferRate, false, this);
+					this.heal(actualTransferAmount, false, t);
 				}
 				else if(tHealthPercent < myHealthPercent && myHealthPercent > HEALTH_TRANSFER_LOWER_CUTOFF &&
 						myHealthPercent - tHealthPercent >= HEALTH_TRANSFER_DIFFERENCE_CUTOFF){
-					this.harm(tHealthTransferRate, false, t);
-					t.heal(tHealthTransferRate, false, this);
+					actualTransferAmount = this.harm(tHealthTransferRate, false, t);
+					t.heal(actualTransferAmount, false, this);
 				}
 				
 				//teleport speed-up (3x speed up)

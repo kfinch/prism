@@ -1,6 +1,7 @@
 package backEnd;
 
 import java.awt.Color;
+
 import util.PaintableShapes;
 import util.Point2d;
 
@@ -12,7 +13,7 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	
 	public static final double PRIORITY = 0;
 	public static final int TIER = 1;
-	public static final double MAX_HEALTH = 200;
+	public static final double MAX_HEALTH = 500;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
 	public static final double ATTACK_DAMAGE = 0;
 	public static final double ATTACK_DELAY = 1000;
@@ -23,6 +24,8 @@ public class TowerConduit extends SimpleTower implements LightSource {
 	public static final double MIN_LIGHT_INCREASE = 0.003;
 	public static final double LIGHT_INCREASE_RATE = 0.005;
 	public static final double RADIANCE = 9.7;
+	
+	public static final double PERCENT_HEALTH_HARM = 0.10;
 	
 	public double currentLightRadius;
 	
@@ -40,6 +43,22 @@ public class TowerConduit extends SimpleTower implements LightSource {
 		result.addFixedCircle(0, 0, 0.7, Color.lightGray);
 		
 		return result;
+	}
+	
+	@Override
+	public double harm(double damage, boolean isDirectAttack, Entity source){
+		if(isDirectAttack){
+			double modDamage = maxHealth.modifiedValue * PERCENT_HEALTH_HARM;
+			return super.harm(modDamage, isDirectAttack, source);
+		}
+		else{
+			return super.harm(damage, isDirectAttack, source);
+		}
+	}
+	
+	@Override
+	public boolean teleportTower(Node dst){
+		return false; //conduits cant be teleported
 	}
 	
 	@Override
