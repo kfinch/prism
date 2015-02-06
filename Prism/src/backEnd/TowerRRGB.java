@@ -121,14 +121,15 @@ class TowerRRGBBuff extends TimedBuff {
 
 	@Override
 	public void apply(Entity e) {
-		Tower t = (Tower) e;
+		super.apply(e);
+		Tower t = (Tower) buffed;
 		t.attackDamage.multBonuses.add(TowerRRGB.ATTACK_DAMAGE_BUFF);
 		t.attackDamage.update();
 	}
 
 	@Override
-	public void remove(Entity e) {
-		Tower t = (Tower) e;
+	public void remove() {
+		Tower t = (Tower) buffed;
 		t.attackDamage.multBonuses.remove(TowerRRGB.ATTACK_DAMAGE_BUFF);
 		t.attackDamage.update();
 	}

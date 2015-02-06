@@ -115,7 +115,7 @@ public abstract class Entity {
 	public void addBuff(Buff buff){
 		if(buffs.containsKey(buff.id)){
 			Buff duplicate = buffs.get(buff.id);
-			duplicate.remove(this);
+			duplicate.remove();
 			buff.handleDuplicate(duplicate);
 			duplicate.apply(this);
 		}
@@ -135,7 +135,7 @@ public abstract class Entity {
 	}
 	
 	public void removeBuff(Buff buff){
-		buff.remove(this);
+		buff.remove();
 		buffs.remove(buff.id);
 	}
 	
@@ -168,7 +168,7 @@ public abstract class Entity {
 		}
 		
 		for(Buff b : buffs.values()){
-			b.step(this);
+			b.step();
 		}
 	}
 	
@@ -194,7 +194,7 @@ public abstract class Entity {
 		while(bIter.hasNext()){
 			b = bIter.next();
 			if(!b.isActive){
-				b.remove(this);
+				b.remove();
 				bIter.remove();
 			}
 		}

@@ -39,6 +39,9 @@ public class SlowingTowerDebuff extends TimedBuff {
 
 	@Override
 	public void apply(Entity e) {
+		if(!(e instanceof Enemy))
+			throw new IllegalArgumentException("SlowingTowerDebuff cannot apply to a " + e);
+		super.apply(e);
 		Enemy en = (Enemy) e;
 		
 		en.moveSpeed.multPenalties.add(strength);
@@ -51,8 +54,8 @@ public class SlowingTowerDebuff extends TimedBuff {
 	}
 
 	@Override
-	public void remove(Entity e) {
-		Enemy en = (Enemy) e;
+	public void remove() {
+		Enemy en = (Enemy) buffed;
 		
 		en.moveSpeed.multPenalties.remove(strength);
 		en.moveSpeed.update();

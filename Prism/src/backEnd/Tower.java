@@ -352,21 +352,22 @@ class DisableTowerDebuff extends TimedBuff {
 	
 	@Override
 	public void apply(Entity e) {
+		super.apply(e);
 		//suppress everything (SHUT. DOWN. EVERYTHING.)
-		e.attackAction.startSuppress();
-		e.moveAction.startSuppress();
-		e.specialAction.startSuppress();
-		e.passiveAction.startSuppress();
-		e.changeAction.startSuppress();
+		buffed.attackAction.startSuppress();
+		buffed.moveAction.startSuppress();
+		buffed.specialAction.startSuppress();
+		buffed.passiveAction.startSuppress();
+		buffed.changeAction.startSuppress();
 	}
 
 	@Override
-	public void remove(Entity e) {
-		e.attackAction.endSuppress();
-		e.moveAction.endSuppress();
-		e.specialAction.endSuppress();
-		e.passiveAction.endSuppress();
-		e.changeAction.endSuppress();
+	public void remove() {
+		buffed.attackAction.endSuppress();
+		buffed.moveAction.endSuppress();
+		buffed.specialAction.endSuppress();
+		buffed.passiveAction.endSuppress();
+		buffed.changeAction.endSuppress();
 	}
 }
 
@@ -387,9 +388,9 @@ class SellingDebuff extends DisableTowerDebuff {
 	}
 	
 	@Override
-	public void remove(Entity e){
-		super.remove(e);
-		e.isActive = false;
+	public void remove(){
+		super.remove();
+		buffed.isActive = false;
 		//TODO: give player resources for the sell! (reduced if tower is ghost on sell completion)
 	}
 }
@@ -416,9 +417,9 @@ class TeleportingDebuff extends DisableTowerDebuff {
 	}
 	
 	@Override
-	public void remove(Entity e){
-		super.remove(e);
-		Tower t = (Tower) e;
+	public void remove(){
+		super.remove();
+		Tower t = (Tower) buffed;
 		gameState.moveTower(dst.xLoc, dst.yLoc, t); //this kills the proxy
 	}
 	

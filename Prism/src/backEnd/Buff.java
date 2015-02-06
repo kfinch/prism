@@ -3,10 +3,12 @@ package backEnd;
 public abstract class Buff {
 
 	protected GameState gameState;
+	protected Entity buffed;
 	
 	public String id;
 	public String name;
 	public String description;
+	
 	public boolean isActive;
 	public boolean isBeneficial;
 	public boolean isDispellable;
@@ -22,10 +24,12 @@ public abstract class Buff {
 	
 	public abstract void handleDuplicate(Buff b);
 	
-	public abstract void apply(Entity e);
+	public void apply(Entity buffed){
+		this.buffed = buffed;
+	}
 	
-	public abstract void step(Entity e);
+	public abstract void step();
 	
-	public abstract void remove(Entity e);
+	public abstract void remove();
 	
 }

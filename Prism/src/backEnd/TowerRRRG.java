@@ -112,14 +112,15 @@ class TowerRRRGDebuff extends TimedBuff {
 
 	@Override
 	public void apply(Entity e) {
-		e.receivedDamageModifier.multBonuses.add(1 + TowerRRRG.SUNDER_STACK_STRENGTH * stacks);
+		super.apply(e);
+		buffed.receivedDamageModifier.multBonuses.add(1 + TowerRRRG.SUNDER_STACK_STRENGTH * stacks);
 		animation = new TowerRRRGDebuffAnimation(e, stacks);
 		gameState.playAnimation(animation);
 	}
 
 	@Override
-	public void remove(Entity e) {
-		e.receivedDamageModifier.multBonuses.remove(1 + TowerRRRG.SUNDER_STACK_STRENGTH * stacks);
+	public void remove() {
+		buffed.receivedDamageModifier.multBonuses.remove(1 + TowerRRRG.SUNDER_STACK_STRENGTH * stacks);
 		animation.isActive = false;
 	}
 	

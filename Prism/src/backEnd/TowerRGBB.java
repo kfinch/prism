@@ -111,7 +111,6 @@ public class TowerRGBB extends SimpleTower{
 }
 
 class TowerRGBBBuff extends TimedBuff {
-
 	
 	public TowerRGBBBuff(GameState gameState) {
 		super(gameState, TowerRGBB.TOWER_RGBB_BUFF_ID, "Azure Boosted",
@@ -121,14 +120,15 @@ class TowerRGBBBuff extends TimedBuff {
 
 	@Override
 	public void apply(Entity e) {
-		Tower t = (Tower) e;
+		super.apply(e);
+		Tower t = (Tower) buffed;
 		t.attackAOE.multBonuses.add(TowerRGBB.AOE_BUFF);
 		t.attackAOE.update();
 	}
 
 	@Override
-	public void remove(Entity e) {
-		Tower t = (Tower) e;
+	public void remove() {
+		Tower t = (Tower) buffed;
 		t.attackAOE.multBonuses.remove(TowerRGBB.AOE_BUFF);
 		t.attackAOE.update();
 	}

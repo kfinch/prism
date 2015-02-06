@@ -140,20 +140,29 @@ class TowerRGBBuff extends TimedBuff {
 			rgb.attackDelayBuff = attackDelayBuff;
 			rgb.healthRegenBuff = healthRegenBuff;
 		}
+		else
+			super.handleDuplicate(b);
 	}
 
 	@Override
 	public void apply(Entity e) {
-		Tower t = (Tower) e;
+		super.apply(e);
+		Tower t = (Tower) buffed;
 		t.attackDelay.multBonuses.add(attackDelayBuff);
 		t.attackDelay.update();
 		t.healthRegen.addBonuses.add(healthRegenBuff);
 		t.healthRegen.update();
 	}
+	
+	@Override
+	public void step(){
+		super.step();
+		System.out.println("RGB buff " + this + " timer=" + timer);
+	}
 
 	@Override
-	public void remove(Entity e) {
-		Tower t = (Tower) e;
+	public void remove() {
+		Tower t = (Tower) buffed;
 		t.attackDelay.multBonuses.remove(attackDelayBuff);
 		t.attackDelay.update();
 		t.healthRegen.addBonuses.remove(healthRegenBuff);

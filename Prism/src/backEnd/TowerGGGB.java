@@ -129,19 +129,20 @@ class TowerGGGBBuff extends TimedBuff {
 
 	@Override
 	public void apply(Entity e) {
-		e.moveAction.startDisable();
-		e.attackAction.startDisable();
-		e.specialAction.startDisable();
+		super.apply(e);
+		buffed.moveAction.startDisable();
+		buffed.attackAction.startDisable();
+		buffed.specialAction.startDisable();
 		
 		animation = new TowerGGGBBuffAnimation(e);
 		gameState.playAnimation(animation);
 	}
 
 	@Override
-	public void remove(Entity e) {
-		e.moveAction.endDisable();
-		e.attackAction.endDisable();
-		e.specialAction.endDisable();
+	public void remove() {
+		buffed.moveAction.endDisable();
+		buffed.attackAction.endDisable();
+		buffed.specialAction.endDisable();
 		
 		animation.isActive = false;
 	}
