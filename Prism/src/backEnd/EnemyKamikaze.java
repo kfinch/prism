@@ -11,13 +11,13 @@ public class EnemyKamikaze extends SimpleEnemy {
 	public static final String NAME = "Kamikazes";
 	public static final String DESCRIPTION = "A numerous enemy willing to sacrifice itself to break your line!";
 	
-	public static final int WAVE_SIZE = 120;
+	public static final int WAVE_SIZE = 150;
 	public static final double BASE_KILL_REWARD = 0.8;
 	
 	public static final double PRIORITY = 0;
-	public static final double MAX_HEALTH = 30;
+	public static final double MAX_HEALTH = 25;
 	public static final double HEALTH_REGEN = 0;
-	public static final double ATTACK_DAMAGE = 12;
+	public static final double ATTACK_DAMAGE = 9;
 	public static final double ATTACK_DELAY = 1000;
 	public static final double ATTACK_RANGE = 0.1;
 	public static final double MOVE_SPEED = 0.08;

@@ -27,6 +27,8 @@ public abstract class SimpleTower extends Tower{
 	
 	protected double facing;
 	
+	protected boolean stickyTargeting; //if true, won't reacquire target until current target dies or leaves range
+	
 	public SimpleTower(String id, String name, String description,
 			 GameState gameState, Point2d loc, Node currNode, double priority, int spawnFrame, int tier,
 			 double maxHealth, double healthRegen, double attackDamage, double attackDelay, double attackRange,
@@ -40,6 +42,8 @@ public abstract class SimpleTower extends Tower{
 		this.tracksTarget = tracksTarget;
 		this.appliesDebuff = appliesDebuff;
 		this.facing = 0;
+		
+		stickyTargeting = true;
 	}
 	
 	@Override
@@ -47,7 +51,7 @@ public abstract class SimpleTower extends Tower{
 		super.actionStep();
 		if(attackAction.canAct()){
 			//acquire a new target
-			if(target == null || !target.isActive){
+			if(!stickyTargeting || target == null || !target.isActive){
 				//System.out.println("Turret spawned on frame " + spawnFrame + " attempting to acquire target..."); //TODO:
 				target = acquireTarget();
 			}

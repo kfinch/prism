@@ -20,7 +20,7 @@ public class TowerRBBB extends SimpleTower{
 	public static final int TIER = 4;
 	public static final double MAX_HEALTH = Tower.T4G0_HEALTH;
 	public static final double HEALTH_REGEN = Tower.BASE_HEALTH_REGEN * TIER;
-	public static final double ATTACK_DAMAGE = 40;
+	public static final double ATTACK_DAMAGE = 45;
 	public static final double ATTACK_DELAY = 10;
 	public static final double ATTACK_RANGE = 6;
 	public static final double ATTACK_AOE = Math.PI * 0.5; //this is the cone's width

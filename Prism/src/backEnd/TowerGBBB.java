@@ -48,6 +48,7 @@ public class TowerGBBB extends SimpleTower{
 			  gameState, loc, currNode, PRIORITY, spawnFrame, TIER, MAX_HEALTH, HEALTH_REGEN, ATTACK_DAMAGE, ATTACK_DELAY,
 			  ATTACK_RANGE, 0, false, false, PROJECTILE_SPEED, SHOT_ORIGIN_DISTANCE, false, false, generateShapes(loc));
 		attackNum = 0;
+		stickyTargeting = false;
 	}
 	
 	private static PaintableShapes generateShapes(Point2d loc){
