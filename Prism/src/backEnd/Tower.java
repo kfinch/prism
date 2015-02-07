@@ -132,12 +132,12 @@ public abstract class Tower extends EntityWithAttack {
 	}
 	
 	protected void prepareUpgradedTower(Tower upgrade){
-		Stat.copyStatMods(maxHealth, upgrade.maxHealth);
-		Stat.copyStatMods(healthRegen, upgrade.healthRegen);
-		Stat.copyStatMods(attackDamage, upgrade.attackDamage);
-		Stat.copyStatMods(attackDelay, upgrade.attackDelay);
-		Stat.copyStatMods(attackRange, upgrade.attackRange);
-		Stat.copyStatMods(attackAOE, upgrade.attackAOE);
+		//Stat.copyStatMods(maxHealth, upgrade.maxHealth);
+		//Stat.copyStatMods(healthRegen, upgrade.healthRegen);
+		//Stat.copyStatMods(attackDamage, upgrade.attackDamage);
+		//Stat.copyStatMods(attackDelay, upgrade.attackDelay);
+		//Stat.copyStatMods(attackRange, upgrade.attackRange);
+		//Stat.copyStatMods(attackAOE, upgrade.attackAOE);
 		
 		for(Buff b : buffs.values())
 			upgrade.buffs.put(b.id, b);

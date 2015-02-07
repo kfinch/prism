@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 import util.Animation;
 import util.Point2d;
+import backEnd.Buff;
 import backEnd.Enemy;
 import backEnd.EnemyWave;
 import backEnd.EnemyWaveGenerator;
@@ -333,6 +334,13 @@ public class GamePanel extends JPanel implements MouseListener, MouseMotionListe
 		
 		//if tower mouseover, fill tower info panel
 		if(game.towerMouseOver != null){
+			//TODO: remove debugging prints (these of buffs)
+			if(game.gameState.frameNumber % 20 == 0){
+				System.out.println("buffs on curr tower: ");
+				for(Buff b : game.towerMouseOver.buffs.values())
+					System.out.println(b);
+			}
+			
 			List<String> towerStats = new ArrayList<String>();
 			
 			towerStats.add(game.towerMouseOver.name + " [Tier " + game.towerMouseOver.tier + "]");

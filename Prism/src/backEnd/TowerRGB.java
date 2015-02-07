@@ -153,12 +153,6 @@ class TowerRGBBuff extends TimedBuff {
 		t.healthRegen.addBonuses.add(healthRegenBuff);
 		t.healthRegen.update();
 	}
-	
-	@Override
-	public void step(){
-		super.step();
-		System.out.println("RGB buff " + this + " timer=" + timer);
-	}
 
 	@Override
 	public void remove() {
